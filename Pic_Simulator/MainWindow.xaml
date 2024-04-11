@@ -1,0 +1,21 @@
+﻿<Window x:Class="Pic_Simulator.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Pic_Simulator"
+        mc:Ignorable="d"
+
+        WindowStartupLocation="CenterScreen" WindowState="Normal"
+        ResizeMode="CanResizeWithGrip"
+        Title="MainWindow" Width="960" Height="540">
+    <Grid>
+        <Menu Margin="0,0,0,0" VerticalAlignment="Top" Height="40">
+            <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9" Click="MenuItem_Click">
+                <MenuItem Header="Laden"></MenuItem>
+            </MenuItem>
+            <Menu/>
+        </Menu>
+
+    </Grid>
+</Window>
