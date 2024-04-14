@@ -8,14 +8,19 @@
 
         WindowStartupLocation="CenterScreen" WindowState="Normal"
         ResizeMode="CanResizeWithGrip"
-        Title="MainWindow" Width="960" Height="540">
+        Title="Pic Simulator" Width="960" Height="540">
     <Grid>
         <Menu Margin="0,0,0,0" VerticalAlignment="Top" Height="40">
-            <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9" Click="MenuItem_Click">
-                <MenuItem Header="Laden"></MenuItem>
+            <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9">
+                <MenuItem Header="Laden" Click="LoadFile"></MenuItem>
             </MenuItem>
             <Menu/>
         </Menu>
+        <TextBox Name ="Result" HorizontalAlignment="Left" Margin="788,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="141" Height="196"/>
+        <Button Content="Weiter" HorizontalAlignment="Left" Margin="788,316,0,0" VerticalAlignment="Top" Height="28" Width="70" Click="Button_Click"/>
+        <ScrollViewer Name="CodeScroller" VerticalScrollBarVisibility="Visible" Margin="190,242,278,10">
+            <StackPanel Name="Stack" Height="Auto" Width="336"/>
+        </ScrollViewer>
 
     </Grid>
 </Window>
