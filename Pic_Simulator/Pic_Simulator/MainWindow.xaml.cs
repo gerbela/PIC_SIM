@@ -12,8 +12,9 @@ namespace Pic_Simulator
     /// </summary>
     public partial class MainWindow : Window
     {
-        List<string> commands = new List<string>();
-        public int pos = 0;
+        int[,] ram = new int[2,128];
+        List<int> commands = new List<int>();
+        int pos = 0;
         bool loadedFile = false;
         public MainWindow()
         {
@@ -54,9 +55,10 @@ namespace Pic_Simulator
                         {
                             firstFour = "0x" + firstFour;
                             int value = Convert.ToInt32(firstFour, 16);
-                            if (value == counter)
+                            string command = "0x" + s.Substring(5,4);
+                            if (value == counter)   
                             {
-                                commands.Add(firstFour + " " + "0x" + s.Substring(5, 8));
+                                commands.Add(Convert.ToInt32(command,16));
                                 file = file + s;
                                 counter++;
                             }
@@ -70,15 +72,25 @@ namespace Pic_Simulator
                     pos++;
 
                 }
-                foreach (string i in commands) Result.Text = Result.Text + i + "\n";
+                foreach (int i in commands) Result.Text = Result.Text + i + "\n";
                 loadedFile = true;
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private void OneStep(object sender, RoutedEventArgs e)
+        {
+            MarkLine();
+            Fetch();
+        }
+
+        private void Fetch()
+        {
+            int programCounter = ram[0,2];
+        }
+        private void MarkLine()
         {
             if (!loadedFile) return;
-            TextBox text = (TextBox) Stack.Children[pos];
+            TextBox text = (TextBox)Stack.Children[pos];
             text.Background = Brushes.White;
             pos++;
             if (Stack.Children.Count <= pos)
