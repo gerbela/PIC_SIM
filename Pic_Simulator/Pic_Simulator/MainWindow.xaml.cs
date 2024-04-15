@@ -1,5 +1,6 @@
 ﻿
 using System.IO;
+using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -80,15 +81,22 @@ namespace Pic_Simulator
         private void OneStep(object sender, RoutedEventArgs e)
         {
             MarkLine();
-            Fetch();
+            int command = Fetch();
+            Decode(command);
         }
 
-        private void Fetch()
+        private int Fetch()
         {
             int programCounter = ram[0,2];
             int command = ram[0, programCounter];
             programCounter++;
             ram[0, 2] = programCounter;
+            return command;
+        }
+
+        private void Decode(int command)
+        {
+
         }
         private void MarkLine()
         {
