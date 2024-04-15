@@ -86,6 +86,9 @@ namespace Pic_Simulator
         private void Fetch()
         {
             int programCounter = ram[0,2];
+            int command = ram[0, programCounter];
+            programCounter++;
+            ram[0, 2] = programCounter;
         }
         private void MarkLine()
         {
