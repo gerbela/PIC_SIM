@@ -88,7 +88,7 @@ namespace Pic_Simulator
         private int Fetch()
         {
             int programCounter = ram[0,2];
-            int command = ram[0, programCounter];
+            int command = commands[programCounter];
             programCounter++;
             ram[0, 2] = programCounter;
             return command;
