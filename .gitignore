@@ -16,6 +16,7 @@ build/
 bld/
 [Bb]in/
 [Oo]bj/
+Pic_Simulator/.vs/
 
 
 # Roslyn cache directories
