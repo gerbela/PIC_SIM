@@ -17,6 +17,7 @@ namespace Pic_Simulator
         List<int> commands = new List<int>();
         int pos = 0;
         bool loadedFile = false;
+        int wReg = 0;
         public MainWindow()
         {
             InitializeComponent();
@@ -37,13 +38,12 @@ namespace Pic_Simulator
                 foreach (string s in File.ReadLines(dialog.FileName)) 
                 {
                     string file = "";
-                    if (!s.StartsWith("0000") && reachedCommands == false)
+                    /*if (!s.StartsWith("0000") && reachedCommands == false)
                     {
                         string tmp = "        " + s;
                         file = file + tmp;
-                    }
-                    else
-                    {
+                    }*/
+                    
                         reachedCommands = true;
 
                         string firstFour = s.Substring(0, 4);
@@ -63,7 +63,6 @@ namespace Pic_Simulator
                                 file = file + s;
                                 counter++;
                             }
-                        }
                     }
                     TextBox textBox = new TextBox();
                     textBox.Text = file;
@@ -96,7 +95,15 @@ namespace Pic_Simulator
 
         private void Decode(int command)
         {
+            if ((command & 0xFFA0) == 0x00A0)
+            {
+                MovWF(command & Convert.ToInt32("7F",16));
+            }
+        }
 
+        private void MovWF(int storageLocation)
+        {
+            ram[0, storageLocation] = wReg;
         }
         private void MarkLine()
         {
