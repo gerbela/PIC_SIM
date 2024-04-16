@@ -17,6 +17,7 @@ namespace Pic_Simulator
         List<int> commands = new List<int>();
         int pos = 0;
         bool loadedFile = false;
+        int wReg = 0;
         public MainWindow()
         {
             InitializeComponent();
@@ -96,8 +97,18 @@ namespace Pic_Simulator
 
         private void Decode(int command)
         {
+            if((command &  0x3F00) == 0x3000)
+            {
+                MOVLW(command & 0xFF); 
+            }
+        }
+
+        private void MOVLW(int literal)
+        {
+            wReg = literal; 
 
         }
+
         private void MarkLine()
         {
             if (!loadedFile) return;
