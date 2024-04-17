@@ -95,16 +95,26 @@ namespace Pic_Simulator
 
         private void Decode(int command)
         {
+            if((command &  0x3F00) == 0x3000)
+            {
+                MOVLW(command & 0xFF); 
+            }
+        }
             if ((command & 0xFFA0) == 0x00A0)
             {
                 MovWF(command & Convert.ToInt32("7F",16));
             }
         }
 
+        private void MOVLW(int literal)
+        {
+            wReg = literal; 
+
         private void MovWF(int storageLocation)
         {
             ram[0, storageLocation] = wReg;
         }
+
         private void MarkLine()
         {
             if (!loadedFile) return;
