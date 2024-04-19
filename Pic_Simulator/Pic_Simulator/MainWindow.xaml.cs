@@ -13,11 +13,9 @@ namespace Pic_Simulator
     /// </summary>
     public partial class MainWindow : Window
     {
-        int[,] ram = new int[2, 128];
         List<int> commands = new List<int>();
         int pos = 0;
         bool loadedFile = false;
-        int wReg = 0;
         
         int startPos;
         int bank = 0;
@@ -84,17 +82,17 @@ namespace Pic_Simulator
             //print ram
             for(int i = 0; i < 128; i++)
             {
-                Result.Text = Result.Text + " " + ram[bank, i];
+                Result.Text = Result.Text + " " + Command.ram[bank, i];
             }
-            Result.Text = Result.Text + "\n" + "W-Register: " + wReg;
+            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
         }
 
         private int Fetch()
         {
-            int programCounter = ram[bank, 2];
+            int programCounter = Command.ram[bank, 2];
             int command = commands[programCounter];
             programCounter++;
-            ram[bank, 2] = programCounter;
+            Command.ram[bank, 2] = programCounter;
             return command;
         }
 
@@ -102,102 +100,30 @@ namespace Pic_Simulator
         {
             if ((command & 0x3F00) == 0x3000)
             {
-                MOVLW(command & 0xFF);
+                Command.MOVLW(command & 0xFF);
             }
             if ((command & 0xFFA0) == 0x00A0)
             {
-                MovWF(command & Convert.ToInt32("7F", 16));
+                Command.MovWF(command & Convert.ToInt32("7F", 16));
             }
             if((command & 0x3F80) == 0x0780 || (command & 0x3F80) == 0x0700)
             {
-                ADDWF(command & 0xFF);
+                Command.ADDWF(command & 0xFF);
             }
             if((command & 0x3F80) == 0x3780 || (command & 0x3F80) == 0x0700)
             {
-                ANDWF(command & 0xFF);
+                Command.ANDWF(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3E00)
             {
-                ADDLW(command & 0xFF);
+                Command.ADDLW(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3900)
             {
-                ANDLW(command & 0xFF);
+                Command.ANDLW(command & 0xFF);
             }
 
         }
-        private void ANDWF(int address)
-        {
-            int result = wReg & ram[bank, address & 0x7F];
-            if (result == 0)
-            {
-                ram[bank, 3] = ram[bank, 3] | 0b00000100;
-            }
-            if((address & 0x0080) == 0x0080)
-            {
-                ram[bank, address & 0x007F] = result;
-            }
-            else
-            {
-                wReg = result;
-            }
-        }
-
-        private void ADDWF(int address)
-        {
-            int result = ADD(ram[bank, address & 0x007F]);
-            if ((address & 0x0080) == 0x0080)
-            {
-                ram[bank, address & 0x007F] = result;
-            }
-            else
-            {
-                wReg = result;
-            }
-        }
-        private int ADD(int value)
-        {
-            if(value + wReg > 127) // wann wird der gesetzt?
-            {
-                ram[bank, 3] = ram[bank, 3] | 0b00000010; //Half Carryflag
-            }
-            if(value + wReg > 256)
-            {
-                ram[bank, 3] = ram[bank, 3] | 0b00000001; // Carryflag
-            }
-            if((value + wReg) % 256 == 0)
-            {
-                ram[bank, 3] = ram[bank, 3] | 0b00000100; // Zeroflag
-            }
-            return (value + wReg) % 256; // Wird carry immer aktiv auf 0 gesetzt?
-        }
-        private void MOVLW(int literal)
-        {
-            wReg = literal;
-        }
-
-        private void MovWF(int storageLocation)
-        {
-            ram[bank, storageLocation] = wReg;
-        }
-        private void ADDLW(int literal)
-        {
-            int result = ADD(literal);
-            wReg = result; 
-        }
-
-        private void ANDLW(int literal)
-        {
-            wReg = literal & wReg; 
-            if(wReg == 0) {
-                ram[0, 3] = ram[0, 3] | 0b00000100; //Zeroflag
-            }
-            else
-            {
-                ram[0,3] = ram[0, 3] | 0b00000000; //Zeroflag
-            }
-        }
-
         private void MarkLine()
         {
             if (!loadedFile) return;
