@@ -19,6 +19,7 @@ namespace Pic_Simulator
         bool loadedFile = false;
         int wReg = 0;
         int startPos;
+        int bank = 0;
         public MainWindow()
         {
             InitializeComponent();
@@ -82,17 +83,17 @@ namespace Pic_Simulator
             //print ram
             /*for(int i = 0; i < 128; i++)
             {
-                Result.Text = Result.Text + " " + ram[0, i];
+                Result.Text = Result.Text + " " + ram[bank, i];
             }
             Result.Text = Result.Text + "\n" + "W-Register: " + wReg;*/
         }
 
         private int Fetch()
         {
-            int programCounter = ram[0, 2];
+            int programCounter = ram[bank, 2];
             int command = commands[programCounter];
             programCounter++;
-            ram[0, 2] = programCounter;
+            ram[bank, 2] = programCounter;
             return command;
         }
 
@@ -106,23 +107,58 @@ namespace Pic_Simulator
             {
                 MovWF(command & Convert.ToInt32("7F", 16));
             }
-            if((command & 0x3FA0) == 0x09A0 || (command & 0x3FA0) == 0x0900)
+            if((command & 0x3F80) == 0x0780 || (command & 0x3F80) == 0x0700)
             {
                 ADDWF(command & 0xFF);
             }
-        }
-
-        private void ADDWF(int address)
-        {
-            int result = ram[0, address & 0x007F] + wReg;
-            if((address & 0x00A0) == 0x00A0)
+            if((command & 0x3F80) == 0x3780 || (command & 0x3F80) == 0x0700)
             {
-                ram[0, address & 0x007F] = result;
+                ANDWF(command & 0xFF);
+            }
+        }
+        private void ANDWF(int address)
+        {
+            int result = wReg & ram[bank, address & 0x7F];
+            if (result == 0)
+            {
+                ram[bank, 3] = ram[bank, 3] | 0b00000100;
+            }
+            if((address & 0x0080) == 0x0080)
+            {
+                ram[bank, address & 0x007F] = result;
             }
             else
             {
                 wReg = result;
             }
+        }
+        private void ADDWF(int address)
+        {
+            int result = ADD(ram[bank, address & 0x007F]);
+            if ((address & 0x0080) == 0x0080)
+            {
+                ram[bank, address & 0x007F] = result;
+            }
+            else
+            {
+                wReg = result;
+            }
+        }
+        private int ADD(int value)
+        {
+            if(value + wReg > 127) // wann wird der gesetzt?
+            {
+                ram[bank, 3] = ram[bank, 3] | 0b00000010; //Half Carryflag
+            }
+            if(value + wReg > 256)
+            {
+                ram[bank, 3] = ram[bank, 3] | 0b00000001; // Carryflag
+            }
+            if((value + wReg) % 256 == 0)
+            {
+                ram[bank, 3] = ram[bank, 3] | 0b00000100; // Zeroflag
+            }
+            return (value + wReg) % 256; // Wird carry immer aktiv auf 0 gesetzt?
         }
         private void MOVLW(int literal)
         {
@@ -131,7 +167,7 @@ namespace Pic_Simulator
 
         private void MovWF(int storageLocation)
         {
-            ram[0, storageLocation] = wReg;
+            ram[bank, storageLocation] = wReg;
         }
 
         private void MarkLine()
