@@ -18,6 +18,7 @@ namespace Pic_Simulator
         int pos = 0;
         bool loadedFile = false;
         int wReg = 0;
+        
         int startPos;
         int bank = 0;
         public MainWindow()
@@ -81,11 +82,11 @@ namespace Pic_Simulator
             Decode(command);
             Result.Text = "";
             //print ram
-            /*for(int i = 0; i < 128; i++)
+            for(int i = 0; i < 128; i++)
             {
                 Result.Text = Result.Text + " " + ram[bank, i];
             }
-            Result.Text = Result.Text + "\n" + "W-Register: " + wReg;*/
+            Result.Text = Result.Text + "\n" + "W-Register: " + wReg;
         }
 
         private int Fetch()
@@ -115,6 +116,15 @@ namespace Pic_Simulator
             {
                 ANDWF(command & 0xFF);
             }
+            if ((command & 0x3F00) == 0x3E00)
+            {
+                ADDLW(command & 0xFF);
+            }
+            if ((command & 0x3F00) == 0x3900)
+            {
+                ANDLW(command & 0xFF);
+            }
+
         }
         private void ANDWF(int address)
         {
@@ -132,6 +142,7 @@ namespace Pic_Simulator
                 wReg = result;
             }
         }
+
         private void ADDWF(int address)
         {
             int result = ADD(ram[bank, address & 0x007F]);
@@ -168,6 +179,23 @@ namespace Pic_Simulator
         private void MovWF(int storageLocation)
         {
             ram[bank, storageLocation] = wReg;
+        }
+        private void ADDLW(int literal)
+        {
+            int result = ADD(literal);
+            wReg = result; 
+        }
+
+        private void ANDLW(int literal)
+        {
+            wReg = literal & wReg; 
+            if(wReg == 0) {
+                ram[0, 3] = ram[0, 3] | 0b00000100; //Zeroflag
+            }
+            else
+            {
+                ram[0,3] = ram[0, 3] | 0b00000000; //Zeroflag
+            }
         }
 
         private void MarkLine()
