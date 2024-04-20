@@ -102,9 +102,9 @@ namespace Pic_Simulator
             {
                 Command.MOVLW(command & 0xFF);
             }
-            if ((command & 0xFFA0) == 0x00A0)
+            if ((command & 0x3F80) == 0x0080)
             {
-                Command.MovWF(command & Convert.ToInt32("7F", 16));
+                Command.MovWF(command & 0x7F);
             }
             if((command & 0x3F80) == 0x0780 || (command & 0x3F80) == 0x0700)
             {
@@ -121,6 +121,22 @@ namespace Pic_Simulator
             if ((command & 0x3F00) == 0x3900)
             {
                 Command.ANDLW(command & 0xFF);
+            }
+            if(( command & 0x3F80) == 0x0180)
+            {
+                Command.CLRF(command & 0x7F);
+            }
+            if((command & 0x3F80) == 0x0100)
+            {
+                Command.CLRW();
+            }
+            if((command & 0x3F80) == 0x0980 || (command & 0x3F80) == 0x0900)
+            {
+                Command.COMF(command & 0xFF);
+            }
+            if((command & 0x3F80) == 0x0380 || (command & 0x3F80) == 0x0300)
+            {
+                Command.DECF(command & 0xFF);
             }
 
         }
