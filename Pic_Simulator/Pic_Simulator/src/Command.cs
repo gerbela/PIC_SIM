@@ -50,7 +50,7 @@ public class Command
         wReg = literal;
     }
 
-    public static void MovWF(int storageLocation)
+    public static void MOVWF(int storageLocation)
     {
         ram[bank, storageLocation] = wReg;
     }
@@ -87,7 +87,7 @@ public class Command
         }
     }
 
-    public static void Call(int address)
+    public static void CALL(int address, StackPanel stack)
     {
         if(callPosition == 8)
         {
@@ -96,6 +96,8 @@ public class Command
         callStack[callPosition] = ram[bank, 2] -1;
         ram[bank, 2] = address;
         callPosition++;
+        LST_File.ClearMarker(stack);
+        LST_File.pos = LST_File.FindFilePos(stack, address) - 2;
     }
 
     public static void DECF(int address)
@@ -111,17 +113,20 @@ public class Command
         }
     }
 
-    public static int Return()
+    public static bool RETURN(StackPanel stack)
     {
-        if(callPosition > 0)
+        if (callPosition <= 0)
         {
-            int address = callStack[callPosition - 1];
-            callStack[callPosition -1] = -1;
-            callPosition--;
-            ram[bank,2] = address +1;
-            return address;
+            LST_File.pos++;
+            return false;
         }
-        return -1;
+        int address = callStack[callPosition - 1];
+        callStack[callPosition - 1] = -1;
+        callPosition--;
+        ram[bank, 2] = address + 1;
+        LST_File.ClearMarker(stack);
+        LST_File.pos = LST_File.FindFilePos(stack, address) - 1;
+        return true;
     }
 
     public static void DECFSZ(int address, StackPanel stack )
@@ -162,11 +167,19 @@ public class Command
         return (valueA - valueB) % 256; // Wird carry immer aktiv auf 0 gesetzt?
     }
 
-    public static void GoTo(int address)
+    public static void GOTO(int address, StackPanel stack)
     {
         ram[bank, 2] = address;
+        LST_File.ClearMarker(stack);
+        LST_File.pos = LST_File.FindFilePos(stack, address) - 2;
     }
 
+    public static bool RETLW(int value, StackPanel stack)
+    {
+        bool result = RETURN(stack);
+        if(!result) wReg = value;
+        return result;
+    }
 
     //Methods for setting the falgs in the Status register
     private static void Zeroflag(int value)
