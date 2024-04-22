@@ -13,11 +13,12 @@ namespace Pic_Simulator
     /// </summary>
     public partial class MainWindow : Window
     {
-        List<int> commands = new List<int>();
+        public static List<int> commands = new List<int>();
         int pos = 0;
         bool loadedFile = false;
         
         int startPos;
+        int fileSize;
         int bank = 0;
         public MainWindow()
         {
@@ -52,7 +53,7 @@ namespace Pic_Simulator
                         string command = "0x" + s.Substring(5, 4);
                         if (value == counter)
                         {
-                            if (value == 0) startPos = pos;
+                            if (value == 0) startPos = pos - 1;
                             commands.Add(Convert.ToInt32(command, 16));
                             file = file + s;
                             counter++;
@@ -64,27 +65,35 @@ namespace Pic_Simulator
                     textBox.Height = 25;
                     Stack.Children.Add(textBox);
                     pos++;
+                    fileSize++;
 
                 }
                 //print commands
                 //foreach (int i in commands) Result.Text = Result.Text + i + "\n";
                 loadedFile = true;
-                MarkLine();
+                Setup();
             }
         }
 
         private void OneStep(object sender, RoutedEventArgs e)
         {
-            MarkLine();
+            if (!loadedFile) return;
+            if (pos >= fileSize) return;
+            if (CheckCommand() == false)
+            {
+                MarkLine();
+                return;
+            };
             int command = Fetch();
-            Decode(command);
+            if(!Decode(command)) return;
+            MarkLine();
             Result.Text = "";
             //print ram
-            for(int i = 0; i < 128; i++)
+            /*for(int i = 0; i < 128; i++)
             {
                 Result.Text = Result.Text + " " + Command.ram[bank, i];
             }
-            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
+            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;*/
         }
 
         private int Fetch()
@@ -96,7 +105,7 @@ namespace Pic_Simulator
             return command;
         }
 
-        private void Decode(int command)
+        private bool Decode(int command)
         {
             if ((command & 0x3F00) == 0x3000)
             {
@@ -138,27 +147,91 @@ namespace Pic_Simulator
             {
                 Command.DECF(command & 0xFF);
             }
+            if((command & 0x3800) == 0x2000)
+            {
+                Command.Call(command & 0xFF);
+                ClearMarker();
+                pos = FindFilePos(command & 0xFF) -3;//(command & 0xFF) + startPos;
+                MarkLine();
+            }
+            if((command & 0xFFFF) == 0x0008)
+            {
+                int tmpPos = Command.Return();
+                if (tmpPos != -1)
+                {
+                    ClearMarker();
+                    pos = FindFilePos(tmpPos) - 2;
+                    MarkLine();
+                }
+                else
+                {
+                    pos++;
+                    return false;
+                }
+            }
+            return true;
 
         }
-        private void MarkLine()
+        private Boolean CheckCommand()
+        {
+            TextBox t = (TextBox)Stack.Children[pos];
+            if (t.Text.StartsWith(" ")) return false;
+            int commandPos = Convert.ToInt32(t.Text.Substring(20, 5));
+            if (commandPos -1 == pos) return true;
+            return false;
+        }
+
+        private void ClearMarker()
+        {
+            TextBox text = (TextBox)Stack.Children[pos];
+            text.Background = Brushes.White;
+        }
+
+        private void Setup()
         {
             if (!loadedFile) return;
             if (pos == 0)
             {
-                pos = startPos - 2;
-                CodeScroller.ScrollToVerticalOffset(CodeScroller.VerticalOffset + 25*(startPos-4));
+                pos = startPos;
+                TextBox t = (TextBox)Stack.Children[pos];
+                t.Background = Brushes.OrangeRed;
+                CodeScroller.ScrollToVerticalOffset(CodeScroller.VerticalOffset + 25 * (startPos - 4));
+                return;
+            }
+        }
+
+        private int FindFilePos(int programPos)
+        {
+            foreach(TextBox t in Stack.Children)
+            {
+                if (t.Text.StartsWith(" ")) continue;
+                int commandPos = Convert.ToInt32(t.Text.Substring(0, 4),16);
+                if (commandPos == programPos)
+                {
+                    int tmp = Convert.ToInt32(t.Text.Substring(20, 5));
+                    return tmp;
+                }
+            }
+            return -1;
+        }
+        private void MarkLine()
+        {
+            if (!loadedFile) return;
+            if (pos > fileSize) return;
+            if (pos == 0)
+            {
+                pos = startPos;
+                TextBox t = (TextBox)Stack.Children[pos];
+                t.Background = Brushes.OrangeRed;
+                CodeScroller.ScrollToVerticalOffset(CodeScroller.VerticalOffset + 25 * (startPos - 4));
+                return;
             }
             TextBox text = (TextBox)Stack.Children[pos];
             text.Background = Brushes.White;
             pos++;
-            if (Stack.Children.Count <= pos)
-            {
-                pos = startPos - 2;
-                CodeScroller.ScrollToVerticalOffset(0);
-            }
             text = (TextBox)Stack.Children[pos];
             text.Background = Brushes.OrangeRed;
-            if (pos != startPos-1) CodeScroller.ScrollToVerticalOffset(CodeScroller.VerticalOffset + 25);
+            CodeScroller.ScrollToVerticalOffset(startPos + 25 *(pos -4));
         }
     }
 }

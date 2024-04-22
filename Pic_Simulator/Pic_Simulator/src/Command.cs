@@ -1,8 +1,13 @@
+using System.DirectoryServices;
+
 public class Command
 {
     public static int wReg = 0;
     public static int[,] ram = new int[2, 128];
     static int bank = 0;
+    public static int[] callStack = { -1,-1,-1,-1,-1,-1,-1,-1};
+    static int callPosition = 0;
+
     public static void ANDWF(int address)
     {
         int result = wReg & ram[bank, address & 0x7F];
@@ -81,6 +86,17 @@ public class Command
         }
     }
 
+    public static void Call(int address)
+    {
+        if(callPosition == 8)
+        {
+            callPosition = 0;
+        }
+        callStack[callPosition] = ram[bank, 2] -1;
+        ram[bank, 2] = address;
+        callPosition++;
+    }
+
     public static void DECF(int address)
     {
         int result = SUB(ram[bank, address & 0x7F],1);
@@ -92,6 +108,19 @@ public class Command
         {
             wReg = result;
         }
+    }
+
+    public static int Return()
+    {
+        if(callPosition > 0)
+        {
+            int address = callStack[callPosition - 1];
+            callStack[callPosition -1] = -1;
+            callPosition--;
+            ram[bank,2] = address +1;
+            return address;
+        }
+        return -1;
     }
 
     private static int SUB(int valueA, int valueB)
