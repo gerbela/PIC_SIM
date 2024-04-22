@@ -106,6 +106,11 @@ namespace Pic_Simulator
             {
                 bool tmpPos = Command.RETLW(command & 0xFF, Stack);
             }
+            if ((command & 0x3F80) == 0x0B80 || (command & 0x3F80) == 0x0B00)
+            {
+                Command.DECFSZ(command & 0xFF, Stack); 
+            
+            }
             return true;
 
         }

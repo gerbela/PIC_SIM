@@ -129,6 +129,25 @@ public class Command
         return true;
     }
 
+    public static void DECFSZ(int address, StackPanel stack )
+    {
+        int result = (ram[bank, address & 0x7F] - 1) % 256;
+        if ((address & 0x0080) == 0x0080)
+        {
+            ram[bank, address & 0x7F] = result;
+        }
+        else
+        {
+            wReg = result;
+        }
+        if(result == 0)
+        {
+            ram[bank, 2]  +=2;
+            LST_File.ClearMarker(stack);
+            LST_File.pos =  LST_File.FindFilePos(stack, ram[bank, 2])-3;
+        }
+
+    }
     private static int SUB(int valueA, int valueB)
     {
         Zeroflag((valueA - valueB) % 256);
