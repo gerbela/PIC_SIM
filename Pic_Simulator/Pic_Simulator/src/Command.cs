@@ -129,6 +129,11 @@ public class Command
         return (valueA - valueB) % 256; // Wird carry immer aktiv auf 0 gesetzt?
     }
 
+    public static void GoTo(int address)
+    {
+        ram[bank, 2] = address;
+    }
+
 
     //Methods for setting the falgs in the Status register
     private static void Zeroflag(int value)

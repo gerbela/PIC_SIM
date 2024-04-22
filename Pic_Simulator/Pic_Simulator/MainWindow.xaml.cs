@@ -112,6 +112,13 @@ namespace Pic_Simulator
                     return false;
                 }
             }
+            if((command & 0x3800) == 0x2800)
+            {
+                LST_File.ClearMarker(Stack);
+                Command.GoTo(command & 0x7F);
+                LST_File.pos = LST_File.FindFilePos(Stack, command & 0x7F) -3;
+                LST_File.MarkLine(Stack, CodeScroller);
+            }
             return true;
 
         }
