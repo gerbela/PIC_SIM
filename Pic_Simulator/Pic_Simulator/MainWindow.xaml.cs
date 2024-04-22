@@ -119,6 +119,11 @@ namespace Pic_Simulator
                 LST_File.pos = LST_File.FindFilePos(Stack, command & 0x7F) -3;
                 LST_File.MarkLine(Stack, CodeScroller);
             }
+            if ((command & 0x3F80) == 0x0B80 || (command & 0x3F80) == 0x0B00)
+            {
+                Command.DECFSZ(command & 0xFF, Stack); 
+            
+            }
             return true;
 
         }
