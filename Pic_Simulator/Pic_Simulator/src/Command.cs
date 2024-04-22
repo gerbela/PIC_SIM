@@ -143,6 +143,19 @@ public class Command
         }
 
     }
+    public static void INCF(int address)
+    {
+        int result = (ram[bank, address & 0x7F] + 1) % 256;
+        if ((address & 0x0080) == 0x0080)
+        {
+            ram[bank, address & 0x7F] = result;
+        }
+        else
+        {
+            wReg = result;
+        }
+        Zeroflag(result);
+    }
     private static int SUB(int valueA, int valueB)
     {
         Zeroflag((valueA - valueB) % 256);
