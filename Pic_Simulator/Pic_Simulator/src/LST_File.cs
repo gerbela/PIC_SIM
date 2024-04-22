@@ -6,10 +6,11 @@ using System.Windows.Media;
 
 public class LST_File()
 {
-    static bool loadedFile = false;
-    static int fileSize;
+    public static bool loadedFile = false;
+    public static int fileSize;
     static int startPos;
-    public static void LoadFile(StackPanel stack)
+    public static int pos = 0;
+    public static void LoadFile(StackPanel stack, ScrollViewer codeScroller)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog();
         dialog.DefaultExt = ".lst";
@@ -56,29 +57,73 @@ public class LST_File()
             //print commands
             //foreach (int i in commands) Result.Text = Result.Text + i + "\n";
             loadedFile = true;
-            MarkLine();
+            Setup(stack, codeScroller);
         }
     }
 
-    public static void MarkLine()
+    private static void Setup(StackPanel stack, ScrollViewer codeScroller)
     {
-        /*if (!loadedFile) return;
+        if (!loadedFile) return;
+        if (pos == 0)
+        {
+            pos = startPos;
+            TextBox t = (TextBox)stack.Children[pos];
+            t.Background = Brushes.OrangeRed;
+            codeScroller.ScrollToVerticalOffset(codeScroller.VerticalOffset + 25 * (startPos - 4));
+            return;
+        }
+    }
+
+    public static void MarkLine(StackPanel stack, ScrollViewer codeScroller)
+    {
+        if (!loadedFile) return;
         if (pos > fileSize) return;
         if (pos == 0)
         {
             pos = startPos;
-            TextBox t = (TextBox)Stack.Children[pos];
+            TextBox t = (TextBox)stack.Children[pos];
             t.Background = Brushes.OrangeRed;
-            CodeScroller.ScrollToVerticalOffset(CodeScroller.VerticalOffset + 25 * (startPos - 4));
+            codeScroller.ScrollToVerticalOffset(codeScroller.VerticalOffset + 25 * (startPos - 4));
             return;
         }
-        TextBox text = (TextBox)Stack.Children[pos];
+        TextBox text = (TextBox)stack.Children[pos];
         text.Background = Brushes.White;
         pos++;
-        text = (TextBox)Stack.Children[pos];
+        text = (TextBox)stack.Children[pos];
         text.Background = Brushes.OrangeRed;
-        CodeScroller.ScrollToVerticalOffset(startPos + 25 * (pos - 4));*/
+        codeScroller.ScrollToVerticalOffset(startPos + 25 * (pos - 4));
     }
+
+    public static void ClearMarker(StackPanel stack)
+    {
+        TextBox text = (TextBox)stack.Children[pos];
+        text.Background = Brushes.White;
+    }
+
+    public static int FindFilePos(StackPanel stack, int programPos)
+    {
+        foreach (TextBox t in stack.Children)
+        {
+            if (t.Text.StartsWith(" ")) continue;
+            int commandPos = Convert.ToInt32(t.Text.Substring(0, 4), 16);
+            if (commandPos == programPos)
+            {
+                int tmp = Convert.ToInt32(t.Text.Substring(20, 5));
+                return tmp;
+            }
+        }
+        return -1;
+    }
+
+    public static Boolean CheckCommand(StackPanel stack)
+    {
+        TextBox t = (TextBox)stack.Children[pos];
+        if (t.Text.StartsWith(" ")) return false;
+        int commandPos = Convert.ToInt32(t.Text.Substring(20, 5));
+        if (commandPos - 1 == pos) return true;
+        return false;
+    }
+
 }
 
 
