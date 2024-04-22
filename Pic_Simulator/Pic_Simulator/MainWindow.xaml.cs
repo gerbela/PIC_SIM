@@ -56,7 +56,7 @@ namespace Pic_Simulator
             }
             if ((command & 0x3F80) == 0x0080)
             {
-                Command.MovWF(command & 0x7F);
+                Command.MOVWF(command & 0x7F);
             }
             if((command & 0x3F80) == 0x0780 || (command & 0x3F80) == 0x0700)
             {
@@ -92,32 +92,19 @@ namespace Pic_Simulator
             }
             if((command & 0x3800) == 0x2000)
             {
-                Command.Call(command & 0xFF);
-                LST_File.ClearMarker(Stack);
-                LST_File.pos = LST_File.FindFilePos(Stack, command & 0xFF) -3;//(command & 0xFF) + startPos;
-                LST_File.MarkLine(Stack, CodeScroller);
+                Command.CALL(command & 0xFF,Stack);
             }
             if((command & 0xFFFF) == 0x0008)
             {
-                int tmpPos = Command.Return();
-                if (tmpPos != -1)
-                {
-                    LST_File.ClearMarker(Stack);
-                    LST_File.pos = LST_File.FindFilePos(Stack,tmpPos) - 2;
-                    LST_File.MarkLine(Stack, CodeScroller);
-                }
-                else
-                {
-                    LST_File.pos++;
-                    return false;
-                }
+                bool tmpPos = Command.RETURN(Stack);
             }
             if((command & 0x3800) == 0x2800)
             {
-                LST_File.ClearMarker(Stack);
-                Command.GoTo(command & 0x7F);
-                LST_File.pos = LST_File.FindFilePos(Stack, command & 0x7F) -3;
-                LST_File.MarkLine(Stack, CodeScroller);
+                Command.GOTO(command & 0x7F, Stack);
+            }
+            if ((command & 0xFC00) == 0x3400)
+            {
+                bool tmpPos = Command.RETLW(command & 0xFF, Stack);
             }
             return true;
 
