@@ -139,6 +139,11 @@ namespace Pic_Simulator
                 Command.RLF(command & 0xFF);
             }
 
+            if ((command & 0x3F80) == 0x0C80 || (command & 0x3F80) == 0x0C00)
+            {
+                Command.RRF(command & 0xFF);
+            }
+
 
             return true;
 

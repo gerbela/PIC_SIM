@@ -169,6 +169,27 @@ public class Command
         DecideSaving(result, address); 
     }
 
+    public static void RRF(int address)
+    {
+        int LasttBit = ram[bank, address & 0x7F] & 0x1;
+        int carryValueOld = ram[bank, 3] & 0x1;
+        if (LasttBit == 1)
+        {
+            ram[bank, 3] = ram[bank, 3] | 0b00000001;
+        }
+        else
+        {
+            ram[bank, 3] = ram[bank, 3] & 0b11111110;
+        }
+        int result = (ram[bank, address & 0x7F] >> 1) % 256;
+
+        if (carryValueOld == 1)
+        {
+            result = result + 128;
+        }
+        DecideSaving(result, address);
+    }
+
     private static int SUB(int valueA, int valueB)
     {
         Zeroflag((valueA - valueB) % 256);
