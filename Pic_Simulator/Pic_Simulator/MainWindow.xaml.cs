@@ -123,6 +123,23 @@ namespace Pic_Simulator
             {
                 Command.IORWF(command & 0xFF);
             }
+
+            if ((command & 0x3F80) == 0x0880 || (command & 0x3F80) == 0x0800)
+            {
+                Command.MOVF(command & 0xFF);
+            }
+
+            if ((command & 0xFFFF) == 0x0000 )
+            {
+                Command.NOP();
+            }
+
+            if ((command & 0x3F80) == 0x0D80 || (command & 0x3F80) == 0x0D00)
+            {
+                Command.RLF(command & 0xFF);
+            }
+
+
             if((command & 0x3C00) == 0x1000)
             {
                 Command.BCF(command & 0x03FF);

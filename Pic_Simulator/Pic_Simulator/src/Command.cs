@@ -115,28 +115,13 @@ public class Command
     public static void INCF(int address)
     {
         int result = (ram[bank, address & 0x7F] + 1) % 256;
-        if ((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x7F] = result;
-        }
-        else
-        {
-            wReg = result;
-        }
+        DecideSaving(result, address);
         Zeroflag(result);
     }
     public static void INCFSZ(int address, StackPanel stack)
     {
         int result = (ram[bank, address & 0x7F] + 1) % 256;
-        if ((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x7F] = result;
-        }
-        else
-        {
-            wReg = result;
-        }
-
+        DecideSaving(result, address); wReg = result;
         if (result == 0)
         {
             ram[bank, 2] += 1;
@@ -148,16 +133,42 @@ public class Command
     public static void IORWF(int address)
     {
         int result =  wReg| ram[bank, address & 0x7F];
-        if ((address & 0x0080) == 0x0080)
+        DecideSaving(result, address);
+        Zeroflag(result);
+    }
+
+    public static void MOVF(int address)
+    {
+        int value = ram[bank, address & 0x7F];
+        DecideSaving(value, address); 
+        Zeroflag(value);
+    }
+
+    public static void NOP()
+    {
+        //Hier wird nichts ausgeführt
+    }
+    public static void RLF(int address)
+    {
+        int firstBit = ram[bank, address & 0x7F] & 0x80;
+        int carryValueOld = ram[bank, 3] & 0x1;
+        if(firstBit == 128)
         {
-            ram[bank, address & 0x7F] = result;
+            ram[bank, 3] = ram[bank, 3] | 0b00000001; 
         }
         else
         {
-            wReg = result;
+            ram[bank, 3] = ram[bank, 3] & 0b11111110;
         }
-        Zeroflag(result);
+        int result = (ram[bank, address & 0x7F] << 1) % 256; 
+
+        if(carryValueOld == 1)
+        {
+             result = result + 1; 
+        }
+        DecideSaving(result, address); 
     }
+
     private static int SUB(int valueA, int valueB)
     {
         Zeroflag((valueA - valueB) % 256);
