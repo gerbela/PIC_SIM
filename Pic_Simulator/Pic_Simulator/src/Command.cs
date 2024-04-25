@@ -144,6 +144,31 @@ public class Command
         Zeroflag(value);
     }
 
+    public static void NOP()
+    {
+        //Hier wird nichts ausgeführt
+    }
+    public static void RLF(int address)
+    {
+        int firstBit = ram[bank, address & 0x7F] & 0x80;
+        int carryValueOld = ram[bank, 3] & 0x1;
+        if(firstBit == 128)
+        {
+            ram[bank, 3] = ram[bank, 3] | 0b00000001; 
+        }
+        else
+        {
+            ram[bank, 3] = ram[bank, 3] & 0b11111110;
+        }
+        int result = (ram[bank, address & 0x7F] << 1) % 256; 
+
+        if(carryValueOld == 1)
+        {
+             result = result + 1; 
+        }
+        DecideSaving(result, address); 
+    }
+
     private static int SUB(int valueA, int valueB)
     {
         Zeroflag((valueA - valueB) % 256);
