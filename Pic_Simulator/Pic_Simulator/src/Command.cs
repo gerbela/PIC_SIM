@@ -12,31 +12,14 @@ public class Command
     public static void ANDWF(int address)
     {
         int result = wReg & ram[bank, address & 0x7F];
-        if (result == 0)
-        {
-            ram[bank, 3] = ram[bank, 3] | 0b00000100;
-        }
-        if ((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x007F] = result;
-        }
-        else
-        {
-            wReg = result;
-        }
+        Zeroflag(result);
+        DecideSaving(result, address);
     }
 
     public static void ADDWF(int address)
     {
         int result = ADD(ram[bank, address & 0x007F]);
-        if ((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x007F] = result;
-        }
-        else
-        {
-            wReg = result;
-        }
+        DecideSaving(result, address);
     }
     private static int ADD(int value)
     {
@@ -77,14 +60,9 @@ public class Command
     }
     public static void COMF(int address)
     {
-        if((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x7F] = ~ram[bank, address & 0x7F];
-        }
-        else
-        {
-            wReg = ~ram[bank, address & 0x7F];
-        }
+        int value = ram[bank, address & 0x7F];
+        int kom = value ^ 0xFF;
+        DecideSaving(kom, address);
     }
 
     public static void CALL(int address, StackPanel stack)
@@ -103,14 +81,7 @@ public class Command
     public static void DECF(int address)
     {
         int result = SUB(ram[bank, address & 0x7F],1);
-        if((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x7F] = result;
-        }
-        else
-        {
-            wReg = result;
-        }
+        DecideSaving(result, address);
     }
 
     public static bool RETURN(StackPanel stack)
@@ -132,19 +103,12 @@ public class Command
     public static void DECFSZ(int address, StackPanel stack )
     {
         int result = (ram[bank, address & 0x7F] - 1) % 256;
-        if ((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x7F] = result;
-        }
-        else
-        {
-            wReg = result;
-        }
+        DecideSaving(result, address);
         if(result == 0)
         {
-            ram[bank, 2]  +=2;
+            ram[bank, 2]  +=1;
             LST_File.ClearMarker(stack);
-            LST_File.pos =  LST_File.FindFilePos(stack, ram[bank, 2])-3;
+            LST_File.pos =  LST_File.FindFilePos(stack, ram[bank, 2])-2;
         }
 
     }
@@ -227,6 +191,19 @@ public class Command
         bool result = RETURN(stack);
         if(!result) wReg = value;
         return result;
+    }
+
+    private static void DecideSaving(int value, int address = -1)
+    {
+        if ((address & 0x0080) == 0x0080)
+        {
+            if (address == -1) return;
+            ram[bank, address & 0x7F] = value;
+        }
+        else
+        {
+            wReg = value;
+        }
     }
 
     //Methods for setting the falgs in the Status register
