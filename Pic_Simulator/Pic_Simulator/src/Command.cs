@@ -112,6 +112,52 @@ public class Command
         }
 
     }
+    public static void INCF(int address)
+    {
+        int result = (ram[bank, address & 0x7F] + 1) % 256;
+        if ((address & 0x0080) == 0x0080)
+        {
+            ram[bank, address & 0x7F] = result;
+        }
+        else
+        {
+            wReg = result;
+        }
+        Zeroflag(result);
+    }
+    public static void INCFSZ(int address, StackPanel stack)
+    {
+        int result = (ram[bank, address & 0x7F] + 1) % 256;
+        if ((address & 0x0080) == 0x0080)
+        {
+            ram[bank, address & 0x7F] = result;
+        }
+        else
+        {
+            wReg = result;
+        }
+
+        if (result == 0)
+        {
+            ram[bank, 2] += 1;
+            LST_File.ClearMarker(stack);
+            LST_File.pos = LST_File.FindFilePos(stack, ram[bank, 2]) - 2;
+        }
+    }
+
+    public static void IORWF(int address)
+    {
+        int result =  wReg| ram[bank, address & 0x7F];
+        if ((address & 0x0080) == 0x0080)
+        {
+            ram[bank, address & 0x7F] = result;
+        }
+        else
+        {
+            wReg = result;
+        }
+        Zeroflag(result);
+    }
     private static int SUB(int valueA, int valueB)
     {
         Zeroflag((valueA - valueB) % 256);

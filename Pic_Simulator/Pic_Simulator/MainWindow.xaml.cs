@@ -111,6 +111,18 @@ namespace Pic_Simulator
                 Command.DECFSZ(command & 0xFF, Stack); 
             
             }
+            if((command & 0x3F80) == 0x0A80 || (command & 0x3F80) == 0x0A00)
+            {
+                Command.INCF(command & 0xFF); 
+            }
+            if((command & 0x3F80) == 0x0F80 || (command & 0x3F80) == 0xF00)
+            {
+                Command.INCFSZ(command & 0xFF, Stack);
+            }
+            if((command & 0x3F80) == 0x0480 || (command & 0x3F80) == 0x0400)
+            {
+                Command.IORWF(command & 0xFF);
+            }
             return true;
 
         }
