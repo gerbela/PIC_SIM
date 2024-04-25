@@ -197,6 +197,12 @@ public class Command
         Zeroflag(result);
     }
 
+    public static void XORLW(int literal)
+    {
+        wReg = wReg ^ literal;
+        Zeroflag(wReg);
+    }
+
 
     private static int SUB(int valueA, int valueB)
     {
