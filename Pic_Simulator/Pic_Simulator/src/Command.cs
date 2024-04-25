@@ -194,6 +194,21 @@ public class Command
         }
         Zeroflag(result);
     }
+
+    public static void MOVF(int address)
+    {
+        int value = ram[bank, address & 0x7F];
+        if ((address & 0x0080) == 0x0080)
+        {
+            ram[bank, address & 0x7F] = value;
+        }
+        else
+        {
+            wReg = value;
+        }
+        Zeroflag(value);
+    }
+
     private static int SUB(int valueA, int valueB)
     {
         Zeroflag((valueA - valueB) % 256);

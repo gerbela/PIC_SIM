@@ -123,6 +123,11 @@ namespace Pic_Simulator
             {
                 Command.IORWF(command & 0xFF);
             }
+
+            if ((command & 0x3F80) == 0x0880 || (command & 0x3F80) == 0x0800)
+            {
+                Command.MOVF(command & 0xFF);
+            }
             return true;
 
         }
