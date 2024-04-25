@@ -128,7 +128,7 @@ public class Command
 
     public static void IORWF(int address)
     {
-        int result =  wReg| ram[bank, address & 0x7F];
+        int result =  wReg ^ ram[bank, address & 0x7F];
         DecideSaving(result, address);
         Zeroflag(result);
     }
@@ -164,6 +164,41 @@ public class Command
         }
         DecideSaving(result, address); 
     }
+
+    public static void RRF(int address)
+    {
+        int LasttBit = ram[bank, address & 0x7F] & 0x1;
+        int carryValueOld = ram[bank, 3] & 0x1;
+        if (LasttBit == 1)
+        {
+            ram[bank, 3] = ram[bank, 3] | 0b00000001;
+        }
+        else
+        {
+            ram[bank, 3] = ram[bank, 3] & 0b11111110;
+        }
+        int result = (ram[bank, address & 0x7F] >> 1) % 256;
+
+        if (carryValueOld == 1)
+        {
+            result = result + 128;
+        }
+        DecideSaving(result, address);
+    }
+
+    public static void XORWF(int address)
+    {
+        int result = wReg ^ ram[bank, address & 0x7F];
+        DecideSaving(result, address);
+        Zeroflag(result);
+    }
+
+    public static void XORLW(int literal)
+    {
+        wReg = wReg ^ literal;
+        Zeroflag(wReg);
+    }
+
 
     private static int SUB(int valueA, int valueB)
     {

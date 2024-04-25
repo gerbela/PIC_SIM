@@ -139,6 +139,21 @@ namespace Pic_Simulator
                 Command.RLF(command & 0xFF);
             }
 
+            if ((command & 0x3F80) == 0x0C80 || (command & 0x3F80) == 0x0C00)
+            {
+                Command.RRF(command & 0xFF);
+            }
+
+            if ((command & 0x3F80) == 0x0680 || (command & 0x3F80) == 0x0600)
+            {
+                Command.XORWF(command & 0xFF);
+            }
+
+            if ((command & 0x3F00) == 0x3A00)
+            {
+                Command.XORLW(command & 0xFF);
+            }
+
 
             if((command & 0x3C00) == 0x1000)
             {
