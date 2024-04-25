@@ -32,11 +32,11 @@ namespace Pic_Simulator
             LST_File.MarkLine(Stack, CodeScroller);
             Result.Text = "";
             //print ram
-            /*for(int i = 0; i < 128; i++)
+            for(int i = 0; i < 128; i++)
             {
                 Result.Text = Result.Text + " " + Command.ram[bank, i];
             }
-            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;*/
+            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
         }
 
         private int Fetch()
