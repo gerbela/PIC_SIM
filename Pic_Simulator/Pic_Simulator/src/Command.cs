@@ -115,28 +115,13 @@ public class Command
     public static void INCF(int address)
     {
         int result = (ram[bank, address & 0x7F] + 1) % 256;
-        if ((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x7F] = result;
-        }
-        else
-        {
-            wReg = result;
-        }
+        DecideSaving(result, address);
         Zeroflag(result);
     }
     public static void INCFSZ(int address, StackPanel stack)
     {
         int result = (ram[bank, address & 0x7F] + 1) % 256;
-        if ((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x7F] = result;
-        }
-        else
-        {
-            wReg = result;
-        }
-
+        DecideSaving(result, address); wReg = result;
         if (result == 0)
         {
             ram[bank, 2] += 1;
@@ -148,28 +133,14 @@ public class Command
     public static void IORWF(int address)
     {
         int result =  wReg| ram[bank, address & 0x7F];
-        if ((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x7F] = result;
-        }
-        else
-        {
-            wReg = result;
-        }
+        DecideSaving(result, address);
         Zeroflag(result);
     }
 
     public static void MOVF(int address)
     {
         int value = ram[bank, address & 0x7F];
-        if ((address & 0x0080) == 0x0080)
-        {
-            ram[bank, address & 0x7F] = value;
-        }
-        else
-        {
-            wReg = value;
-        }
+        DecideSaving(value, address); 
         Zeroflag(value);
     }
 
