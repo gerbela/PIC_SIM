@@ -156,6 +156,22 @@ namespace Pic_Simulator
             {
                 Command.BTFSS(command & 0x03FF, Stack);
             }
+            if((command & 0x3F00) == 0x0E00)
+            {
+                Command.SWAPF(command & 0xFF);
+            }
+            if ((command & 0x3F80) == 0x0280 || (command & 0x3F80) == 0x0200)
+            {
+                Command.SUBWF(command & 0xFF);
+            }
+            if((command & 0x3F00) == 0x3800)
+            {
+                Command.IORLW(command & 0xFF);
+            }
+            if((command & 0x3F00) == 0x3C00)
+            {
+                Command.SUBLW(command & 0xFF);
+            }
             return true;
 
         }

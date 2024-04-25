@@ -1,11 +1,12 @@
 using System.DirectoryServices;
+using System.Net;
 using System.Windows.Controls;
 
 public class Command
 {
     public static int wReg = 0;
     public static int[,] ram = new int[2, 128];
-    static int bank = 0;
+    public static int bank = 0;
     public static int[] callStack = { -1,-1,-1,-1,-1,-1,-1,-1};
     static int callPosition = 0;
 
@@ -74,8 +75,7 @@ public class Command
         callStack[callPosition] = ram[bank, 2] -1;
         ram[bank, 2] = address;
         callPosition++;
-        LST_File.ClearMarker(stack);
-        LST_File.pos = LST_File.FindFilePos(stack, address) - 2;
+        LST_File.JumpToLine(stack, address);
     }
 
     public static void DECF(int address)
@@ -94,9 +94,7 @@ public class Command
         int address = callStack[callPosition - 1];
         callStack[callPosition - 1] = -1;
         callPosition--;
-        ram[bank, 2] = address + 1;
-        LST_File.ClearMarker(stack);
-        LST_File.pos = LST_File.FindFilePos(stack, address) - 1;
+        LST_File.JumpToLine(stack, address +1);
         return true;
     }
 
@@ -107,8 +105,7 @@ public class Command
         if(result == 0)
         {
             ram[bank, 2]  +=1;
-            LST_File.ClearMarker(stack);
-            LST_File.pos =  LST_File.FindFilePos(stack, ram[bank, 2])-2;
+            LST_File.JumpToLine(stack, ram[bank, 2]);
         }
 
     }
@@ -125,8 +122,7 @@ public class Command
         if (result == 0)
         {
             ram[bank, 2] += 1;
-            LST_File.ClearMarker(stack);
-            LST_File.pos = LST_File.FindFilePos(stack, ram[bank, 2]) - 2;
+            LST_File.JumpToLine(stack, ram[bank, 2]);
         }
     }
 
@@ -178,14 +174,13 @@ public class Command
     public static void GOTO(int address, StackPanel stack)
     {
         ram[bank, 2] = address;
-        LST_File.ClearMarker(stack);
-        LST_File.pos = LST_File.FindFilePos(stack, address) - 2;
+        LST_File.JumpToLine(stack, address);
     }
 
     public static bool RETLW(int value, StackPanel stack)
     {
         bool result = RETURN(stack);
-        if(!result) wReg = value;
+        if(result) wReg = value;
         return result;
     }
 
@@ -207,16 +202,40 @@ public class Command
         int bit = (address & 0x380) >> 7;
         int rotated = (ram[bank, address & 0x7F] >> bit - 1) & 0x1;
         if (rotated == 1) return;
-        LST_File.ClearMarker(stack);
-        LST_File.pos = LST_File.FindFilePos(stack, ram[bank, 2] + 1) - 2;
+        LST_File.JumpToLine(stack, ram[bank, 2] + 1);
     }
     public static void BTFSS(int address, StackPanel stack)
     {
         int bit = (address & 0x380) >> 7;
         int rotated = (ram[bank, address & 0x7F] >> bit - 1) & 0x1;
         if (rotated == 0) return;
-        LST_File.ClearMarker(stack);
-        LST_File.pos = LST_File.FindFilePos(stack, ram[bank, 2] + 1) - 2;
+        LST_File.JumpToLine(stack, ram[bank, 2] + 1);
+    }
+    public static void SWAPF(int address)
+    {
+        int value = ram[bank, address & 0x7F];
+        int newUpper = (value & 0x0F) << 4;
+        int newLower = (value & 0xF0) >> 4;
+        int newValue = newUpper | newLower;
+        DecideSaving(newValue, address);
+    }
+    public static void IORLW(int value)
+    {
+        wReg = wReg | value;
+        Zeroflag(wReg);
+    }
+    public static void SUBLW(int value)
+    {
+        int kom = (value ^ 0xFF) + 1;
+        int result = ADD(kom);
+        wReg = result;
+    }
+    public static void SUBWF(int address)
+    {
+        int kom = (ram[bank, address & 0x7F] ^ 0xFF) + 1;
+        int result = ADD(kom);
+        kom = (result ^ 0xFF) + 1;
+        DecideSaving(kom, address);
     }
     private static void DecideSaving(int value, int address = -1)
     {

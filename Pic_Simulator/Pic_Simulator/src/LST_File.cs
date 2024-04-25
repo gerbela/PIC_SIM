@@ -74,6 +74,12 @@ public class LST_File()
         }
     }
 
+    public static void JumpToLine(StackPanel stack, int address)
+    {
+        ClearMarker(stack);
+        pos = FindFilePos(stack, address) - 2;
+        Command.ram[Command.bank, 2] = address;
+    }
     public static void MarkLine(StackPanel stack, ScrollViewer codeScroller)
     {
         if (!loadedFile) return;
