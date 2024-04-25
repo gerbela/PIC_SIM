@@ -178,6 +178,35 @@ public class Command
         return result;
     }
 
+    public static void BCF(int address)
+    {
+        int bit = (address & 0x380) >> 7;
+        int rotated = (0x01 << bit-1) ^0xFF;
+        ram[bank, address & 0x7F] = ram[bank, address & 0x7F] & rotated;
+    }
+
+    public static void BSF(int address)
+    {
+        int bit = (address & 0x380) >> 7;
+        int rotated = 0x01 << bit - 1;
+        ram[bank, address & 0x7F] = ram[bank, address & 0x7F] | rotated;
+    }
+    public static void BTFSC(int address,StackPanel stack)
+    {
+        int bit = (address & 0x380) >> 7;
+        int rotated = (ram[bank, address & 0x7F] >> bit - 1) & 0x1;
+        if (rotated == 1) return;
+        LST_File.ClearMarker(stack);
+        LST_File.pos = LST_File.FindFilePos(stack, ram[bank, 2] + 1) - 2;
+    }
+    public static void BTFSS(int address, StackPanel stack)
+    {
+        int bit = (address & 0x380) >> 7;
+        int rotated = (ram[bank, address & 0x7F] >> bit - 1) & 0x1;
+        if (rotated == 0) return;
+        LST_File.ClearMarker(stack);
+        LST_File.pos = LST_File.FindFilePos(stack, ram[bank, 2] + 1) - 2;
+    }
     private static void DecideSaving(int value, int address = -1)
     {
         if ((address & 0x0080) == 0x0080)

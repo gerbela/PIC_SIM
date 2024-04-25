@@ -100,7 +100,7 @@ namespace Pic_Simulator
             }
             if((command & 0x3800) == 0x2800)
             {
-                Command.GOTO(command & 0x7F, Stack);
+                Command.GOTO(command & 0x7FF, Stack);
             }
             if ((command & 0xFC00) == 0x3400)
             {
@@ -122,6 +122,22 @@ namespace Pic_Simulator
             if((command & 0x3F80) == 0x0480 || (command & 0x3F80) == 0x0400)
             {
                 Command.IORWF(command & 0xFF);
+            }
+            if((command & 0x3C00) == 0x1000)
+            {
+                Command.BCF(command & 0x03FF);
+            }
+            if((command & 0x3C00) == 0x1400)
+            {
+                Command.BSF(command & 0x03FF);
+            }
+            if((command & 0x3C00) == 0x1800)
+            {
+                Command.BTFSC(command & 0x03FF, Stack);
+            }
+            if((command & 0x3C00) == 0x1C00)
+            {
+                Command.BTFSS(command & 0x03FF, Stack);
             }
             return true;
 
