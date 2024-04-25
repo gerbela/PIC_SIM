@@ -132,7 +132,7 @@ public class Command
 
     public static void IORWF(int address)
     {
-        int result =  wReg| ram[bank, address & 0x7F];
+        int result =  wReg ^ ram[bank, address & 0x7F];
         DecideSaving(result, address);
         Zeroflag(result);
     }
@@ -189,6 +189,14 @@ public class Command
         }
         DecideSaving(result, address);
     }
+
+    public static void XORWF(int address)
+    {
+        int result = wReg ^ ram[bank, address & 0x7F];
+        DecideSaving(result, address);
+        Zeroflag(result);
+    }
+
 
     private static int SUB(int valueA, int valueB)
     {
