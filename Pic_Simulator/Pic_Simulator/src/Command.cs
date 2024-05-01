@@ -11,7 +11,7 @@ public class Command
     public static int bank = 0;
     public static int prescaler;
     public static int watchdog;
-    public static int[] callStack = { -1,-1,-1,-1,-1,-1,-1,-1};
+    public static int[] callStack = { -1, -1, -1, -1, -1, -1, -1, -1 };
     static int callPosition = 0;
     private static int setTMR = 0;
     static int quarzfrequenz = 4000;
@@ -25,12 +25,12 @@ public class Command
 
     public static void ADDWF(int address)
     {
-        int result = ADD(ram[bank, address & 0x007F],wReg);
+        int result = ADD(ram[bank, address & 0x007F], wReg);
         DecideSaving(result, address);
     }
-    private static int ADD(int value1,int value2)
+    private static int ADD(int value1, int value2)
     {
-        HalfCarry(value1 + value2);
+        if (value2 % 256 < 128) HalfCarry(value1 + value2);
         Carry(value1 + value2);
         Zeroflag((value1 + value2) % 256);
         return (value1 + value2) % 256; // Wird carry immer aktiv auf 0 gesetzt?
@@ -46,7 +46,7 @@ public class Command
     }
     public static void ADDLW(int literal)
     {
-        int result = ADD(literal,wReg);
+        int result = ADD(literal, wReg);
         wReg = result;
     }
 
@@ -65,6 +65,7 @@ public class Command
     public static void CLRW()
     {
         wReg = 0;
+        Zeroflag(wReg);
     }
     public static void COMF(int address)
     {
@@ -76,11 +77,11 @@ public class Command
 
     public static void CALL(int address, StackPanel stack)
     {
-        if(callPosition == 8)
+        if (callPosition == 8)
         {
             callPosition = 0;
         }
-        callStack[callPosition] = ram[bank, 2] -1;
+        callStack[callPosition] = ram[bank, 2] - 1;
         ram[bank, 2] = address;
         callPosition++;
         LST_File.JumpToLine(stack, address);
@@ -88,7 +89,8 @@ public class Command
 
     public static void DECF(int address)
     {
-        int result = SUB(ram[bank, address & 0x7F],1);
+        int result = (ram[bank, address & 0x7F] + 0xFF) % 256;
+        Zeroflag(result);//SUB(ram[bank, address & 0x7F],1);
         DecideSaving(result, address);
     }
 
@@ -102,17 +104,17 @@ public class Command
         int address = callStack[callPosition - 1];
         callStack[callPosition - 1] = -1;
         callPosition--;
-        LST_File.JumpToLine(stack, address +1);
+        LST_File.JumpToLine(stack, address + 1);
         return true;
     }
 
-    public static void DECFSZ(int address, StackPanel stack )
+    public static void DECFSZ(int address, StackPanel stack)
     {
         int result = (ram[bank, address & 0x7F] - 1) % 256;
         DecideSaving(result, address);
-        if(result == 0)
+        if (result == 0)
         {
-            ram[bank, 2]  +=1;
+            ram[bank, 2] += 1;
             LST_File.JumpToLine(stack, ram[bank, 2]);
         }
 
@@ -136,7 +138,7 @@ public class Command
 
     public static void IORWF(int address)
     {
-        int result =  wReg ^ ram[bank, address & 0x7F];
+        int result = wReg ^ ram[bank, address & 0x7F];
         DecideSaving(result, address);
         Zeroflag(result);
     }
@@ -144,7 +146,7 @@ public class Command
     public static void MOVF(int address)
     {
         int value = ram[bank, address & 0x7F];
-        DecideSaving(value, address); 
+        DecideSaving(value, address);
         Zeroflag(value);
     }
 
@@ -156,21 +158,21 @@ public class Command
     {
         int firstBit = ram[bank, address & 0x7F] & 0x80;
         int carryValueOld = ram[bank, 3] & 0x1;
-        if(firstBit == 128)
+        if (firstBit == 128)
         {
-            ram[bank, 3] = ram[bank, 3] | 0b00000001; 
+            ram[bank, 3] = ram[bank, 3] | 0b00000001;
         }
         else
         {
             ram[bank, 3] = ram[bank, 3] & 0b11111110;
         }
-        int result = (ram[bank, address & 0x7F] << 1) % 256; 
+        int result = (ram[bank, address & 0x7F] << 1) % 256;
 
-        if(carryValueOld == 1)
+        if (carryValueOld == 1)
         {
-             result = result + 1; 
+            result = result + 1;
         }
-        DecideSaving(result, address); 
+        DecideSaving(result, address);
     }
 
     public static void RRF(int address)
@@ -223,14 +225,14 @@ public class Command
     public static bool RETLW(int value, StackPanel stack)
     {
         bool result = RETURN(stack);
-        if(result) wReg = value;
+        if (result) wReg = value;
         return result;
     }
 
     public static void BCF(int address)
     {
         int bit = (address & 0x380) >> 7;
-        int rotated = (0x01 << bit-1) ^0xFF;
+        int rotated = (0x01 << bit - 1) ^ 0xFF;
         ram[bank, address & 0x7F] = ram[bank, address & 0x7F] & rotated;
     }
 
@@ -240,7 +242,7 @@ public class Command
         int rotated = 0x01 << bit - 1;
         ram[bank, address & 0x7F] = ram[bank, address & 0x7F] | rotated;
     }
-    public static void BTFSC(int address,StackPanel stack)
+    public static void BTFSC(int address, StackPanel stack)
     {
         int bit = (address & 0x380) >> 7;
         int rotated = (ram[bank, address & 0x7F] >> bit - 1) & 0x1;
@@ -277,7 +279,9 @@ public class Command
     public static void SUBWF(int address)
     {
         int kom = (wReg ^ 0xFF) + 1;
-        int result = ADD(ram[bank, address & 0x7F], kom);
+        int result = ADD(ram[bank, address & 0x7F], kom); ;
+
+
         //kom = (result ^ 0xFF) + 1;
         DecideSaving(result, address);
     }
@@ -335,7 +339,7 @@ public class Command
     private static int GetSelectedBit(int value, int pos)
     {
         int bit = 1;
-        while(pos != 0)
+        while (pos != 0)
         {
             bit = bit << 1;
             pos--;
@@ -346,9 +350,9 @@ public class Command
 
     public static void Timer0()
     {
-        if ((ram[1,0x81] & 0b00100000) == 0b00000000)
+        if ((ram[1, 0x81] & 0b00100000) == 0b00000000)
         {
-            if(setTMR % 3 == 0)
+            if (setTMR % 3 == 0)
             {
                 ram[0, 1] += 1;
                 setTMR++;
@@ -361,7 +365,7 @@ public class Command
     }
     private static void ClearPrescaler()
     {
-        if (GetSelectedBit(ram[1,0x81],5) == 1)
+        if (GetSelectedBit(ram[1, 0x81], 5) == 1)
         {
 
         }
@@ -370,7 +374,7 @@ public class Command
     public static void ControlTimer0()
     {
         //Timer
-        if (GetSelectedBit(ram[1,0x81],5) == 0)
+        if (GetSelectedBit(ram[1, 0x81], 5) == 0)
         {
             ram[0, 1] = 0;
         }
@@ -379,9 +383,9 @@ public class Command
     public static void Watchdog(int deltaT)
     {
         deltaT = deltaT * 4000 / quarzfrequenz;
-        if(watchdog + deltaT >= 18000)
+        if (watchdog + deltaT >= 18000)
         {
-            if(prescaler != 0)
+            if (prescaler != 0)
             {
                 prescaler--;
                 watchdog = watchdog + deltaT - 18000;
@@ -391,7 +395,7 @@ public class Command
                 //Error
             }
         }
-        watchdog += deltaT;   
+        watchdog += deltaT;
     }
 
     public static void Timer0SetT0CS()
