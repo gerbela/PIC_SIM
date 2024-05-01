@@ -16,6 +16,7 @@ namespace Pic_Simulator
         private void LoadFile(object sender, RoutedEventArgs e)
         {
             LST_File.LoadFile(Stack, CodeScroller);
+            Command.ResetController();
         }
 
         private void OneStep(object sender, RoutedEventArgs e)
@@ -30,6 +31,7 @@ namespace Pic_Simulator
             int command = Fetch();
             if(!Decode(command)) return;
             LST_File.MarkLine(Stack, CodeScroller);
+            //Command.Timer0();
             Result.Text = "";
             //print ram
             for(int i = 0; i < 128; i++)
@@ -62,7 +64,7 @@ namespace Pic_Simulator
             {
                 Command.ADDWF(command & 0xFF);
             }
-            if((command & 0x3F80) == 0x3780 || (command & 0x3F80) == 0x0700)
+            if((command & 0x3F80) == 0x0500 || (command & 0x3F80) == 0x0580)
             {
                 Command.ANDWF(command & 0xFF);
             }
@@ -190,5 +192,6 @@ namespace Pic_Simulator
             return true;
 
         }
+
     }
 }
