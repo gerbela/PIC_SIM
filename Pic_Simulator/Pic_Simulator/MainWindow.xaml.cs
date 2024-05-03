@@ -16,7 +16,7 @@ namespace Pic_Simulator
         {
             InitializeComponent();
         }
-
+        
         private void LoadFile(object sender, RoutedEventArgs e)
         {
             LST_File.LoadFile(Stack, CodeScroller);
