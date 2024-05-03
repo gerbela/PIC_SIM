@@ -1,9 +1,12 @@
 ﻿using System.Data;
 using System.Windows;
+using System.Windows.Controls;
 
 
 namespace Pic_Simulator
 {
+
+ 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
@@ -15,6 +18,8 @@ namespace Pic_Simulator
         public MainWindow()
         {
             InitializeComponent();
+            PrintRam();
+
         }
 
         private void LoadFile(object sender, RoutedEventArgs e)
@@ -43,6 +48,35 @@ namespace Pic_Simulator
                 Result.Text = Result.Text + " " + Command.ram[bank, i];
             }
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
+           
+
+
+        }
+        private void PrintRam()
+        {
+            DataTable dt = new DataTable();
+            int nbColumns = 8;
+            int nbRows = 16;
+
+            for (int i = 0; i < nbColumns; i++)
+            {
+                dt.Columns.Add(i.ToString(), typeof(Int32));
+            }
+            int zaehler = 0;
+            for (int row = 0; row < nbRows; row++)
+            {
+                DataRow dr = dt.NewRow();
+                for (int col = 0; col < nbColumns; col++)
+                {
+                    dr[col] = Command.ram[bank, zaehler];
+
+                }
+                dt.Rows.Add(dr);
+                zaehler++;
+            }
+
+            MyDataGrid.ItemsSource = dt.DefaultView;
+
         }
 
         private int Fetch()

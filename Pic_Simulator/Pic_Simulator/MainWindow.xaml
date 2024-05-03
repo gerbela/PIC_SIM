@@ -9,7 +9,7 @@
         WindowStartupLocation="CenterScreen" WindowState="Normal"
         ResizeMode="CanResizeWithGrip"
         Title="Pic Simulator" Width="960" Height="540">
-    <Grid>
+    <Grid Name="MyGrid">
         <Menu Margin="0,0,0,0" VerticalAlignment="Top" Height="40">
             <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9">
                 <MenuItem Header="Laden" Click="LoadFile"></MenuItem>
@@ -22,6 +22,5 @@
         <ScrollViewer Name="CodeScroller" VerticalScrollBarVisibility="Visible" Margin="77,242,205,10">
             <StackPanel Name="Stack" Height="Auto" Width="653"/>
         </ScrollViewer>
-
-    </Grid>
+        <DataGrid Name="MyDataGrid"   Margin="0,40,713,283"></DataGrid>   </Grid>
 </Window>
