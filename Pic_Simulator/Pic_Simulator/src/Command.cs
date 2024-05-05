@@ -285,12 +285,19 @@ public class Command
         //kom = (result ^ 0xFF) + 1;
         DecideSaving(result, address);
     }
+
+    public static void CLRWDT()
+    {
+        watchdog = 18000;
+        prescaler = 128;
+        ram[0, 3] = ram[0, 3] | 0b00011000;
+    }
     private static void DecideSaving(int value, int address = -1)
     {
         if ((address & 0x0080) == 0x0080)
         {
             if (address == -1) return;
-            if (address == 1) ControlTimer0();
+            if (address == 1) ResetTimer0();
             ram[bank, address & 0x7F] = value;
         }
         else
@@ -350,7 +357,7 @@ public class Command
 
     public static void Timer0()
     {
-        if ((ram[1, 0x81] & 0b00100000) == 0b00000000)
+        if (GetSelectedBit(ram[1, 1], 5) == 0)
         {
             if (setTMR % 3 == 0)
             {
@@ -363,18 +370,28 @@ public class Command
             }
         }
     }
-    private static void ClearPrescaler()
+    private static void Reset()
     {
-        if (GetSelectedBit(ram[1, 0x81], 5) == 1)
-        {
-
-        }
+        ram[1, 1] = 0b11111111;
+        prescaler = 128;
+        
     }
 
-    public static void ControlTimer0()
+    public static void SetPrescaler()
+    {
+        if (GetSelectedBit(ram[1, 1], 5) == 1)
+        {
+            prescaler = (int) Math.Pow(2,ram[1, 1] & 0x7);
+        }
+        else
+        {
+            prescaler = (int)Math.Pow(2, (ram[1, 1] & 0x7) *2);
+        }
+    }
+    public static void ResetTimer0()
     {
         //Timer
-        if (GetSelectedBit(ram[1, 0x81], 5) == 0)
+        if (GetSelectedBit(ram[1, 1], 5) == 0)
         {
             ram[0, 1] = 0;
         }
@@ -398,15 +415,16 @@ public class Command
         watchdog += deltaT;
     }
 
+    //todo Event einfügen
     public static void Timer0SetT0CS()
     {
-        if (GetSelectedBit(ram[1, 0x81], 5) == 1)
+        if (GetSelectedBit(ram[1, 1], 5) == 1)
         {
-            if (GetSelectedBit(ram[1, 0x81], 4) == 0 && GetSelectedBit(ram[0, 5], 4) == 1)
+            if (GetSelectedBit(ram[1, 1], 4) == 0 && GetSelectedBit(ram[0, 5], 4) == 1)
             {
                 ram[0, 1] += 1;
             }
-            if (GetSelectedBit(ram[1, 0x81], 4) == 1 && GetSelectedBit(ram[0, 5], 4) == 0)
+            if (GetSelectedBit(ram[1, 1], 4) == 1 && GetSelectedBit(ram[0, 5], 4) == 0)
             {
                 ram[0, 1] += 1;
             }
