@@ -48,7 +48,9 @@ namespace Pic_Simulator
                 Result.Text = Result.Text + " " + Command.ram[bank, i];
             }
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
-           
+            PrintRam(); 
+
+
 
 
         }
@@ -56,7 +58,7 @@ namespace Pic_Simulator
         {
             DataTable dt = new DataTable();
             int nbColumns = 8;
-            int nbRows = 16;
+            int nbRows = 32;
 
             for (int i = 0; i < nbColumns; i++)
             {
@@ -66,13 +68,19 @@ namespace Pic_Simulator
             for (int row = 0; row < nbRows; row++)
             {
                 DataRow dr = dt.NewRow();
-                for (int col = 0; col < nbColumns; col++)
+                for (int i = 0; i < nbColumns; i++)
                 {
-                    dr[col] = Command.ram[bank, zaehler];
+                    dr[i] = Command.ram[bank, zaehler];
+                    zaehler++;
 
                 }
+                if(zaehler == 128)
+                {
+                    zaehler = 0; 
+                    bank = 1; 
+                }
                 dt.Rows.Add(dr);
-                zaehler++;
+                
             }
 
             MyDataGrid.ItemsSource = dt.DefaultView;
