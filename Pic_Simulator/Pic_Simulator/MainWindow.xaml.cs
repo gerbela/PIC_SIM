@@ -80,7 +80,7 @@ namespace Pic_Simulator
                 dt.Rows.Add(dr);
                 
             }
-
+            bank = 0;
             MyDataGrid.ItemsSource = dt.DefaultView;
             dt.RowChanged += dtRowChanged;
             
