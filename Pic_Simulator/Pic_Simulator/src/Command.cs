@@ -30,7 +30,7 @@ public class Command
     }
     private static int ADD(int value1, int value2)
     {
-        if (value2 % 256 < 128) HalfCarry(value1 + value2);
+        HalfCarry(value1, value2);
         Carry(value1 + value2);
         Zeroflag((value1 + value2) % 256);
         return (value1 + value2) % 256; // Wird carry immer aktiv auf 0 gesetzt?
@@ -278,8 +278,8 @@ public class Command
     }
     public static void SUBWF(int address)
     {
-        int kom = (wReg ^ 0xFF) + 1;
-        int result = ADD(ram[bank, address & 0x7F], kom); ;
+        int kom = (wReg ^ 0xFF) +1;
+        int result = ADD(ram[bank, address & 0x7F], kom);
 
 
         //kom = (result ^ 0xFF) + 1;
@@ -331,9 +331,13 @@ public class Command
         }
     }
 
-    private static void HalfCarry(int value)
+    private static void HalfCarry(int value1, int value2)
     {
-        if (value > 127) // wann wird der gesetzt?
+        if (value1 == 256) value1 = 0xF;
+        else value1 = value1 & 0xF;
+        if (value2 == 256) value2 = 0xF;
+        value2 = value2 & 0xF;
+        if (value1 + value2 > 15) // wann wird der gesetzt?
         {
             ram[bank, 3] = ram[bank, 3] | 0b00000010; //Half Carryflag
         }
