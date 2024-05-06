@@ -22,7 +22,7 @@ namespace Pic_Simulator
             PrintRam();
 
         }
-
+        
         private void LoadFile(object sender, RoutedEventArgs e)
         {
             LST_File.LoadFile(Stack, CodeScroller);
@@ -41,7 +41,7 @@ namespace Pic_Simulator
             int command = Fetch();
             if (!Decode(command)) return;
             LST_File.MarkLine(Stack, CodeScroller);
-            //Command.Timer0();
+            Command.Timer0(Stack);
             Result.Text = "";
             //print ram
             for (int i = 0; i < 128; i++)
@@ -50,10 +50,6 @@ namespace Pic_Simulator
             }
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
             PrintRam(); 
-
-
-
-
         }
          private void PrintRam()
         {
@@ -283,6 +279,10 @@ namespace Pic_Simulator
             if ((command & 0x3F00) == 0x3C00)
             {
                 Command.SUBLW(command & 0xFF);
+            }
+            if((command & 0xFFFF) == 0x0060)
+            {
+                Command.CLRWDT();
             }
             return true;
 
