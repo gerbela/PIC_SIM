@@ -8,7 +8,7 @@
 
         WindowStartupLocation="CenterScreen" WindowState="Normal"
         ResizeMode="CanResizeWithGrip"
-        Title="Pic Simulator" Width="960" Height="540">
+        Title="Pic Simulator" Width="1355" Height="916">
     <Grid Name="MyGrid">
         <Menu Margin="0,0,0,0" VerticalAlignment="Top" Height="40">
             <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9">
@@ -16,10 +16,12 @@
             </MenuItem>
             <Menu/>
         </Menu>
-        <TextBox Name ="Result" HorizontalAlignment="Left" Margin="788,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="141" Height="196"/>
-        <Button Content="Weiter" HorizontalAlignment="Left" Margin="788,316,0,0" VerticalAlignment="Top" Height="28" Width="70" Click="OneStep"/>
-        <ScrollViewer Name="CodeScroller" VerticalScrollBarVisibility="Visible" Margin="77,242,205,10">
+
+        <TextBox Name ="Result" HorizontalAlignment="Left" Margin="1133,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="141" Height="196"/>
+        <Button Content="Weiter" HorizontalAlignment="Left" Margin="1204,500,0,0" VerticalAlignment="Top" Height="28" Width="70" Click="OneStep"/>
+        <ScrollViewer Name="CodeScroller" VerticalScrollBarVisibility="Visible" Margin="322,411,205,10">
             <StackPanel Name="Stack" Height="Auto" Width="653"/>
         </ScrollViewer>
-        <DataGrid Name="MyDataGrid"   Margin="0,40,713,283"></DataGrid>   </Grid>
+        <DataGrid Name="MyDataGrid" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" Margin="0,40,1148,403"></DataGrid>
+    </Grid>
 </Window>

@@ -51,16 +51,17 @@ namespace Pic_Simulator
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
             PrintRam(); 
         }
-        private void PrintRam()
+         private void PrintRam()
         {
             DataTable dt = new DataTable();
+            
             
             int nbColumns = 8;
             int nbRows = 32;
 
             for (int i = 0; i < nbColumns; i++)
             {
-                dt.Columns.Add(i.ToString(), typeof(Int32));
+                dt.Columns.Add(i.ToString(), typeof(string));
             }
             int zaehler = 0;
             for (int row = 0; row < nbRows; row++)
@@ -68,7 +69,7 @@ namespace Pic_Simulator
                 DataRow dr = dt.NewRow();
                 for (int i = 0; i < nbColumns; i++)
                 {
-                    dr[i] = Command.ram[bank, zaehler];
+                    dr[i] = Command.ram[bank, zaehler].ToString("X");
                     zaehler++;
 
                 }
@@ -87,13 +88,13 @@ namespace Pic_Simulator
 
         }
 
-        static void dtRowChanged(object sender, DataRowChangeEventArgs e)
+        private void dtRowChanged(object sender, DataRowChangeEventArgs e)
         {
             Console.WriteLine("text");
             DataRow changedRow = e.Row;
             DataTable table = changedRow.Table;
             int rowIndex = table.Rows.IndexOf(changedRow);
-            int[] intArray = ConvertRowToIntArray(changedRow);
+            String[] intArray = ConvertRowToIntArray(changedRow);
             int i = 0; 
             if(rowIndex == 16)
             {
@@ -103,28 +104,29 @@ namespace Pic_Simulator
 
             for(int j = 0; j <8; j++)
             {
-                Command.ram[i, (rowstart + j)] = intArray[j];
+                if(Convert.ToInt32(intArray[j], 16) > 255)
+                {
+                    Command.ram[i, (rowstart + j)] = 0; 
+                }
+                else
+                {
+                    Command.ram[i, (rowstart + j)] = Convert.ToInt32(intArray[j], 16); 
+                }
+                  
                 Trace.WriteLine(Command.ram[i, (rowstart + j)]); 
-            } 
-            
-
-
-
-
-
-
-
+            }
+ 
         }
 
-        static int[] ConvertRowToIntArray(DataRow row)
+        private String[] ConvertRowToIntArray(DataRow row)
         {
             // Neues int-Array erstellen
-            int[] intArray = new int[row.ItemArray.Length];
+            String[] intArray = new String[row.ItemArray.Length];
 
             // Daten aus der DataRow in das int-Array kopieren
             for (int i = 0; i < row.ItemArray.Length; i++)
             {
-                intArray[i] = Convert.ToInt32(row[i]);
+                intArray[i] = Convert.ToString(row[i]);
             }
 
             return intArray;
