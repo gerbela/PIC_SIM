@@ -40,7 +40,7 @@ namespace Pic_Simulator
             int command = Fetch();
             if (!Decode(command)) return;
             LST_File.MarkLine(Stack, CodeScroller);
-            Command.Timer0();
+            Command.Timer0(Stack);
             Result.Text = "";
             //print ram
             for (int i = 0; i < 128; i++)
@@ -49,10 +49,6 @@ namespace Pic_Simulator
             }
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
             PrintRam(); 
-
-
-
-
         }
         private void PrintRam()
         {

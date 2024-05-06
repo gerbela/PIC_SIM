@@ -355,7 +355,7 @@ public class Command
         else return 0;
     }
 
-    public static void Timer0()
+    public static void Timer0(StackPanel stack)
     {
         if (GetSelectedBit(ram[1, 1], 5) == 0)
         {
@@ -363,6 +363,7 @@ public class Command
             {
                 ram[0, 1] += 1;
                 setTMR++;
+                Timer0Interrupt(stack);
             }
             else
             {
@@ -416,7 +417,7 @@ public class Command
     }
 
     //todo Event einfügen
-    public static void Timer0SetT0CS()
+    public static void Timer0SetT0CS(StackPanel stack)
     {
         if (GetSelectedBit(ram[1, 1], 5) == 1)
         {
@@ -428,6 +429,15 @@ public class Command
             {
                 ram[0, 1] += 1;
             }
+        }Timer0Interrupt(stack);
+    }
+    public static void Timer0Interrupt(StackPanel stack)
+    {
+        if (ram[0,1] == 256)
+        {
+            ram[0, 1] = 0;
+            ram[0, 11] = ram[0, 11] | 0b00000100;
+            if(GetSelectedBit(ram[0, 11],2) == 1 && GetSelectedBit(ram[0, 11], 5) == 1 && GetSelectedBit(ram[0, 11], 7) == 1) LST_File.JumpToLine(stack, 4);
         }
     }
     public static void ResetController()
