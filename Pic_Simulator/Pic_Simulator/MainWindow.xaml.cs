@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -53,6 +54,7 @@ namespace Pic_Simulator
         private void PrintRam()
         {
             DataTable dt = new DataTable();
+            
             int nbColumns = 8;
             int nbRows = 32;
 
@@ -80,7 +82,52 @@ namespace Pic_Simulator
             }
 
             MyDataGrid.ItemsSource = dt.DefaultView;
+            dt.RowChanged += dtRowChanged;
+            
 
+        }
+
+        static void dtRowChanged(object sender, DataRowChangeEventArgs e)
+        {
+            Console.WriteLine("text");
+            DataRow changedRow = e.Row;
+            DataTable table = changedRow.Table;
+            int rowIndex = table.Rows.IndexOf(changedRow);
+            int[] intArray = ConvertRowToIntArray(changedRow);
+            int i = 0; 
+            if(rowIndex == 16)
+            {
+                i = 1; 
+            }
+            int rowstart = rowIndex * 8; 
+
+            for(int j = 0; j <8; j++)
+            {
+                Command.ram[i, (rowstart + j)] = intArray[j];
+                Trace.WriteLine(Command.ram[i, (rowstart + j)]); 
+            } 
+            
+
+
+
+
+
+
+
+        }
+
+        static int[] ConvertRowToIntArray(DataRow row)
+        {
+            // Neues int-Array erstellen
+            int[] intArray = new int[row.ItemArray.Length];
+
+            // Daten aus der DataRow in das int-Array kopieren
+            for (int i = 0; i < row.ItemArray.Length; i++)
+            {
+                intArray[i] = Convert.ToInt32(row[i]);
+            }
+
+            return intArray;
         }
 
         private int Fetch()
