@@ -343,7 +343,7 @@ public class Command
         }
     }
 
-    private static int GetSelectedBit(int value, int pos)
+    public static int GetSelectedBit(int value, int pos)
     {
         int bit = 1;
         while (pos != 0)
