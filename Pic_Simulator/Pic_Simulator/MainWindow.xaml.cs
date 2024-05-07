@@ -57,6 +57,7 @@ namespace Pic_Simulator
         private void PrintRam()
         {
             DataTable dt = new DataTable();
+            dt.AcceptChanges();
             int nbColumns = 8;
             int nbRows = 32;
 
@@ -68,23 +69,24 @@ namespace Pic_Simulator
             for (int row = 0; row < nbRows; row++)
             {
                 DataRow dr = dt.NewRow();
+                
                 for (int i = 0; i < nbColumns; i++)
                 {
                     dr[i] = Command.ram[bank, zaehler];
                     zaehler++;
 
                 }
-                if(zaehler == 128)
+                if (zaehler == 128)
                 {
-                    zaehler = 0; 
-                    bank = 1; 
+                    zaehler = 0;
+                    bank = 1;
                 }
                 dt.Rows.Add(dr);
-                
+
             }
 
             MyDataGrid.ItemsSource = dt.DefaultView;
-
+            bank = 0;
         }
 
         private int Fetch()
