@@ -361,7 +361,7 @@ public class Command
         }
     }
 
-    private static int GetSelectedBit(int value, int pos)
+    public static int GetSelectedBit(int value, int pos)
     {
         int bit = 1;
         while (pos != 0)
@@ -371,6 +371,16 @@ public class Command
         }
         if ((value & bit) == bit) return 1;
         else return 0;
+    }
+    public static int SetSelectedBit(int value, int pos, int bit)
+    {
+        
+        while (pos != 0)
+        {
+            bit = bit << 1;
+            pos--;
+        }
+        return value | bit; 
     }
 
     private static int SetSelectedBit(int value, int pos, int bit)

@@ -1,7 +1,10 @@
-﻿using System.Data;
+﻿using System.Collections.ObjectModel;
+using System.Data;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
+using System.Windows.Input;
 
 
 namespace Pic_Simulator
@@ -15,11 +18,15 @@ namespace Pic_Simulator
     public partial class MainWindow : Window
     {
         public static List<int> commands = new List<int>();
+        DataTable tableRB = new DataTable();
+        DataTable tableRA = new DataTable();
         int bank = 0;
+
         public MainWindow()
         {
             InitializeComponent();
             PrintRam();
+            PrintRaRb();
 
         }
         
@@ -28,6 +35,32 @@ namespace Pic_Simulator
             LST_File.LoadFile(Stack, CodeScroller);
             Command.ResetController();
         }
+        void selectedCellsChangedRA(object sender, RoutedEventArgs e)
+        {
+            int rowIndex = RAGrid.Items.IndexOf(RAGrid.CurrentItem);
+            int colIndex = RAGrid.CurrentCell.Column.DisplayIndex;
+            int cellValue = (int)tableRA.Rows[rowIndex][colIndex];
+            tableRA.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
+            int newBit = 0;
+            
+            if (cellValue == 0)
+            {
+               newBit = 1;
+            }
+            MessageBox.Show(newBit.ToString());
+            Command.SetSelectedBit(Command.ram[bank, 5], Math.Abs(colIndex - 7), newBit);
+            PrintRam();
+        }
+
+            void selectedCellsChangedRB(object sender, RoutedEventArgs e)
+        {
+            int rowIndex = RBGrid.Items.IndexOf(RBGrid.CurrentItem);
+            int colIndex = RBGrid.CurrentCell.Column.DisplayIndex;
+            int cellValue = (int)tableRB.Rows[rowIndex][colIndex];
+            tableRB.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
+
+        }
+
 
         private void OneStep(object sender, RoutedEventArgs e)
         {
@@ -49,7 +82,48 @@ namespace Pic_Simulator
                 Result.Text = Result.Text + " " + Command.ram[bank, i];
             }*/
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
-            PrintRam(); 
+            PrintRam();
+             
+        }
+        
+        private void PrintRaRb()
+        {
+           
+
+            // Füge Spalten für RB0 bis RB7 hinzu
+            for (int i = 7; i >= 0; i--)
+            {
+                tableRB.Columns.Add("RB" + i.ToString(), typeof(int));
+            }
+
+            DataRow row = tableRB.NewRow();
+            int k = 0; 
+            for (int i = 7; i >= 0; i--)
+            {
+                row[k] = Command.GetSelectedBit(Command.ram[bank, 5], i);
+                k++; 
+            }
+            tableRB.Rows.Add(row);
+            RBGrid.ItemsSource = tableRB.DefaultView;
+
+            
+
+            for (int i = 7; i >= 0; i--)
+            {
+                tableRA.Columns.Add("RA" + i.ToString(), typeof(int));
+            }
+            int storageRA = Command.ram[bank, 5];
+            DataRow rows = tableRA.NewRow();
+            int j = 0; 
+            for(int i = 7; i >= 0; i--)
+            {
+                rows[j] = Command.GetSelectedBit(Command.ram[bank,5], i);
+                j++; 
+            }
+            tableRA.Rows.Add(rows);
+
+            RAGrid.ItemsSource = tableRA.DefaultView;
+
         }
          private void PrintRam()
         {
@@ -90,7 +164,6 @@ namespace Pic_Simulator
 
         private void dtRowChanged(object sender, DataRowChangeEventArgs e)
         {
-            Console.WriteLine("text");
             DataRow changedRow = e.Row;
             DataTable table = changedRow.Table;
             int rowIndex = table.Rows.IndexOf(changedRow);
@@ -115,7 +188,6 @@ namespace Pic_Simulator
                   
                 Trace.WriteLine(Command.ram[i, (rowstart + j)]); 
             }
- 
         }
 
         private String[] ConvertRowToIntArray(DataRow row)

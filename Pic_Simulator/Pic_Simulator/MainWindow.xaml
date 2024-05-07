@@ -22,6 +22,14 @@
         <ScrollViewer Name="CodeScroller" VerticalScrollBarVisibility="Visible" Margin="322,411,205,10">
             <StackPanel Name="Stack" Height="Auto" Width="653"/>
         </ScrollViewer>
-        <DataGrid Name="MyDataGrid" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" Margin="0,40,1148,403"></DataGrid>
+        <DataGrid Name="MyDataGrid" SelectionUnit="Cell" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,40,1148,403"></DataGrid>
+        <DataGrid Name="RAGrid" SelectionUnit="Cell" SelectionMode="Single" IsReadOnly="True"  MouseDoubleClick="selectedCellsChangedRA" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,547,1069,279"></DataGrid>
+        <DataGrid Name="RBGrid" MouseDoubleClick="selectedCellsChangedRB" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,626,1069,200"></DataGrid>
+        
+            
+        
+        
+        
     </Grid>
+    
 </Window>
