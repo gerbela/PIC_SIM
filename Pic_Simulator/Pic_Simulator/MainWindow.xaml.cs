@@ -44,10 +44,10 @@ namespace Pic_Simulator
             Command.Timer0(Stack);
             Result.Text = "";
             //print ram
-            for (int i = 0; i < 128; i++)
+            /*for (int i = 0; i < 128; i++)
             {
                 Result.Text = Result.Text + " " + Command.ram[bank, i];
-            }
+            }*/
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
             PrintRam(); 
         }
