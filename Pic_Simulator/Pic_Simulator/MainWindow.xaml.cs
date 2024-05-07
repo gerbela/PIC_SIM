@@ -41,7 +41,15 @@ namespace Pic_Simulator
             int colIndex = RAGrid.CurrentCell.Column.DisplayIndex;
             int cellValue = (int)tableRA.Rows[rowIndex][colIndex];
             tableRA.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-
+            int newBit = 0;
+            
+            if (cellValue == 0)
+            {
+               newBit = 1;
+            }
+            MessageBox.Show(newBit.ToString());
+            Command.SetSelectedBit(Command.ram[bank, 5], Math.Abs(colIndex - 7), newBit);
+            PrintRam();
         }
 
             void selectedCellsChangedRB(object sender, RoutedEventArgs e)
@@ -83,30 +91,34 @@ namespace Pic_Simulator
            
 
             // Füge Spalten für RB0 bis RB7 hinzu
-            for (int i = 0; i < 8; i++)
+            for (int i = 7; i >= 0; i--)
             {
                 tableRB.Columns.Add("RB" + i.ToString(), typeof(int));
             }
 
             DataRow row = tableRB.NewRow();
-            for (int i = 0; i < 8; i++)
+            int k = 0; 
+            for (int i = 7; i >= 0; i--)
             {
-                row[i] = Command.GetSelectedBit(Command.ram[bank, 5], i);
+                row[k] = Command.GetSelectedBit(Command.ram[bank, 5], i);
+                k++; 
             }
             tableRB.Rows.Add(row);
             RBGrid.ItemsSource = tableRB.DefaultView;
 
             
 
-            for (int i = 0; i < 8; i++)
+            for (int i = 7; i >= 0; i--)
             {
                 tableRA.Columns.Add("RA" + i.ToString(), typeof(int));
             }
             int storageRA = Command.ram[bank, 5];
             DataRow rows = tableRA.NewRow();
-            for(int i = 0; i < 8; i++)
+            int j = 0; 
+            for(int i = 7; i >= 0; i--)
             {
-                rows[i] = Command.GetSelectedBit(Command.ram[bank,5], i); 
+                rows[j] = Command.GetSelectedBit(Command.ram[bank,5], i);
+                j++; 
             }
             tableRA.Rows.Add(rows);
 
