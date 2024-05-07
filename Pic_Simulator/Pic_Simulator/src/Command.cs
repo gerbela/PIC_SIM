@@ -372,18 +372,9 @@ public class Command
         if ((value & bit) == bit) return 1;
         else return 0;
     }
-    public static int SetSelectedBit(int value, int pos, int bit)
-    {
-        
-        while (pos != 0)
-        {
-            bit = bit << 1;
-            pos--;
-        }
-        return value | bit; 
-    }
+    
 
-    private static int SetSelectedBit(int value, int pos, int bit)
+    public static int SetSelectedBit(int value, int pos, int bit)
     {
         int rotatedBit;
         if(bit == 0)
@@ -391,6 +382,7 @@ public class Command
             rotatedBit = 0b01111111;
             pos = 7 - pos;
             rotatedBit = rotatedBit >> pos;
+            rotatedBit = (rotatedBit + 1) ^ 0xFF; 
             return value & rotatedBit;
         }
         rotatedBit = 0b00000001;

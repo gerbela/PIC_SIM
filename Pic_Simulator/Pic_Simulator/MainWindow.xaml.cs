@@ -46,9 +46,9 @@ namespace Pic_Simulator
             if (cellValue == 0)
             {
                newBit = 1;
-            }
-            MessageBox.Show(newBit.ToString());
-            Command.SetSelectedBit(Command.ram[bank, 5], Math.Abs(colIndex - 7), newBit);
+            }           
+            int ramBit = Command.SetSelectedBit(Command.ram[bank, 5], Math.Abs(colIndex - 7), newBit);
+            Command.ram[bank, 5] = ramBit;
             PrintRam();
         }
 
@@ -58,7 +58,23 @@ namespace Pic_Simulator
             int colIndex = RBGrid.CurrentCell.Column.DisplayIndex;
             int cellValue = (int)tableRB.Rows[rowIndex][colIndex];
             tableRB.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
+            int newBit = 0;
 
+            if (cellValue == 0)
+            {
+                newBit = 1;
+            }
+            int ramBit = Command.SetSelectedBit(Command.ram[bank, 6], Math.Abs(colIndex - 7), newBit);
+            Command.ram[bank, 6] = ramBit;
+            PrintRam();
+        }
+        private void refreshRAB()
+        {
+            for (int i = 7; i >= 0; i--)
+            {
+                tableRA.Rows[0][i] = Command.GetSelectedBit(Command.ram[bank, 5], Math.Abs(i-7)) ;
+                tableRB.Rows[0][i] = Command.GetSelectedBit(Command.ram[bank, 6], Math.Abs(i - 7)); 
+            }
         }
 
 
@@ -83,7 +99,7 @@ namespace Pic_Simulator
             }*/
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
             PrintRam();
-             
+            refreshRAB(); 
         }
         
         private void PrintRaRb()
