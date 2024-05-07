@@ -20,6 +20,7 @@ namespace Pic_Simulator
         public static List<int> commands = new List<int>();
         DataTable tableRB = new DataTable();
         DataTable tableRA = new DataTable();
+        DataTable tableSTR = new DataTable();   
         int bank = 0;
 
         public MainWindow()
@@ -27,6 +28,7 @@ namespace Pic_Simulator
             InitializeComponent();
             PrintRam();
             PrintRaRb();
+            PrintSTR(); 
 
         }
         
@@ -77,6 +79,15 @@ namespace Pic_Simulator
             }
         }
 
+        private void refreshSTR()
+        {
+            for (int i = 7; i >= 0; i--)
+            {
+                tableSTR.Rows[0][i] = Command.GetSelectedBit(Command.ram[bank, 3], Math.Abs(i - 7));
+                
+            }
+        }
+
 
         private void OneStep(object sender, RoutedEventArgs e)
         {
@@ -99,7 +110,8 @@ namespace Pic_Simulator
             }*/
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
             PrintRam();
-            refreshRAB(); 
+            refreshRAB();
+            refreshSTR(); 
         }
         
         private void PrintRaRb()
@@ -141,6 +153,31 @@ namespace Pic_Simulator
             RAGrid.ItemsSource = tableRA.DefaultView;
 
         }
+
+        private void PrintSTR()
+        {
+
+            tableSTR.Columns.Add("IRP", typeof(int));
+            tableSTR.Columns.Add("RP1", typeof(int));
+            tableSTR.Columns.Add("RP0" , typeof(int));
+            tableSTR.Columns.Add("TO", typeof(int));
+            tableSTR.Columns.Add("PD", typeof(int));
+            tableSTR.Columns.Add("Z", typeof(int));
+            tableSTR.Columns.Add("D", typeof(int));
+            tableSTR.Columns.Add("C", typeof(int));
+
+
+            DataRow row = tableSTR.NewRow();
+            int k = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                row[k] = Command.GetSelectedBit(Command.ram[bank, 3], i);
+                k++;
+            }
+            tableSTR.Rows.Add(row);
+            STRGrid.ItemsSource = tableSTR.DefaultView;
+        }
+
          private void PrintRam()
         {
             DataTable dt = new DataTable();
