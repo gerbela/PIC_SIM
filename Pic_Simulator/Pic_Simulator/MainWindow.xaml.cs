@@ -221,9 +221,10 @@ namespace Pic_Simulator
             int rowIndex = table.Rows.IndexOf(changedRow);
             String[] intArray = ConvertRowToIntArray(changedRow);
             int i = 0; 
-            if(rowIndex == 16)
+            if(rowIndex > 15)
             {
-                i = 1; 
+                i = 1;
+                rowIndex = rowIndex - 16; // Das muss gemacht werden da es im dargestellten ram alles in einer Tabelle hängt aber im speicher aufgeteilt wird auf bank 1 und 0
             }
             int rowstart = rowIndex * 8; 
 
@@ -240,6 +241,7 @@ namespace Pic_Simulator
                   
                 Trace.WriteLine(Command.ram[i, (rowstart + j)]); 
             }
+             
         }
 
         private String[] ConvertRowToIntArray(DataRow row)
