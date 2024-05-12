@@ -4,6 +4,7 @@ using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Controls;
+using System.Windows.Xps;
 
 public class Command
 {
@@ -16,20 +17,24 @@ public class Command
     static int callPosition = 0;
     private static int setTMR = 0;
     static int quarzfrequenz = 4000;
+    static int lastEdge = 0;
+    static bool prescalerToWatchdog = true;
 
-    public static void ANDWF(int address)
+    public static int ANDWF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = wReg & ram[bank, address & 0x7F];
         Zeroflag(result);
         DecideSaving(result, address);
+        return 1;
     }
 
-    public static void ADDWF(int address)
+    public static int ADDWF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = ADD(ram[bank, address & 0x007F], wReg);
         DecideSaving(result, address);
+        return 1;
     }
     private static int ADD(int value1, int value2)
     {
@@ -38,50 +43,58 @@ public class Command
         Zeroflag((value1 + value2) % 256);
         return (value1 + value2) & 0xFF; // Wird carry immer aktiv auf 0 gesetzt?
     }
-    public static void MOVLW(int literal)
+    public static int MOVLW(int literal)
     {
         wReg = literal;
+        return 1;
     }
 
-    public static void MOVWF(int storageLocation)
+    public static int MOVWF(int storageLocation)
     {
         if (storageLocation == 0) storageLocation = ram[bank, 4];
         ram[bank, storageLocation] = wReg;
+        if (bank == 0 && storageLocation == 1) SetPrescaler();
+        return 1;
     }
-    public static void ADDLW(int literal)
+    public static int ADDLW(int literal)
     {
         int result = ADD(literal, wReg);
         wReg = result;
+        return 1;
     }
 
-    public static void ANDLW(int literal)
+    public static int ANDLW(int literal)
     {
         wReg = literal & wReg;
         Zeroflag(wReg);
+        return 1;
     }
 
-    public static void CLRF(int address)
+    public static int CLRF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         ram[bank, address] = 0;
         Zeroflag(ram[bank, address]);
+        return 1;
     }
 
-    public static void CLRW()
+    public static int CLRW()
     {
         wReg = 0;
         Zeroflag(wReg);
+        return 1;
     }
-    public static void COMF(int address)
+    public static int COMF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int value = ram[bank, address & 0x7F];
         int kom = value ^ 0xFF;
         Zeroflag(kom);
         DecideSaving(kom, address);
+        return 1;
     }
 
-    public static void CALL(int address, StackPanel stack)
+    public static int CALL(int address, StackPanel stack)
     {
         if (callPosition == 8)
         {
@@ -91,84 +104,93 @@ public class Command
         ram[bank, 2] = address;
         callPosition++;
         LST_File.JumpToLine(stack, address);
+        return 2;
     }
 
-    public static void DECF(int address)
+    public static int DECF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = (ram[bank, address & 0x7F] + 0xFF) % 256;
         Zeroflag(result);//SUB(ram[bank, address & 0x7F],1);
         DecideSaving(result, address);
+        return 1;
     }
 
-    public static bool RETURN(StackPanel stack)
+    public static int RETURN(StackPanel stack)
     {
         if (callPosition <= 0)
         {
             LST_File.pos++;
-            return false;
+            //todo Fehler
         }
         int address = callStack[callPosition - 1];
         callStack[callPosition - 1] = -1;
         callPosition--;
         LST_File.JumpToLine(stack, address + 1);
-        return true;
+        return 2;
     }
 
-    public static void DECFSZ(int address, StackPanel stack)
+    public static int DECFSZ(int address, StackPanel stack)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = (ram[bank, address & 0x7F] - 1) % 256;
         DecideSaving(result, address);
         if (result == 0)
         {
             ram[bank, 2] += 1;
             LST_File.JumpToLine(stack, ram[bank, 2]);
+            return 2;
         }
-
+        return 1;
     }
-    public static void INCF(int address)
+    public static int INCF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = (ram[bank, address & 0x7F] + 1) % 256;
         DecideSaving(result, address);
         Zeroflag(result);
+        return 1;
     }
-    public static void INCFSZ(int address, StackPanel stack)
+    public static int INCFSZ(int address, StackPanel stack)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = (ram[bank, address & 0x7F] + 1) % 256;
         DecideSaving(result, address);
         if (result == 0)
         {
             ram[bank, 2] += 1;
             LST_File.JumpToLine(stack, ram[bank, 2]);
+            return 2;
         }
+        return 1;
     }
 
-    public static void IORWF(int address)
+    public static int IORWF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = wReg ^ ram[bank, address & 0x7F];
         DecideSaving(result, address);
         Zeroflag(result);
+        return 1;
     }
 
-    public static void MOVF(int address)
+    public static int MOVF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int value = ram[bank, address & 0x7F];
         DecideSaving(value, address);
         Zeroflag(value);
+        return 1;
     }
 
-    public static void NOP()
+    public static int NOP()
     {
         //Hier wird nichts ausgeführt
+        return 1;
     }
-    public static void RLF(int address)
+    public static int RLF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int firstBit = ram[bank, address & 0x7F] & 0x80;
         int carryValueOld = ram[bank, 3] & 0x1;
         if (firstBit == 128)
@@ -186,11 +208,12 @@ public class Command
             result = result + 1;
         }
         DecideSaving(result, address);
+        return 1;
     }
 
-    public static void RRF(int address)
+    public static int RRF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int LasttBit = ram[bank, address & 0x7F] & 0x1;
         int carryValueOld = ram[bank, 3] & 0x1;
         if (LasttBit == 1)
@@ -208,110 +231,124 @@ public class Command
             result = result + 128;
         }
         DecideSaving(result, address);
+        return 1;
     }
 
-    public static void XORWF(int address)
+    public static int XORWF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = wReg ^ ram[bank, address & 0x7F];
         DecideSaving(result, address);
         Zeroflag(result);
+        return 1;
     }
 
-    public static void XORLW(int literal)
+    public static int XORLW(int literal)
     {
         wReg = wReg ^ literal;
         Zeroflag(wReg);
+        return 1;
     }
 
-    public static void GOTO(int address, StackPanel stack)
+    public static int GOTO(int address, StackPanel stack)
     {
         ram[bank, 2] = address;
         LST_File.JumpToLine(stack, address);
+        return 2;
     }
 
-    public static bool RETLW(int value, StackPanel stack)
+    public static int RETLW(int value, StackPanel stack)
     {
-        bool result = RETURN(stack);
-        if (result) wReg = value;
-        return result;
+        RETURN(stack);
+        wReg = value;
+        return 2;
     }
 
-    public static void BCF(int address)
+    public static int BCF(int address)
     {
         if ((address & 0x7F) == 0) address = (address & 0xFF80) | ram[bank, 4];
         int bit = (address & 0x380) >> 7;
         int rotated = (0x01 << bit) ^ 0xFF;
         ram[bank, address & 0x7F] = ram[bank, address & 0x7F] & rotated;
+        if ((ram[bank, 0x3] & 0x20) == 0x0) bank = 0;
+        return 1;
     }
 
-    public static void BSF(int address)
+    public static int BSF(int address)
     {
         if ((address & 0x7F) == 0) address = (address & 0xFF80) | ram[bank, 4];
         int bit = (address & 0x380) >> 7;
         int rotated = 0x01 << bit;
         ram[bank, address & 0x7F] = ram[bank, address & 0x7F] | rotated;
+        int tmp = ram[bank, 0x3] & 0x20;
+        if ((ram[bank, 0x3] & 0x20) == 0x20) bank = 1;
+        return 1;
     }
-    public static void BTFSC(int address, StackPanel stack)
+    public static int BTFSC(int address, StackPanel stack)
     {
         if ((address & 0x7F) == 0) address = (address & 0xFF80) | ram[bank, 4];
         int bit = (address & 0x380) >> 7;
-        int rotated = (ram[bank, address & 0x7F] >> bit - 1) & 0x1;
-        if (rotated == 1) return;
+        int rotated = (ram[bank, address & 0x7F] >> bit) & 0x1;
+        if (rotated == 1) return 1;
         LST_File.JumpToLine(stack, ram[bank, 2] + 1);
+        return 2;
     }
-    public static void BTFSS(int address, StackPanel stack)
+    public static int BTFSS(int address, StackPanel stack)
     {
         if ((address & 0x7F) == 0) address = (address & 0xFF80) | ram[bank, 4];
         int bit = (address & 0x380) >> 7;
-        int rotated = (ram[bank, address & 0x7F] >> bit - 1) & 0x1;
-        if (rotated == 0) return;
+        int rotated = (ram[bank, address & 0x7F] >> bit) & 0x1;
+        if (rotated == 0) return 1;
         LST_File.JumpToLine(stack, ram[bank, 2] + 1);
+        return 2;
     }
-    public static void SWAPF(int address)
+    public static int SWAPF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int value = ram[bank, address & 0x7F];
         int newUpper = (value & 0x0F) << 4;
         int newLower = (value & 0xF0) >> 4;
         int newValue = newUpper | newLower;
         DecideSaving(newValue, address);
+        return 1;
     }
-    public static void IORLW(int value)
+    public static int IORLW(int value)
     {
         wReg = wReg | value;
         Zeroflag(wReg);
+        return 1;
     }
-    public static void SUBLW(int value)
+    public static int SUBLW(int value)
     {
         int kom = (wReg ^ 0xFF) + 1;
         int result = ADD(value, kom);
         //kom = (result ^ 0xFF) + 1;
         wReg = result;
+        return 1;
     }
-    public static void SUBWF(int address)
+    public static int SUBWF(int address)
     {
-        if (address == 0) address = ram[bank, 4];
+        if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int kom = (wReg ^ 0xFF) +1;
         int result = ADD(ram[bank, address & 0x7F], kom);
-
-
         //kom = (result ^ 0xFF) + 1;
         DecideSaving(result, address);
+        return 1;
     }
 
-    public static void CLRWDT()
+    public static int CLRWDT()
     {
         watchdog = 18000;
-        prescaler = 128;
+        SetPrescaler();
         ram[0, 3] = ram[0, 3] | 0b00011000;
+        return 1;
     }
     private static void DecideSaving(int value, int address = -1)
     {
         if ((address & 0x0080) == 0x0080)
         {
             if (address == -1) return;
-            if (address == 1) ResetTimer0();
+            if (bank == 0 && address == 1) SetPrescaler();
             ram[bank, address & 0x7F] = value;
         }
         else
@@ -390,30 +427,46 @@ public class Command
         return value | rotatedBit;
     }
 
-    public static void Timer0(StackPanel stack)
+    public static void Timer0(StackPanel stack, int steps)
     {
         if (GetSelectedBit(ram[1, 1], 5) == 0)
         {
-            if (setTMR % 3 == 0)
+            setTMR += steps;
+            if (setTMR >= prescaler)
             {
                 ram[0, 1] += 1;
-                setTMR++;
-                Timer0Interrupt(stack);
+                setTMR = setTMR % prescaler;
+            }
+            Zeroflag(ram[0, 1] & 0xFF);
+        }
+        else
+        {
+            //check if option bit 4 is 0 or 1
+            if (GetSelectedBit(ram[1, 1], 4) == 0)
+            {
+                //if option bit 4 is zero reacting on rising edge
+                if (GetSelectedBit(ram[0, 5], 4) == 1 && lastEdge == 0)
+                {
+                    ram[0, 1] += 1;
+                    lastEdge = 1;
+                }
+                else if (GetSelectedBit(ram[0, 5], 4) == 0 && lastEdge == 1) lastEdge = 0;
             }
             else
             {
-                setTMR++;
+                //if option bit 4 is one reacting on falling edge
+                if (GetSelectedBit(ram[0, 5], 4) == 0 && lastEdge == 1)
+                {
+                    ram[0, 1] += 1;
+                    lastEdge = 0;
+                }
+                else if (GetSelectedBit(ram[0, 5], 4) == 1 && lastEdge == 0) lastEdge = 1;
             }
         }
-    }
-    private static void Reset()
-    {
-        ram[1, 1] = 0b11111111;
-        prescaler = 128;
-        
+        Timer0Interrupt(stack);
     }
 
-    public static void SetPrescaler()
+    private static void SetPrescaler()
     {
         if (GetSelectedBit(ram[1, 1], 5) == 1)
         {
@@ -431,41 +484,47 @@ public class Command
         {
             ram[0, 1] = 0;
         }
+        SetPrescaler();
     }
 
+    public static void PSA()
+    {
+        if (GetSelectedBit(ram[1,1],3) == 0)
+        {
+            prescalerToWatchdog = false;
+        }
+        else
+        {
+            prescalerToWatchdog = true;
+        }
+        SetPrescaler();
+    }
     public static void Watchdog(int deltaT)
     {
         deltaT = deltaT * 4000 / quarzfrequenz;
         if (watchdog + deltaT >= 18000)
         {
-            if (prescaler != 0)
+            if(prescalerToWatchdog)
             {
-                prescaler--;
-                watchdog = watchdog + deltaT - 18000;
+                if (prescaler != 0)
+                {
+                    prescaler--;
+                    watchdog = watchdog + deltaT - 18000;
+                }
+                else
+                {
+                    //Error
+                }
             }
             else
             {
-                //Error
+                //error
             }
+
         }
         watchdog += deltaT;
     }
 
-    //todo Event einfügen
-    public static void Timer0SetT0CS(StackPanel stack)
-    {
-        if (GetSelectedBit(ram[1, 1], 5) == 1)
-        {
-            if (GetSelectedBit(ram[1, 1], 4) == 0 && GetSelectedBit(ram[0, 5], 4) == 1)
-            {
-                ram[0, 1] += 1;
-            }
-            if (GetSelectedBit(ram[1, 1], 4) == 1 && GetSelectedBit(ram[0, 5], 4) == 0)
-            {
-                ram[0, 1] += 1;
-            }
-        }Timer0Interrupt(stack);
-    }
     public static void Timer0Interrupt(StackPanel stack)
     {
         if (ram[0,1] == 256)
@@ -477,6 +536,8 @@ public class Command
     }
     public static void ResetController()
     {
-        ram[1, 1] = 0b11111111;
+        //todo change to reset 0b1111111;
+        ram[1, 1] = 0b00000000;
+        PSA();
     }
 }

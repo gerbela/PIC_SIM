@@ -2,6 +2,7 @@
 using System.Data;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -22,6 +23,7 @@ namespace Pic_Simulator
         DataTable tableRA = new DataTable();
         DataTable tableSTR = new DataTable();   
         int bank = 0;
+        private static System.Timers.Timer aTimer;
 
         public MainWindow()
         {
@@ -51,7 +53,25 @@ namespace Pic_Simulator
             }           
             int ramBit = Command.SetSelectedBit(Command.ram[bank, 5], Math.Abs(colIndex - 7), newBit);
             Command.ram[bank, 5] = ramBit;
+            LEDOne.Fill = new SolidColorBrush(Colors.Red); //Das gehört hier nicht hin ist nur zum ausprobieren und zeigen wies funktioniert!
             PrintRam();
+        }
+
+        private void selectedCellsChangedSTR(object sender, RoutedEventArgs e) {
+            int rowIndex = STRGrid.Items.IndexOf(STRGrid.CurrentItem);
+            int colIndex = STRGrid.CurrentCell.Column.DisplayIndex;
+            int cellValue = (int)tableSTR.Rows[rowIndex][colIndex];
+            tableSTR.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
+            int newBit = 0;
+
+            if (cellValue == 0)
+            {
+                newBit = 1;
+            }
+            int ramBit = Command.SetSelectedBit(Command.ram[bank, 3], Math.Abs(colIndex - 7), newBit);
+            Command.ram[bank, 3] = ramBit;
+            PrintRam();
+
         }
 
             void selectedCellsChangedRB(object sender, RoutedEventArgs e)
@@ -101,14 +121,13 @@ namespace Pic_Simulator
             int command = Fetch();
             if (!Decode(command)) return;
             LST_File.MarkLine(Stack, CodeScroller);
-            Command.Timer0(Stack);
             Result.Text = "";
             //print ram
             /*for (int i = 0; i < 128; i++)
             {
                 Result.Text = Result.Text + " " + Command.ram[bank, i];
             }*/
-            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg;
+            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog;
             PrintRam();
             refreshRAB();
             refreshSTR(); 
@@ -269,149 +288,142 @@ namespace Pic_Simulator
 
         private bool Decode(int command)
         {
+            int deltaT = 0;
             if ((command & 0x3F00) == 0x3000)
             {
-                Command.MOVLW(command & 0xFF);
+                deltaT = Command.MOVLW(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0080)
             {
-                Command.MOVWF(command & 0x7F);
+                deltaT = Command.MOVWF(command & 0x7F);
             }
             if ((command & 0x3F80) == 0x0780 || (command & 0x3F80) == 0x0700)
             {
-                Command.ADDWF(command & 0xFF);
+                deltaT = Command.ADDWF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0500 || (command & 0x3F80) == 0x0580)
             {
-                Command.ANDWF(command & 0xFF);
+                deltaT = Command.ANDWF(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3E00)
             {
-                Command.ADDLW(command & 0xFF);
+                deltaT = Command.ADDLW(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3900)
             {
-                Command.ANDLW(command & 0xFF);
+                deltaT = Command.ANDLW(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0180)
             {
-                Command.CLRF(command & 0x7F);
+                deltaT = Command.CLRF(command & 0x7F);
             }
             if ((command & 0x3F80) == 0x0100)
             {
-                Command.CLRW();
+                deltaT = Command.CLRW();
             }
             if ((command & 0x3F80) == 0x0980 || (command & 0x3F80) == 0x0900)
             {
-                Command.COMF(command & 0xFF);
+                deltaT = Command.COMF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0380 || (command & 0x3F80) == 0x0300)
             {
-                Command.DECF(command & 0xFF);
+                deltaT = Command.DECF(command & 0xFF);
             }
             if ((command & 0x3800) == 0x2000)
             {
-                Command.CALL(command & 0xFF, Stack);
+                deltaT = Command.CALL(command & 0xFF, Stack);
             }
             if ((command & 0xFFFF) == 0x0008)
             {
-                bool tmpPos = Command.RETURN(Stack);
+                deltaT = Command.RETURN(Stack);
             }
             if ((command & 0x3800) == 0x2800)
             {
-                Command.GOTO(command & 0x7FF, Stack);
+                deltaT = Command.GOTO(command & 0x7FF, Stack);
             }
             if ((command & 0xFC00) == 0x3400)
             {
-                bool tmpPos = Command.RETLW(command & 0xFF, Stack);
+                deltaT = Command.RETLW(command & 0xFF, Stack);
             }
             if ((command & 0x3F80) == 0x0B80 || (command & 0x3F80) == 0x0B00)
             {
-                Command.DECFSZ(command & 0xFF, Stack);
-
+                deltaT = Command.DECFSZ(command & 0xFF, Stack);
             }
             if ((command & 0x3F80) == 0x0A80 || (command & 0x3F80) == 0x0A00)
             {
-                Command.INCF(command & 0xFF);
+                deltaT = Command.INCF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0F80 || (command & 0x3F80) == 0xF00)
             {
-                Command.INCFSZ(command & 0xFF, Stack);
+                deltaT = Command.INCFSZ(command & 0xFF, Stack);
             }
             if ((command & 0x3F80) == 0x0480 || (command & 0x3F80) == 0x0400)
             {
-                Command.IORWF(command & 0xFF);
+                deltaT = Command.IORWF(command & 0xFF);
             }
-
             if ((command & 0x3F80) == 0x0880 || (command & 0x3F80) == 0x0800)
             {
-                Command.MOVF(command & 0xFF);
+                deltaT = Command.MOVF(command & 0xFF);
             }
-
             if ((command & 0xFFFF) == 0x0000)
             {
-                Command.NOP();
+                deltaT = Command.NOP();
             }
-
             if ((command & 0x3F80) == 0x0D80 || (command & 0x3F80) == 0x0D00)
             {
-                Command.RLF(command & 0xFF);
+                deltaT = Command.RLF(command & 0xFF);
             }
-
             if ((command & 0x3F80) == 0x0C80 || (command & 0x3F80) == 0x0C00)
             {
-                Command.RRF(command & 0xFF);
+                deltaT = Command.RRF(command & 0xFF);
             }
-
             if ((command & 0x3F80) == 0x0680 || (command & 0x3F80) == 0x0600)
             {
-                Command.XORWF(command & 0xFF);
+                deltaT = Command.XORWF(command & 0xFF);
             }
-
             if ((command & 0x3F00) == 0x3A00)
             {
-                Command.XORLW(command & 0xFF);
+                deltaT = Command.XORLW(command & 0xFF);
             }
-
-
             if ((command & 0x3C00) == 0x1000)
             {
-                Command.BCF(command & 0x03FF);
+                deltaT = Command.BCF(command & 0x03FF);
             }
             if ((command & 0x3C00) == 0x1400)
             {
-                Command.BSF(command & 0x03FF);
+                deltaT = Command.BSF(command & 0x03FF);
             }
             if ((command & 0x3C00) == 0x1800)
             {
-                Command.BTFSC(command & 0x03FF, Stack);
+                deltaT = Command.BTFSC(command & 0x03FF, Stack);
             }
             if ((command & 0x3C00) == 0x1C00)
             {
-                Command.BTFSS(command & 0x03FF, Stack);
+                deltaT = Command.BTFSS(command & 0x03FF, Stack);
             }
             if ((command & 0x3F00) == 0x0E00)
             {
-                Command.SWAPF(command & 0xFF);
+                deltaT = Command.SWAPF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0280 || (command & 0x3F80) == 0x0200)
             {
-                Command.SUBWF(command & 0xFF);
+                deltaT = Command.SUBWF(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3800)
             {
-                Command.IORLW(command & 0xFF);
+                deltaT = Command.IORLW(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3C00)
             {
-                Command.SUBLW(command & 0xFF);
+                deltaT = Command.SUBLW(command & 0xFF);
             }
             if((command & 0xFFFF) == 0x0060)
             {
-                Command.CLRWDT();
+                deltaT = Command.CLRWDT();
             }
+            if(!((command & 0x3F80) == 0x0080 && (command & 0x7F) == 1)) Command.Timer0(Stack,deltaT);
+            Command.Watchdog(deltaT);
             return true;
-
         }
 
     }
