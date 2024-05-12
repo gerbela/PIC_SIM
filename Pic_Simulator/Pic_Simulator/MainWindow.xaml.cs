@@ -53,7 +53,6 @@ namespace Pic_Simulator
             }           
             int ramBit = Command.SetSelectedBit(Command.ram[bank, 5], Math.Abs(colIndex - 7), newBit);
             Command.ram[bank, 5] = ramBit;
-            LEDOne.Fill = new SolidColorBrush(Colors.Red); //Das gehört hier nicht hin ist nur zum ausprobieren und zeigen wies funktioniert!
             PrintRam();
         }
 
@@ -130,9 +129,110 @@ namespace Pic_Simulator
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog;
             PrintRam();
             refreshRAB();
-            refreshSTR(); 
+            refreshSTR();
+            lightLEDs(); 
         }
         
+        private void lightLEDs()
+        {
+            int port = 6; // this can be changed weather its PortA or PortB, needs to implemented later
+
+            
+            int intValue= Command.ram[bank, port]; 
+
+            for(int i = 0; i < 8; i++)
+            {
+                int LED = Command.GetSelectedBit(intValue, i); 
+                switch (i)
+                {
+                    case 0:
+                        if (LED == 0)
+                        {
+                            LEDOne.Fill = new SolidColorBrush(Colors.Gray);
+                        }
+                        else
+                        {
+                            LEDOne.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                        break;
+                    case 1:
+                        if (LED == 0)
+                        {
+                            LEDOTwo.Fill = new SolidColorBrush(Colors.Gray);
+                        }
+                        else
+                        {
+                            LEDOTwo.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                        break;
+                    case 2:
+                        if (LED == 0)
+                        {
+                            LEDThree.Fill = new SolidColorBrush(Colors.Gray);
+                        }
+                        else
+                        {
+                            LEDThree.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                        break;
+                    case 3:
+                        if (LED == 0)
+                        {
+                            LEDFour.Fill = new SolidColorBrush(Colors.Gray);
+                        }
+                        else
+                        {
+                            LEDFour.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                        break;
+                    case 4:
+                        if (LED == 0)
+                        {
+                            LEDFive.Fill = new SolidColorBrush(Colors.Gray);
+                        }
+                        else
+                        {
+                            LEDFive.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                        break;
+                    case 5:
+                        if (LED == 0)
+                        {
+                            LEDSix.Fill = new SolidColorBrush(Colors.Gray);
+                        }
+                        else
+                        {
+                            LEDSix.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                        break;
+                    case 6:
+                        if (LED == 0)
+                        {
+                            LEDSeven.Fill = new SolidColorBrush(Colors.Gray);
+                        }
+                        else
+                        {
+                            LEDSeven.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                        break;
+                    case 7:
+                        if (LED == 0)
+                        {
+                            LEDEight.Fill = new SolidColorBrush(Colors.Gray);
+                        }
+                        else
+                        {
+                            LEDEight.Fill = new SolidColorBrush(Colors.Red);
+                        }
+                        break;
+                    
+
+                }
+            }
+
+        }
+
+
         private void PrintRaRb()
         {
            
