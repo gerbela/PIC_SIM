@@ -17,9 +17,14 @@ public class Command
     public static int[] callStack = { -1, -1, -1, -1, -1, -1, -1, -1 };
     static int callPosition = 0;
     private static int setTMR = 0;
-    public static int quarzfrequenz = 4000;
+    public static int quarzfrequenz = 4000000;
     static int lastEdge = 0;
     static bool prescalerToWatchdog = true;
+
+    public static void setQuarzfrequenz(int newQuarzfrezuenz)
+    {
+        quarzfrequenz = newQuarzfrezuenz; 
+    }
 
     public static int ANDWF(int address)
     {
@@ -517,7 +522,7 @@ public class Command
     }
     public static void Watchdog(int deltaT)
     {
-        deltaT = deltaT * 4000 / quarzfrequenz;
+        deltaT = deltaT * 4000000 / quarzfrequenz;
         if (watchdog + deltaT >= 18000)
         {
             if(prescalerToWatchdog)

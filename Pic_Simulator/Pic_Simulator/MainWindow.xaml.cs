@@ -563,7 +563,7 @@ namespace Pic_Simulator
         private void displayrunTime(int deltaT)
         {
 
-            runTime += ((deltaT * 4000.00) / Command.quarzfrequenz);
+            runTime += ((deltaT * 4000000.00) / Command.quarzfrequenz);
             Laufzeitzaehler.Text = runTime.ToString();
         }
 
@@ -708,5 +708,33 @@ namespace Pic_Simulator
             return true;
         }
 
-    }
+        private void quarzfrequenz_Four(object sender, RoutedEventArgs e)
+        {
+            Command.setQuarzfrequenz(4000000);
+        }
+
+        private void quarzfrequenz_Eight(object sender, RoutedEventArgs e)
+        {
+            Command.setQuarzfrequenz(8000000);
+        }
+
+        private void quarzfrequenz_Sixteen(object sender, RoutedEventArgs e)
+        {
+            Command.setQuarzfrequenz(16000000);
+        }
+
+        private void quarzfrequenz_Thrittwo(object sender, RoutedEventArgs e)
+        {
+            Command.setQuarzfrequenz(32000);
+        }
+
+
+        
+        private void MenuItem_Click(object sender, RoutedEventArgs e)
+        {
+           
+        }
+
+
+}
 }

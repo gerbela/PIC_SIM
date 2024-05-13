@@ -12,8 +12,17 @@
         ">
     <Grid Name="MyGrid">
         <Menu Margin="0,0,0,0" VerticalAlignment="Top" Height="40">
-            <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9">
+            <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9" Click="MenuItem_Click">
                 <MenuItem Header="Laden" Click="LoadFile"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Settings" Height="40" Width="62" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="9" Click="MenuItem_Click">
+                <MenuItem Header="Quarzfrequenz" Click="MenuItem_Click">
+                    <MenuItem Header="4 MGhz" Click="quarzfrequenz_Four"></MenuItem>
+                    <MenuItem Header="8 MGHZ" Click="quarzfrequenz_Eight"></MenuItem>
+                    <MenuItem Header="16 MGHZ" Click="quarzfrequenz_Sixteen"></MenuItem>
+                    <MenuItem Header="32 KHZ" Click="quarzfrequenz_Thrittwo"></MenuItem>
+                </MenuItem>
+                
             </MenuItem>
             <Menu/>
         </Menu>
