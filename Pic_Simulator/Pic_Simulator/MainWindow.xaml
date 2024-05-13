@@ -10,7 +10,11 @@
         ResizeMode="CanResizeWithGrip"
         Title="Pic Simulator" Width="1355" Height="916">
     <Grid Name="MyGrid">
-        <Menu Margin="0,0,0,0" VerticalAlignment="Top" Height="40">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="13*"/>
+            <RowDefinition Height="7*"/>
+        </Grid.RowDefinitions>
+        <Menu VerticalAlignment="Top" Height="40">
             <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9">
                 <MenuItem Header="Laden" Click="LoadFile"></MenuItem>
             </MenuItem>
@@ -19,21 +23,21 @@
 
         <TextBox Name ="Result" HorizontalAlignment="Left" Margin="1133,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="141" Height="196"/>
         <Button Content="Weiter" HorizontalAlignment="Left" Margin="1204,500,0,0" VerticalAlignment="Top" Height="28" Width="70" Click="OneStep"/>
-        <ScrollViewer Name="CodeScroller" VerticalScrollBarVisibility="Visible" Margin="322,411,205,10">
+        <ScrollViewer Name="CodeScroller" VerticalScrollBarVisibility="Visible" Margin="322,411,205,10" Grid.RowSpan="2">
             <StackPanel Name="Stack" Height="Auto" Width="653"/>
         </ScrollViewer>
-        <DataGrid Name="MyDataGrid" SelectionUnit="Cell" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,40,1148,403"></DataGrid>
-        <DataGrid Name="RAGrid" SelectionUnit="Cell" SelectionMode="Single" IsReadOnly="True"  MouseDoubleClick="selectedCellsChangedRA" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,547,1069,279"></DataGrid>
-        <DataGrid Name="RBGrid" MouseDoubleClick="selectedCellsChangedRB" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,626,1069,200"></DataGrid>
-        <DataGrid Name="STRGrid" MouseDoubleClick="selectedCellsChangedSTR" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,700,1069,126"></DataGrid>
-        <Ellipse Name="LEDOne" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="10,811,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"></Ellipse>
-        <Ellipse Name="LEDOTwo" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="64,811,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDThree" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="113,811,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDFour" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="167,811,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDFive" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="10,856,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDSix" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="64,856,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDSeven" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="113,856,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDEight" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="167,856,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+        <DataGrid Name="MyDataGrid" SelectionUnit="Cell" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,40,1148,88"></DataGrid>
+        <DataGrid Name="RAGrid" SelectionUnit="Cell" SelectionMode="Single" IsReadOnly="True"  MouseDoubleClick="selectedCellsChangedRA" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,547,1069,279" Grid.RowSpan="2"></DataGrid>
+        <DataGrid Name="RBGrid" MouseDoubleClick="selectedCellsChangedRB" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,41,1069,200" Grid.Row="1"></DataGrid>
+        <DataGrid Name="STRGrid" MouseDoubleClick="selectedCellsChangedSTR" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,115,1069,126" Grid.Row="1"></DataGrid>
+        <Ellipse Name="LEDOne" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="10,226,0,0" Stroke="Black" VerticalAlignment="Top" Width="40" Grid.Row="1"></Ellipse>
+        <Ellipse Name="LEDOTwo" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="64,226,0,0" Stroke="Black" VerticalAlignment="Top" Width="40" Grid.Row="1"/>
+        <Ellipse Name="LEDThree" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="113,226,0,0" Stroke="Black" VerticalAlignment="Top" Width="40" Grid.Row="1"/>
+        <Ellipse Name="LEDFour" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="167,226,0,0" Stroke="Black" VerticalAlignment="Top" Width="40" Grid.Row="1"/>
+        <Ellipse Name="LEDFive" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="10,271,0,0" Stroke="Black" VerticalAlignment="Top" Width="40" Grid.Row="1"/>
+        <Ellipse Name="LEDSix" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="64,271,0,0" Stroke="Black" VerticalAlignment="Top" Width="40" Grid.Row="1"/>
+        <Ellipse Name="LEDSeven" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="113,271,0,0" Stroke="Black" VerticalAlignment="Top" Width="40" Grid.Row="1"/>
+        <Ellipse Name="LEDEight" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="167,271,0,0" Stroke="Black" VerticalAlignment="Top" Width="40" Grid.Row="1"/>
 
 
 
