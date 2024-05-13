@@ -21,7 +21,9 @@ namespace Pic_Simulator
         public static List<int> commands = new List<int>();
         DataTable tableRB = new DataTable();
         DataTable tableRA = new DataTable();
-        DataTable tableSTR = new DataTable();   
+        DataTable tableSTR = new DataTable();
+        DataTable tableIntCon = new DataTable();
+        DataTable tableOption = new DataTable();
         int bank = 0;
         private static System.Timers.Timer aTimer;
 
@@ -31,7 +33,9 @@ namespace Pic_Simulator
             Command.startUpRam();  
             PrintRam();
             PrintRaRb();
-            PrintSTR(); 
+            PrintSTR();
+            PrintOption();
+            PrintINTCON();
 
         }
         
@@ -75,7 +79,45 @@ namespace Pic_Simulator
 
         }
 
-            void selectedCellsChangedRB(object sender, RoutedEventArgs e)
+        private void selectedCellsChangedINTCON(object sender, RoutedEventArgs e)
+        {
+            int rowIndex = INTCONGrid.Items.IndexOf(INTCONGrid.CurrentItem);
+            int colIndex = INTCONGrid.CurrentCell.Column.DisplayIndex;
+            int cellValue = (int)tableIntCon.Rows[rowIndex][colIndex];
+            tableIntCon.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
+            int newBit = 0;
+
+            if (cellValue == 0)
+            {
+                newBit = 1;
+            }
+            int ramBit = Command.SetSelectedBit(Command.ram[0, 11], Math.Abs(colIndex - 7), newBit);
+            Command.ram[0, 11] = ramBit;
+            PrintRam();
+        }
+
+        private void selectedCellsChangedOption(object sender, RoutedEventArgs e)
+        {
+            int rowIndex = OptionGrid.Items.IndexOf(OptionGrid.CurrentItem);
+            int colIndex = OptionGrid.CurrentCell.Column.DisplayIndex;
+            int cellValue = (int)tableOption.Rows[rowIndex][colIndex];
+            tableOption.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
+            int newBit = 0;
+
+            if (cellValue == 0)
+            {
+                newBit = 1;
+            }
+            int ramBit = Command.SetSelectedBit(Command.ram[1, 1], Math.Abs(colIndex - 7), newBit);
+            Command.ram[1, 1] = ramBit;
+            PrintRam();
+        }
+
+
+
+
+
+        void selectedCellsChangedRB(object sender, RoutedEventArgs e)
         {
             int rowIndex = RBGrid.Items.IndexOf(RBGrid.CurrentItem);
             int colIndex = RBGrid.CurrentCell.Column.DisplayIndex;
@@ -126,6 +168,24 @@ namespace Pic_Simulator
             }
         }
 
+        private void refreshIntCon()
+        {
+            for (int i = 7; i >= 0; i--)
+            {
+                tableIntCon.Rows[0][i] = Command.GetSelectedBit(Command.ram[0, 11], Math.Abs(i - 7));
+
+            }
+        }
+
+        private void refreshOption()
+        {
+            for (int i = 7; i >= 0; i--)
+            {
+                tableOption.Rows[0][i] = Command.GetSelectedBit(Command.ram[1, 1], Math.Abs(i - 7));
+
+            }
+        }
+
 
         private void OneStep(object sender, RoutedEventArgs e)
         {
@@ -149,12 +209,15 @@ namespace Pic_Simulator
             PrintRam();
             refreshRAB();
             refreshSTR();
+            refreshIntCon();
+            refreshOption();
             lightLEDs(); 
         }
         
         private void lightLEDs()
         {
-            int port = 6; // this can be changed weather its PortA or PortB, needs to implemented later
+            int port = 5; // this can be changed weather its PortA or PortB, needs to implemented later
+
 
             
             int intValue= Command.ram[bank, port]; 
@@ -162,91 +225,97 @@ namespace Pic_Simulator
             for(int i = 0; i < 8; i++)
             {
                 int LED = Command.GetSelectedBit(intValue, i); 
-                switch (i)
+                int isOutputValue = Command.ram[1, port];
+                int LEDisOutput = Command.GetSelectedBit(isOutputValue, i);
+                if(LEDisOutput == 0)
                 {
-                    case 0:
-                        if (LED == 0)
-                        {
-                            LEDOne.Fill = new SolidColorBrush(Colors.Gray);
-                        }
-                        else
-                        {
-                            LEDOne.Fill = new SolidColorBrush(Colors.Red);
-                        }
-                        break;
-                    case 1:
-                        if (LED == 0)
-                        {
-                            LEDOTwo.Fill = new SolidColorBrush(Colors.Gray);
-                        }
-                        else
-                        {
-                            LEDOTwo.Fill = new SolidColorBrush(Colors.Red);
-                        }
-                        break;
-                    case 2:
-                        if (LED == 0)
-                        {
-                            LEDThree.Fill = new SolidColorBrush(Colors.Gray);
-                        }
-                        else
-                        {
-                            LEDThree.Fill = new SolidColorBrush(Colors.Red);
-                        }
-                        break;
-                    case 3:
-                        if (LED == 0)
-                        {
-                            LEDFour.Fill = new SolidColorBrush(Colors.Gray);
-                        }
-                        else
-                        {
-                            LEDFour.Fill = new SolidColorBrush(Colors.Red);
-                        }
-                        break;
-                    case 4:
-                        if (LED == 0)
-                        {
-                            LEDFive.Fill = new SolidColorBrush(Colors.Gray);
-                        }
-                        else
-                        {
-                            LEDFive.Fill = new SolidColorBrush(Colors.Red);
-                        }
-                        break;
-                    case 5:
-                        if (LED == 0)
-                        {
-                            LEDSix.Fill = new SolidColorBrush(Colors.Gray);
-                        }
-                        else
-                        {
-                            LEDSix.Fill = new SolidColorBrush(Colors.Red);
-                        }
-                        break;
-                    case 6:
-                        if (LED == 0)
-                        {
-                            LEDSeven.Fill = new SolidColorBrush(Colors.Gray);
-                        }
-                        else
-                        {
-                            LEDSeven.Fill = new SolidColorBrush(Colors.Red);
-                        }
-                        break;
-                    case 7:
-                        if (LED == 0)
-                        {
-                            LEDEight.Fill = new SolidColorBrush(Colors.Gray);
-                        }
-                        else
-                        {
-                            LEDEight.Fill = new SolidColorBrush(Colors.Red);
-                        }
-                        break;
-                    
+                    switch (i)
+                    {
+                        case 0:
+                            if (LED == 0)
+                            {
+                                LEDOne.Fill = new SolidColorBrush(Colors.Gray);
+                            }
+                            else
+                            {
+                                LEDOne.Fill = new SolidColorBrush(Colors.Red);
+                            }
+                            break;
+                        case 1:
+                            if (LED == 0)
+                            {
+                                LEDOTwo.Fill = new SolidColorBrush(Colors.Gray);
+                            }
+                            else
+                            {
+                                LEDOTwo.Fill = new SolidColorBrush(Colors.Red);
+                            }
+                            break;
+                        case 2:
+                            if (LED == 0)
+                            {
+                                LEDThree.Fill = new SolidColorBrush(Colors.Gray);
+                            }
+                            else
+                            {
+                                LEDThree.Fill = new SolidColorBrush(Colors.Red);
+                            }
+                            break;
+                        case 3:
+                            if (LED == 0)
+                            {
+                                LEDFour.Fill = new SolidColorBrush(Colors.Gray);
+                            }
+                            else
+                            {
+                                LEDFour.Fill = new SolidColorBrush(Colors.Red);
+                            }
+                            break;
+                        case 4:
+                            if (LED == 0)
+                            {
+                                LEDFive.Fill = new SolidColorBrush(Colors.Gray);
+                            }
+                            else
+                            {
+                                LEDFive.Fill = new SolidColorBrush(Colors.Red);
+                            }
+                            break;
+                        case 5:
+                            if (LED == 0)
+                            {
+                                LEDSix.Fill = new SolidColorBrush(Colors.Gray);
+                            }
+                            else
+                            {
+                                LEDSix.Fill = new SolidColorBrush(Colors.Red);
+                            }
+                            break;
+                        case 6:
+                            if (LED == 0)
+                            {
+                                LEDSeven.Fill = new SolidColorBrush(Colors.Gray);
+                            }
+                            else
+                            {
+                                LEDSeven.Fill = new SolidColorBrush(Colors.Red);
+                            }
+                            break;
+                        case 7:
+                            if (LED == 0)
+                            {
+                                LEDEight.Fill = new SolidColorBrush(Colors.Gray);
+                            }
+                            else
+                            {
+                                LEDEight.Fill = new SolidColorBrush(Colors.Red);
+                            }
+                            break;
 
+
+                    }
                 }
+                
             }
 
         }
@@ -354,7 +423,55 @@ namespace Pic_Simulator
             STRGrid.ItemsSource = tableSTR.DefaultView;
         }
 
-         private void PrintRam()
+        private void PrintINTCON()
+        {
+
+            tableIntCon.Columns.Add("GIE", typeof(int));
+            tableIntCon.Columns.Add("EEIE", typeof(int));
+            tableIntCon.Columns.Add("T0IE", typeof(int));
+            tableIntCon.Columns.Add("INTE", typeof(int));
+            tableIntCon.Columns.Add("RBIE", typeof(int));
+            tableIntCon.Columns.Add("T0IF", typeof(int));
+            tableIntCon.Columns.Add("INTF", typeof(int));
+            tableIntCon.Columns.Add("RBIF", typeof(int));
+
+
+            DataRow row = tableIntCon.NewRow();
+            int k = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                row[k] = Command.GetSelectedBit(Command.ram[bank, 11], i);
+                k++;
+            }
+            tableIntCon.Rows.Add(row);
+            INTCONGrid.ItemsSource = tableIntCon.DefaultView;
+        }
+
+        private void PrintOption()
+        {
+
+            tableOption.Columns.Add("RBPU", typeof(int));
+            tableOption.Columns.Add("INTEDG", typeof(int));
+            tableOption.Columns.Add("T0CS", typeof(int));
+            tableOption.Columns.Add("T0SE", typeof(int));
+            tableOption.Columns.Add("PSA", typeof(int));
+            tableOption.Columns.Add("PS2", typeof(int));
+            tableOption.Columns.Add("PS1", typeof(int));
+            tableOption.Columns.Add("PS0", typeof(int));
+
+
+            DataRow row = tableOption.NewRow();
+            int k = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                row[k] = Command.GetSelectedBit(Command.ram[1, 1], i);
+                k++;
+            }
+            tableOption.Rows.Add(row);
+            OptionGrid.ItemsSource = tableOption.DefaultView;
+        }
+
+        private void PrintRam()
         {
             DataTable dt = new DataTable();
             int nbColumns = 8;
