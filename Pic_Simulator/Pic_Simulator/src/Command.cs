@@ -537,7 +537,7 @@ public class Command
     public static void ResetController()
     {
         //todo change to reset 0b1111111;
-        ram[1, 1] = 0b00000000;
+        ram[1, 1] = 0b00000000;       
         PSA();
     }
 }

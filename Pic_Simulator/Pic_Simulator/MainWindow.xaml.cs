@@ -43,7 +43,8 @@ namespace Pic_Simulator
         {
             int rowIndex = RAGrid.Items.IndexOf(RAGrid.CurrentItem);
             int colIndex = RAGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableRA.Rows[rowIndex][colIndex];
+            string storageVal = (string)tableRA.Rows[rowIndex][colIndex];
+            int cellValue = Convert.ToInt32(storageVal);  
             tableRA.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
             int newBit = 0;
             
@@ -59,7 +60,7 @@ namespace Pic_Simulator
         private void selectedCellsChangedSTR(object sender, RoutedEventArgs e) {
             int rowIndex = STRGrid.Items.IndexOf(STRGrid.CurrentItem);
             int colIndex = STRGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableSTR.Rows[rowIndex][colIndex];
+            int cellValue = (int)tableSTR.Rows[rowIndex][colIndex];  
             tableSTR.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
             int newBit = 0;
 
@@ -77,7 +78,7 @@ namespace Pic_Simulator
         {
             int rowIndex = RBGrid.Items.IndexOf(RBGrid.CurrentItem);
             int colIndex = RBGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableRB.Rows[rowIndex][colIndex];
+            int cellValue = Convert.ToInt32((string)tableRB.Rows[rowIndex][colIndex]);
             tableRB.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
             int newBit = 0;
 
@@ -232,44 +233,85 @@ namespace Pic_Simulator
 
         }
 
+        private void PrintTrisATrisB()
+        {
+
+        }
+
 
         private void PrintRaRb()
         {
-           
+
+            for (int i = 7; i >= 0; i--)
+            {
+                tableRA.Columns.Add("RA" + i.ToString(), typeof(string));
+            }
+            int storageRA = Command.ram[bank, 5];
+            DataRow rowRA = tableRA.NewRow();
+            int j = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                rowRA[j] = Command.GetSelectedBit(Command.ram[bank, 5], i).ToString();
+                j++;
+            }
+            tableRA.Rows.Add(rowRA);
+
+            DataRow rowTrisRA = tableRA.NewRow();
+            j = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                int value = Command.GetSelectedBit(Command.ram[1, 5], i);
+                if (value == 0)
+                {
+                    rowTrisRA[j] = "o";
+                }
+                else
+                {
+                    rowTrisRA[j] = "i";
+                }
+                j++;
+            }
+            tableRA.Rows.Add(rowTrisRA);
+
+            RAGrid.ItemsSource = tableRA.DefaultView;
+
 
             // Füge Spalten für RB0 bis RB7 hinzu
             for (int i = 7; i >= 0; i--)
             {
-                tableRB.Columns.Add("RB" + i.ToString(), typeof(int));
+                tableRB.Columns.Add("RB" + i.ToString(), typeof(string));
             }
 
-            DataRow row = tableRB.NewRow();
+            DataRow rowRB = tableRB.NewRow();
             int k = 0; 
             for (int i = 7; i >= 0; i--)
             {
-                row[k] = Command.GetSelectedBit(Command.ram[bank, 5], i);
+                rowRB[k] = Command.GetSelectedBit(Command.ram[bank, 6], i).ToString();
                 k++; 
             }
-            tableRB.Rows.Add(row);
+            tableRB.Rows.Add(rowRB);
+
+            DataRow rowTrisRB = tableRB.NewRow();
+            k = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                int value = Command.GetSelectedBit(Command.ram[1, 6], i);
+                if(value == 0)
+                {
+                    rowTrisRB[k] = "o";
+                }
+                else
+                {
+                    rowTrisRB[k] = "i";
+                }                
+                k++;
+            }
+            tableRB.Rows.Add(rowTrisRB);
             RBGrid.ItemsSource = tableRB.DefaultView;
 
             
 
-            for (int i = 7; i >= 0; i--)
-            {
-                tableRA.Columns.Add("RA" + i.ToString(), typeof(int));
-            }
-            int storageRA = Command.ram[bank, 5];
-            DataRow rows = tableRA.NewRow();
-            int j = 0; 
-            for(int i = 7; i >= 0; i--)
-            {
-                rows[j] = Command.GetSelectedBit(Command.ram[bank,5], i);
-                j++; 
-            }
-            tableRA.Rows.Add(rows);
-
-            RAGrid.ItemsSource = tableRA.DefaultView;
+            
 
         }
 

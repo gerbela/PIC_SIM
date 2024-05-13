@@ -23,18 +23,18 @@
         <ScrollViewer Name="CodeScroller" VerticalScrollBarVisibility="Visible" Margin="322,411,205,10">
             <StackPanel Name="Stack" Height="Auto" Width="653"/>
         </ScrollViewer>
-        <DataGrid Name="MyDataGrid" SelectionUnit="Cell" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,40,1148,403"></DataGrid>
-        <DataGrid Name="RAGrid" SelectionUnit="Cell" SelectionMode="Single" IsReadOnly="True"  MouseDoubleClick="selectedCellsChangedRA" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,595,1069,316"></DataGrid>
-        <DataGrid Name="RBGrid" MouseDoubleClick="selectedCellsChangedRB" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,693,1069,216"></DataGrid>
-        <DataGrid Name="STRGrid" MouseDoubleClick="selectedCellsChangedSTR" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,772,1069,134"></DataGrid>
-        <Ellipse Name="LEDOne" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="10,867,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"></Ellipse>
-        <Ellipse Name="LEDOTwo" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="55,867,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDThree" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="100,867,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDFour" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="147,867,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDFive" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="10,912,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDSix" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="55,912,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDSeven" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="100,912,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
-        <Ellipse Name="LEDEight" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="147,912,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+        <DataGrid Name="MyDataGrid" SelectionUnit="Cell"   CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,40,1148,403"></DataGrid>
+        <DataGrid Name="RAGrid" SelectionUnit="Cell" SelectionMode="Single" IsReadOnly="True"  MouseDoubleClick="selectedCellsChangedRA" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="212,45,857,846"></DataGrid>
+        <DataGrid Name="RBGrid" MouseDoubleClick="selectedCellsChangedRB" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="212,143,857,743"></DataGrid>
+        <DataGrid Name="STRGrid" MouseDoubleClick="selectedCellsChangedSTR" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,614,1069,291"></DataGrid>
+        <Ellipse Name="LEDOne" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="520,58,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"></Ellipse>
+        <Ellipse Name="LEDOTwo" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="566,58,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+        <Ellipse Name="LEDThree" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="610,58,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+        <Ellipse Name="LEDFour" Fill="LightGray"  HorizontalAlignment="Center" Height="40" Margin="0,58,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+        <Ellipse Name="LEDFive" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="520,103,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+        <Ellipse Name="LEDSix" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="566,103,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+        <Ellipse Name="LEDSeven" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="610,103,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+        <Ellipse Name="LEDEight" Fill="LightGray"  HorizontalAlignment="Center" Height="40" Margin="0,103,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
 
 
 
