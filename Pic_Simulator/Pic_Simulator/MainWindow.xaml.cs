@@ -21,13 +21,12 @@ namespace Pic_Simulator
         public static List<int> commands = new List<int>();
         DataTable tableRB = new DataTable();
         DataTable tableRA = new DataTable();
-        DataTable tableSTR = new DataTable();   
-        int bank = 0;
-        private static System.Timers.Timer aTimer;
+        DataTable tableSTR = new DataTable();
 
         public MainWindow()
         {
             InitializeComponent();
+            Command.startUpRam();  
             PrintRam();
             PrintRaRb();
             PrintSTR(); 
@@ -43,7 +42,8 @@ namespace Pic_Simulator
         {
             int rowIndex = RAGrid.Items.IndexOf(RAGrid.CurrentItem);
             int colIndex = RAGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableRA.Rows[rowIndex][colIndex];
+            string storageVal = (string)tableRA.Rows[rowIndex][colIndex];
+            int cellValue = Convert.ToInt32(storageVal);  
             tableRA.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
             int newBit = 0;
             
@@ -51,15 +51,15 @@ namespace Pic_Simulator
             {
                newBit = 1;
             }           
-            int ramBit = Command.SetSelectedBit(Command.ram[bank, 5], Math.Abs(colIndex - 7), newBit);
-            Command.ram[bank, 5] = ramBit;
+            int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 5], Math.Abs(colIndex - 7), newBit);
+            Command.ram[Command.bank, 5] = ramBit;
             PrintRam();
         }
 
         private void selectedCellsChangedSTR(object sender, RoutedEventArgs e) {
             int rowIndex = STRGrid.Items.IndexOf(STRGrid.CurrentItem);
             int colIndex = STRGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableSTR.Rows[rowIndex][colIndex];
+            int cellValue = (int)tableSTR.Rows[rowIndex][colIndex];  
             tableSTR.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
             int newBit = 0;
 
@@ -67,8 +67,8 @@ namespace Pic_Simulator
             {
                 newBit = 1;
             }
-            int ramBit = Command.SetSelectedBit(Command.ram[bank, 3], Math.Abs(colIndex - 7), newBit);
-            Command.ram[bank, 3] = ramBit;
+            int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 3], Math.Abs(colIndex - 7), newBit);
+            Command.ram[Command.bank, 3] = ramBit;
             PrintRam();
 
         }
@@ -77,7 +77,7 @@ namespace Pic_Simulator
         {
             int rowIndex = RBGrid.Items.IndexOf(RBGrid.CurrentItem);
             int colIndex = RBGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableRB.Rows[rowIndex][colIndex];
+            int cellValue = Convert.ToInt32((string)tableRB.Rows[rowIndex][colIndex]);
             tableRB.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
             int newBit = 0;
 
@@ -85,16 +85,33 @@ namespace Pic_Simulator
             {
                 newBit = 1;
             }
-            int ramBit = Command.SetSelectedBit(Command.ram[bank, 6], Math.Abs(colIndex - 7), newBit);
-            Command.ram[bank, 6] = ramBit;
+            int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 6], Math.Abs(colIndex - 7), newBit);
+            Command.ram[Command.bank, 6] = ramBit;
             PrintRam();
         }
         private void refreshRAB()
         {
             for (int i = 7; i >= 0; i--)
             {
-                tableRA.Rows[0][i] = Command.GetSelectedBit(Command.ram[bank, 5], Math.Abs(i-7)) ;
-                tableRB.Rows[0][i] = Command.GetSelectedBit(Command.ram[bank, 6], Math.Abs(i - 7)); 
+                tableRA.Rows[0][i] = Command.GetSelectedBit(Command.ram[0, 5], Math.Abs(i-7)).ToString() ;
+                tableRB.Rows[0][i] = Command.GetSelectedBit(Command.ram[0, 6], Math.Abs(i - 7)).ToString();
+                int trisA =  Command.GetSelectedBit(Command.ram[1, 5], Math.Abs(i - 7));
+                if(trisA == 0)
+                {
+                    tableRA.Rows[1][i] = "o"; 
+                }else
+                {
+                    tableRA.Rows[1][i] = "i";
+                }
+                int trisB = Command.GetSelectedBit(Command.ram[1, 6], Math.Abs(i - 7));
+                if (trisB == 0)
+                {
+                    tableRB.Rows[1][i] = "o";
+                }
+                else
+                {
+                    tableRB.Rows[1][i] = "i";
+                }
             }
         }
 
@@ -102,7 +119,7 @@ namespace Pic_Simulator
         {
             for (int i = 7; i >= 0; i--)
             {
-                tableSTR.Rows[0][i] = Command.GetSelectedBit(Command.ram[bank, 3], Math.Abs(i - 7));
+                tableSTR.Rows[0][i] = Command.GetSelectedBit(Command.ram[Command.bank, 3], Math.Abs(i - 7));
                 
             }
         }
@@ -119,12 +136,13 @@ namespace Pic_Simulator
             };
             int command = Fetch();
             if (!Decode(command)) return;
+            Command.Mirroring();
             LST_File.MarkLine(Stack, CodeScroller);
             Result.Text = "";
             //print ram
             /*for (int i = 0; i < 128; i++)
             {
-                Result.Text = Result.Text + " " + Command.ram[bank, i];
+                Result.Text = Result.Text + " " + Command.ram[Command.bank, i];
             }*/
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog;
             PrintRam();
@@ -138,7 +156,7 @@ namespace Pic_Simulator
             int port = 6; // this can be changed weather its PortA or PortB, needs to implemented later
 
             
-            int intValue= Command.ram[bank, port]; 
+            int intValue= Command.ram[Command.bank, port]; 
 
             for(int i = 0; i < 8; i++)
             {
@@ -232,44 +250,82 @@ namespace Pic_Simulator
 
         }
 
+        
+
 
         private void PrintRaRb()
         {
-           
+
+            for (int i = 7; i >= 0; i--)
+            {
+                tableRA.Columns.Add("RA" + i.ToString(), typeof(string));
+            }
+            int storageRA = Command.ram[Command.bank, 5];
+            DataRow rowRA = tableRA.NewRow();
+            int j = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                rowRA[j] = Command.GetSelectedBit(Command.ram[Command.bank, 5], i).ToString();
+                j++;
+            }
+            tableRA.Rows.Add(rowRA);
+
+            DataRow rowTrisRA = tableRA.NewRow();
+            j = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                int value = Command.GetSelectedBit(Command.ram[1, 5], i);
+                if (value == 0)
+                {
+                    rowTrisRA[j] = "o";
+                }
+                else
+                {
+                    rowTrisRA[j] = "i";
+                }
+                j++;
+            }
+            tableRA.Rows.Add(rowTrisRA);
+
+            RAGrid.ItemsSource = tableRA.DefaultView;
+
 
             // Füge Spalten für RB0 bis RB7 hinzu
             for (int i = 7; i >= 0; i--)
             {
-                tableRB.Columns.Add("RB" + i.ToString(), typeof(int));
+                tableRB.Columns.Add("RB" + i.ToString(), typeof(string));
             }
 
-            DataRow row = tableRB.NewRow();
+            DataRow rowRB = tableRB.NewRow();
             int k = 0; 
             for (int i = 7; i >= 0; i--)
             {
-                row[k] = Command.GetSelectedBit(Command.ram[bank, 5], i);
+                rowRB[k] = Command.GetSelectedBit(Command.ram[Command.bank, 6], i).ToString();
                 k++; 
             }
-            tableRB.Rows.Add(row);
+            tableRB.Rows.Add(rowRB);
+
+            DataRow rowTrisRB = tableRB.NewRow();
+            k = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                int value = Command.GetSelectedBit(Command.ram[1, 6], i);
+                if(value == 0)
+                {
+                    rowTrisRB[k] = "o";
+                }
+                else
+                {
+                    rowTrisRB[k] = "i";
+                }                
+                k++;
+            }
+            tableRB.Rows.Add(rowTrisRB);
             RBGrid.ItemsSource = tableRB.DefaultView;
 
             
 
-            for (int i = 7; i >= 0; i--)
-            {
-                tableRA.Columns.Add("RA" + i.ToString(), typeof(int));
-            }
-            int storageRA = Command.ram[bank, 5];
-            DataRow rows = tableRA.NewRow();
-            int j = 0; 
-            for(int i = 7; i >= 0; i--)
-            {
-                rows[j] = Command.GetSelectedBit(Command.ram[bank,5], i);
-                j++; 
-            }
-            tableRA.Rows.Add(rows);
-
-            RAGrid.ItemsSource = tableRA.DefaultView;
+            
 
         }
 
@@ -290,7 +346,7 @@ namespace Pic_Simulator
             int k = 0;
             for (int i = 7; i >= 0; i--)
             {
-                row[k] = Command.GetSelectedBit(Command.ram[bank, 3], i);
+                row[k] = Command.GetSelectedBit(Command.ram[Command.bank, 3], i);
                 k++;
             }
             tableSTR.Rows.Add(row);
@@ -311,22 +367,22 @@ namespace Pic_Simulator
             for (int row = 0; row < nbRows; row++)
             {
                 DataRow dr = dt.NewRow();
-                
+
+                int tmpBank = 0;
                 for (int i = 0; i < nbColumns; i++)
                 {
-                    dr[i] = Command.ram[bank, zaehler].ToString("X");
+                    dr[i] = Command.ram[tmpBank, zaehler].ToString("X");
                     zaehler++;
 
                 }
                 if (zaehler == 128)
                 {
                     zaehler = 0;
-                    bank = 1;
+                    tmpBank = 1;
                 }
                 dt.Rows.Add(dr);
                 
             }
-            bank = 0;
             MyDataGrid.ItemsSource = dt.DefaultView;
             dt.RowChanged += dtRowChanged;
             
@@ -343,7 +399,7 @@ namespace Pic_Simulator
             if(rowIndex > 15)
             {
                 i = 1;
-                rowIndex = rowIndex - 16; // Das muss gemacht werden da es im dargestellten ram alles in einer Tabelle hängt aber im speicher aufgeteilt wird auf bank 1 und 0
+                rowIndex = rowIndex - 16; // Das muss gemacht werden da es im dargestellten ram alles in einer Tabelle hängt aber im speicher aufgeteilt wird auf Command.bank 1 und 0
             }
             int rowstart = rowIndex * 8; 
 
@@ -379,10 +435,10 @@ namespace Pic_Simulator
 
         private int Fetch()
         {
-            int programCounter = Command.ram[bank, 2];
+            int programCounter = Command.ram[Command.bank, 2];
             int command = commands[programCounter];
             programCounter++;
-            Command.ram[bank, 2] = programCounter;
+            Command.ram[Command.bank, 2] = programCounter;
             return command;
         }
 

@@ -20,6 +20,7 @@ public class Command
     static int quarzfrequenz = 4000;
     static int lastEdge = 0;
     static bool prescalerToWatchdog = true;
+    static int oldBank = 0;
 
     public static int ANDWF(int address)
     {
@@ -257,7 +258,7 @@ public class Command
     public static int GOTO(int address, StackPanel stack)
     {
         ram[bank, 2] = address;
-        LST_File.JumpToLine(stack, address);
+        LST_File.JumpToLine(stack, ram[bank, 2]);
         return 2;
     }
 
@@ -273,8 +274,10 @@ public class Command
         if ((address & 0x7F) == 0) address = (address & 0xFF80) | ram[bank, 4];
         int bit = (address & 0x380) >> 7;
         int rotated = (0x01 << bit) ^ 0xFF;
+        int tmp1 = ram[bank, address & 0x7F];
         ram[bank, address & 0x7F] = ram[bank, address & 0x7F] & rotated;
-        if ((ram[bank, 0x3] & 0x20) == 0x0) bank = 0;
+        int tmp = ram[bank, address & 0x7F];
+        if ((ram[bank,3] & 0x20) == 0x0) bank = 0;
         return 1;
     }
 
@@ -435,13 +438,19 @@ public class Command
     {
         if (GetSelectedBit(ram[1, 1], 5) == 0)
         {
-            setTMR += steps;
-            if (setTMR >= prescaler)
+            if (prescalerToWatchdog)
             {
-                ram[0, 1] += 1;
-                setTMR = setTMR % prescaler;
+                ram[0, 1] += steps;
             }
-            Zeroflag(ram[0, 1] & 0xFF);
+            else
+            {
+                setTMR += steps;
+                if (setTMR >= prescaler)
+                {
+                    ram[0, 1] += 1;
+                    setTMR = setTMR % prescaler;
+                }
+            }
         }
         else
         {
@@ -457,7 +466,6 @@ public class Command
                         ram[0, 1] += 1;
                         setTMR = setTMR % prescaler;
                     }
-                    Zeroflag(ram[0, 1] & 0xFF);
                     lastEdge = 1;
                 }
                 else if (GetSelectedBit(ram[0, 5], 4) == 0 && lastEdge == 1) lastEdge = 0;
@@ -473,7 +481,6 @@ public class Command
                         ram[0, 1] += 1;
                         setTMR = setTMR % prescaler;
                     }
-                    Zeroflag(ram[0, 1] & 0xFF);
                     lastEdge = 0;
                 }
                 else if (GetSelectedBit(ram[0, 5], 4) == 1 && lastEdge == 0) lastEdge = 1;
@@ -494,6 +501,7 @@ public class Command
             prescaler = (int)Math.Pow(2, (ram[1, 1] & 0x7)) *2;
         }
         setTMR = 0;
+        PSA();
     }
     public static void ResetTimer0()
     {
@@ -515,7 +523,6 @@ public class Command
         {
             prescalerToWatchdog = true;
         }
-        SetPrescaler();
     }
     public static void Watchdog(int deltaT)
     {
@@ -536,7 +543,7 @@ public class Command
             }
             else
             {
-                MessageBox.Show("Some text", "Watchdog", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Some text", "Watchdog oo", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
         }
@@ -556,6 +563,37 @@ public class Command
     {
         //todo change to reset 0b1111111;
         ram[1, 1] = 0b11111111;
-        PSA();
+        ram[0, 11] = 0b00100000;
+        SetPrescaler();
+    }
+
+    public static void Mirroring()
+    {
+        if((oldBank == 0 && bank == 0) || (oldBank == 0 && bank == 1))
+        {
+            ram[1, 2] = ram[0, 2];
+            ram[1, 3] = ram[0, 3];
+            ram[1, 4] = ram[0, 4];
+            ram[1, 10] = ram[0, 10];
+            ram[1, 11] = ram[0, 11];
+        }
+        else
+        {
+            ram[0, 2] = ram[1, 2];
+            ram[0, 3] = ram[1, 3];
+            ram[0, 4] = ram[1, 4];
+            ram[0, 10] = ram[1, 10];
+            ram[0, 11] = ram[1, 11];
+        }
+
+        if (oldBank == 0 && bank == 1) oldBank = 1;
+        if (oldBank == 1 && bank == 0) oldBank = 0;
+
+    }
+    //Set Values in ram that are not 0 at the beginning
+    public static void startUpRam()
+    {
+        ram[1, 5] = 0b11111111;
+        ram[1, 6] = 0b11111111;
     }
 }
