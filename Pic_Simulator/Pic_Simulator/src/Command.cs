@@ -17,7 +17,7 @@ public class Command
     public static int[] callStack = { -1, -1, -1, -1, -1, -1, -1, -1 };
     static int callPosition = 0;
     private static int setTMR = 0;
-    static int quarzfrequenz = 4000;
+    public static int quarzfrequenz = 4000;
     static int lastEdge = 0;
     static bool prescalerToWatchdog = true;
 

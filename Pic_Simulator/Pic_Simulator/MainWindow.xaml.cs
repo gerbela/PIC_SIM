@@ -24,6 +24,7 @@ namespace Pic_Simulator
         DataTable tableSTR = new DataTable();
         DataTable tableIntCon = new DataTable();
         DataTable tableOption = new DataTable();
+        double runTime = 0;
         int bank = 0;
         private static System.Timers.Timer aTimer;
 
@@ -559,6 +560,12 @@ namespace Pic_Simulator
             Command.ram[bank, 2] = programCounter;
             return command;
         }
+        private void displayrunTime(int deltaT)
+        {
+
+            runTime += ((deltaT * 4000.00) / Command.quarzfrequenz);
+            Laufzeitzaehler.Text = runTime.ToString();
+        }
 
         private bool Decode(int command)
         {
@@ -697,6 +704,7 @@ namespace Pic_Simulator
             }
             if(!((command & 0x3F80) == 0x0080 && (command & 0x7F) == 1)) Command.Timer0(Stack,deltaT);
             Command.Watchdog(deltaT);
+            displayrunTime(deltaT);
             return true;
         }
 
