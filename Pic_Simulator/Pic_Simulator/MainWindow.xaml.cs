@@ -198,6 +198,7 @@ namespace Pic_Simulator
             int command = Fetch();
             if (!Decode(command)) return;
             Command.Mirroring();
+            Command.RB0Interrupt(Stack);
             LST_File.MarkLine(Stack, CodeScroller);
             Result.Text = "";
             //print ram
@@ -699,6 +700,10 @@ namespace Pic_Simulator
             if((command & 0xFFFF) == 0x0060)
             {
                 deltaT = Command.CLRWDT();
+            }
+            if((command & 0xFFFF) == 0x0009)
+            {
+                deltaT = Command.RETFIE(Stack);
             }
             if(!((command & 0x3F80) == 0x0080 && (command & 0x7F) == 1)) Command.Timer0(Stack,deltaT);
             Command.Watchdog(deltaT);

@@ -21,6 +21,8 @@ public class Command
     static int lastEdge = 0;
     static bool prescalerToWatchdog = true;
     static int oldBank = 0;
+    static int oldRB0 = 0;
+    static int interruptPos = 0;
 
     public static void setQuarzfrequenz(int newQuarzfrezuenz)
     {
@@ -136,6 +138,12 @@ public class Command
         int address = callStack[callPosition - 1];
         callStack[callPosition - 1] = -1;
         callPosition--;
+        LST_File.JumpToLine(stack, address + 1);
+        return 2;
+    }
+    public static int RETFIE(StackPanel stack)
+    {
+        int address = interruptPos;
         LST_File.JumpToLine(stack, address + 1);
         return 2;
     }
@@ -436,7 +444,7 @@ public class Command
         }
         rotatedBit = 0b00000001;
         rotatedBit = rotatedBit << pos;
-        return value | rotatedBit;
+        return (value | rotatedBit);
     }
 
     public static void Timer0(StackPanel stack, int steps)
@@ -557,12 +565,31 @@ public class Command
 
     public static void Timer0Interrupt(StackPanel stack)
     {
-        if (ram[0,1] == 256)
+        if (ram[0,1] >= 256)
         {
             ram[0, 1] = 0;
             ram[0, 11] = ram[0, 11] | 0b00000100;
-            if(GetSelectedBit(ram[0, 11],2) == 1 && GetSelectedBit(ram[0, 11], 5) == 1 && GetSelectedBit(ram[0, 11], 7) == 1) LST_File.JumpToLine(stack, 4);
+            if (GetSelectedBit(ram[0, 11], 2) == 1 && GetSelectedBit(ram[0, 11], 5) == 1 && GetSelectedBit(ram[0, 11], 7) == 1)
+            {
+                interruptPos = ram[bank, 2] - 1;
+                LST_File.JumpToLine(stack, 4);
+            }
         }
+    }
+    public static void RB0Interrupt(StackPanel stack)
+    {
+        bool flanke = false;
+        if (GetSelectedBit(ram[1, 1], 6) == 1 && oldRB0 == 0 && GetSelectedBit(ram[bank, 6], 0) == 1) flanke = true;
+        if (GetSelectedBit(ram[1, 1], 6) == 0 && oldRB0 == 1 && GetSelectedBit(ram[bank, 6], 0) == 0) flanke = true;
+        if (oldRB0 == 0 && GetSelectedBit(ram[bank, 6], 0) == 1) oldRB0 = 1;
+        if (oldRB0 == 1 && GetSelectedBit(ram[bank, 6], 0) == 0) oldRB0 = 0;
+        if (flanke) ram[bank, 11] = SetSelectedBit(ram[bank, 11], 1, 1);
+        if (flanke && GetSelectedBit(ram[0, 11], 1) == 1 && GetSelectedBit(ram[0, 11], 4) == 1 && GetSelectedBit(ram[0, 11], 7) == 1)
+        {
+            interruptPos = ram[bank, 2] - 1;
+            LST_File.JumpToLine(stack, 4);
+        }
+
     }
     public static void ResetController()
     {
