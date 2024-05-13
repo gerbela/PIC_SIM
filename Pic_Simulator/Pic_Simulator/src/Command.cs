@@ -3,6 +3,7 @@ using System.DirectoryServices;
 using System.IO;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Xps;
 
@@ -74,6 +75,7 @@ public class Command
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         ram[bank, address] = 0;
+        if (bank == 0 && address == 1) SetPrescaler();
         Zeroflag(ram[bank, address]);
         return 1;
     }
@@ -447,7 +449,13 @@ public class Command
                 //if option bit 4 is zero reacting on rising edge
                 if (GetSelectedBit(ram[0, 5], 4) == 1 && lastEdge == 0)
                 {
-                    ram[0, 1] += 1;
+                    setTMR += 1;
+                    if (setTMR >= prescaler)
+                    {
+                        ram[0, 1] += 1;
+                        setTMR = setTMR % prescaler;
+                    }
+                    Zeroflag(ram[0, 1] & 0xFF);
                     lastEdge = 1;
                 }
                 else if (GetSelectedBit(ram[0, 5], 4) == 0 && lastEdge == 1) lastEdge = 0;
@@ -457,7 +465,13 @@ public class Command
                 //if option bit 4 is one reacting on falling edge
                 if (GetSelectedBit(ram[0, 5], 4) == 0 && lastEdge == 1)
                 {
-                    ram[0, 1] += 1;
+                    setTMR += 1;
+                    if (setTMR >= prescaler)
+                    {
+                        ram[0, 1] += 1;
+                        setTMR = setTMR % prescaler;
+                    }
+                    Zeroflag(ram[0, 1] & 0xFF);
                     lastEdge = 0;
                 }
                 else if (GetSelectedBit(ram[0, 5], 4) == 1 && lastEdge == 0) lastEdge = 1;
@@ -468,14 +482,16 @@ public class Command
 
     private static void SetPrescaler()
     {
-        if (GetSelectedBit(ram[1, 1], 5) == 1)
+        if (GetSelectedBit(ram[1, 1], 3) == 1)
         {
             prescaler = (int) Math.Pow(2,ram[1, 1] & 0x7);
         }
         else
         {
-            prescaler = (int)Math.Pow(2, (ram[1, 1] & 0x7) *2);
+            int value = (ram[1, 1] & 0x7);
+            prescaler = (int)Math.Pow(2, (ram[1, 1] & 0x7)) *2;
         }
+        setTMR = 0;
     }
     public static void ResetTimer0()
     {
@@ -513,12 +529,12 @@ public class Command
                 }
                 else
                 {
-                    //Error
+                    MessageBox.Show("Some text", "Some title", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
             {
-                //error
+                MessageBox.Show("Some text", "Some title", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
         }
