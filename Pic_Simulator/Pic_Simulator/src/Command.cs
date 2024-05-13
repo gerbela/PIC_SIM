@@ -100,7 +100,8 @@ public class Command
     {
         if (callPosition == 8)
         {
-            callPosition = 0;
+            MessageBox.Show("Some text", "Stack overflow", MessageBoxButton.OK, MessageBoxImage.Error);
+            return 0;
         }
         callStack[callPosition] = ram[bank, 2] - 1;
         ram[bank, 2] = address;
@@ -122,8 +123,9 @@ public class Command
     {
         if (callPosition <= 0)
         {
-            LST_File.pos++;
-            //todo Fehler
+            //LST_File.pos++;
+            MessageBox.Show("Some text", "Stack Underflow", MessageBoxButton.OK, MessageBoxImage.Error);
+            return 0;
         }
         int address = callStack[callPosition - 1];
         callStack[callPosition - 1] = -1;
@@ -529,12 +531,12 @@ public class Command
                 }
                 else
                 {
-                    MessageBox.Show("Some text", "Some title", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Some text", "Watchdog", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
             {
-                MessageBox.Show("Some text", "Some title", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show("Some text", "Watchdog", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
         }
@@ -553,7 +555,7 @@ public class Command
     public static void ResetController()
     {
         //todo change to reset 0b1111111;
-        ram[1, 1] = 0b00000000;
+        ram[1, 1] = 0b11111111;
         PSA();
     }
 }
