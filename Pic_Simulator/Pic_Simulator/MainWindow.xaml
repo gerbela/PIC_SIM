@@ -12,8 +12,17 @@
         ">
     <Grid Name="MyGrid">
         <Menu Margin="0,0,0,0" VerticalAlignment="Top" Height="40">
-            <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9">
+            <MenuItem Header="File" Height="40" Width="40" HorizontalAlignment="Left" VerticalAlignment="Top" Padding="9" Click="MenuItem_Click">
                 <MenuItem Header="Laden" Click="LoadFile"></MenuItem>
+            </MenuItem>
+            <MenuItem Header="Settings" Height="40" Width="62" HorizontalAlignment="Left" VerticalAlignment="Center" Padding="9" Click="MenuItem_Click">
+                <MenuItem Header="Quarzfrequenz" Click="MenuItem_Click">
+                    <MenuItem Header="4 MGhz" Click="quarzfrequenz_Four"></MenuItem>
+                    <MenuItem Header="8 MGHZ" Click="quarzfrequenz_Eight"></MenuItem>
+                    <MenuItem Header="16 MGHZ" Click="quarzfrequenz_Sixteen"></MenuItem>
+                    <MenuItem Header="32 KHZ" Click="quarzfrequenz_Thrittwo"></MenuItem>
+                </MenuItem>
+                
             </MenuItem>
             <Menu/>
         </Menu>
@@ -26,7 +35,8 @@
         <DataGrid Name="MyDataGrid" SelectionUnit="Cell"   CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,40,1148,403"></DataGrid>
         <DataGrid Name="RAGrid" SelectionUnit="Cell" SelectionMode="Single" IsReadOnly="True"  MouseDoubleClick="selectedCellsChangedRA" AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="212,45,857,846"></DataGrid>
         <DataGrid Name="RBGrid" MouseDoubleClick="selectedCellsChangedRB" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="212,143,857,743"></DataGrid>
-        <DataGrid Name="STRGrid" MouseDoubleClick="selectedCellsChangedSTR" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,614,1069,291"></DataGrid>
+        <DataGrid Name="STRGrid" MouseDoubleClick="selectedCellsChangedSTR" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,614,1038,259"></DataGrid>
+        <DataGrid Name="INTCONGrid" MouseDoubleClick="selectedCellsChangedINTCON" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,730,1033,149"></DataGrid>
         <Ellipse Name="LEDOne" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="520,58,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"></Ellipse>
         <Ellipse Name="LEDOTwo" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="566,58,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
         <Ellipse Name="LEDThree" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="610,58,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
@@ -35,6 +45,10 @@
         <Ellipse Name="LEDSix" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="566,103,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
         <Ellipse Name="LEDSeven" Fill="LightGray"  HorizontalAlignment="Left" Height="40" Margin="610,103,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
         <Ellipse Name="LEDEight" Fill="LightGray"  HorizontalAlignment="Center" Height="40" Margin="0,103,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
+        <DataGrid Name="OptionGrid" MouseDoubleClick="selectedCellsChangedOption" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,840,1033,33"/>
+        <TextBox Name="Laufzeitzaehler" IsReadOnly="True" HorizontalAlignment="Left" Margin="1239,354,0,0" TextWrapping="Wrap" Text="0.00" VerticalAlignment="Top" Width="35"/>
+        <TextBlock HorizontalAlignment="Left" Margin="1183,354,0,0" TextWrapping="Wrap" Text="Laufzeit" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="1274,355,0,0" TextWrapping="Wrap" Text="µs" VerticalAlignment="Top" RenderTransformOrigin="0.284,-0.436" Width="53"/>
 
 
 
