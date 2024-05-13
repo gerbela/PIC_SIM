@@ -22,6 +22,9 @@ namespace Pic_Simulator
         DataTable tableRB = new DataTable();
         DataTable tableRA = new DataTable();
         DataTable tableSTR = new DataTable();
+        DataTable tableIntCon = new DataTable();
+        DataTable tableOption = new DataTable();
+        double runTime = 0;
 
         public MainWindow()
         {
@@ -436,7 +439,7 @@ namespace Pic_Simulator
             int k = 0;
             for (int i = 7; i >= 0; i--)
             {
-                row[k] = Command.GetSelectedBit(Command.ram[bank, 11], i);
+                row[k] = Command.GetSelectedBit(Command.ram[Command.bank, 11], i);
                 k++;
             }
             tableIntCon.Rows.Add(row);
