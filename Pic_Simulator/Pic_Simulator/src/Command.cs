@@ -540,4 +540,11 @@ public class Command
         ram[1, 1] = 0b00000000;       
         PSA();
     }
+
+    //Set Values in ram that are not 0 at the beginning
+    public static void startUpRam()
+    {
+        ram[1, 5] = 0b11111111;
+        ram[1, 6] = 0b11111111;
+    }
 }

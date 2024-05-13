@@ -28,6 +28,7 @@ namespace Pic_Simulator
         public MainWindow()
         {
             InitializeComponent();
+            Command.startUpRam();  
             PrintRam();
             PrintRaRb();
             PrintSTR(); 
@@ -94,8 +95,25 @@ namespace Pic_Simulator
         {
             for (int i = 7; i >= 0; i--)
             {
-                tableRA.Rows[0][i] = Command.GetSelectedBit(Command.ram[bank, 5], Math.Abs(i-7)) ;
-                tableRB.Rows[0][i] = Command.GetSelectedBit(Command.ram[bank, 6], Math.Abs(i - 7)); 
+                tableRA.Rows[0][i] = Command.GetSelectedBit(Command.ram[0, 5], Math.Abs(i-7)).ToString() ;
+                tableRB.Rows[0][i] = Command.GetSelectedBit(Command.ram[0, 6], Math.Abs(i - 7)).ToString();
+                int trisA =  Command.GetSelectedBit(Command.ram[1, 5], Math.Abs(i - 7));
+                if(trisA == 0)
+                {
+                    tableRA.Rows[1][i] = "o"; 
+                }else
+                {
+                    tableRA.Rows[1][i] = "i";
+                }
+                int trisB = Command.GetSelectedBit(Command.ram[1, 6], Math.Abs(i - 7));
+                if (trisB == 0)
+                {
+                    tableRB.Rows[1][i] = "o";
+                }
+                else
+                {
+                    tableRB.Rows[1][i] = "i";
+                }
             }
         }
 
@@ -233,10 +251,7 @@ namespace Pic_Simulator
 
         }
 
-        private void PrintTrisATrisB()
-        {
-
-        }
+        
 
 
         private void PrintRaRb()
