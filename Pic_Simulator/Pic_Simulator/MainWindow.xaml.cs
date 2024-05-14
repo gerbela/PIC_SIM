@@ -199,6 +199,7 @@ namespace Pic_Simulator
             if (!Decode(command)) return;
             Command.Mirroring();
             Command.RB0Interrupt(Stack);
+            Command.RB4RB7Interrupt(Stack);
             LST_File.MarkLine(Stack, CodeScroller);
             Result.Text = "";
             //print ram

@@ -22,6 +22,7 @@ public class Command
     static bool prescalerToWatchdog = true;
     static int oldBank = 0;
     static int oldRB0 = 0;
+    static int[] oldRBValues = new int[8];
     static int interruptPos = 0;
 
     public static void setQuarzfrequenz(int newQuarzfrezuenz)
@@ -589,7 +590,27 @@ public class Command
             interruptPos = ram[bank, 2] - 1;
             LST_File.JumpToLine(stack, 4);
         }
+    }
 
+    public static void RB4RB7Interrupt(StackPanel stack)
+    {
+        bool isInterrupt = false;
+        for (int i = 0; i < 8; i++)
+        {
+            if (i < 4) continue;
+            if (oldRBValues[i] == GetSelectedBit(ram[0, 6], i)) continue;
+            if (GetSelectedBit(ram[1, 6], i) == 1)
+            {
+                isInterrupt = true;
+                oldRBValues[i] = GetSelectedBit(ram[0, 6], i);
+            }
+        }
+        if(isInterrupt) ram[bank, 11] = SetSelectedBit(ram[bank, 11], 0, 1);
+        if (isInterrupt && GetSelectedBit(ram[0, 11], 0) == 1 && GetSelectedBit(ram[0, 11], 3) == 1 && GetSelectedBit(ram[0, 11], 7) == 1)
+        {
+            interruptPos = ram[bank, 2] - 1;
+            LST_File.JumpToLine(stack, 4);
+        }
     }
     public static void ResetController()
     {
