@@ -22,7 +22,7 @@
                     <MenuItem Header="16 MGHZ" Click="quarzfrequenz_Sixteen"></MenuItem>
                     <MenuItem Header="32 KHZ" Click="quarzfrequenz_Thrittwo"></MenuItem>
                 </MenuItem>
-                
+
             </MenuItem>
             <Menu/>
         </Menu>
@@ -48,7 +48,9 @@
         <Ellipse Name="LEDEight" Fill="LightGray"  HorizontalAlignment="Center" Height="40" Margin="0,103,0,0" Stroke="Black" VerticalAlignment="Top" Width="40"/>
         <DataGrid Name="OptionGrid" MouseDoubleClick="selectedCellsChangedOption" SelectionUnit="Cell" IsReadOnly="True"  AutoGenerateColumns="True"  CanUserAddRows="False" CanUserDeleteRows="False" CanUserSortColumns="False" CanUserResizeColumns="False" Margin="0,840,1033,33"/>
         <TextBox Name="Laufzeitzaehler" IsReadOnly="True" HorizontalAlignment="Left" Margin="1239,354,0,0" TextWrapping="Wrap" Text="0.00" VerticalAlignment="Top" Width="35"/>
+        <TextBox Name="CallPos" IsReadOnly="True" HorizontalAlignment="Left" Margin="236,513,0,0" TextWrapping="Wrap" Text="0.00" VerticalAlignment="Top" Width="35"/>
         <TextBlock HorizontalAlignment="Left" Margin="1183,354,0,0" TextWrapping="Wrap" Text="Laufzeit" VerticalAlignment="Top"/>
+        <TextBlock HorizontalAlignment="Left" Margin="212,492,0,0" TextWrapping="Wrap" Text="Call Stack Position" VerticalAlignment="Top"/>
         <TextBlock HorizontalAlignment="Left" Margin="1274,355,0,0" TextWrapping="Wrap" Text="µs" VerticalAlignment="Top" RenderTransformOrigin="0.284,-0.436" Width="53"/>
 
 

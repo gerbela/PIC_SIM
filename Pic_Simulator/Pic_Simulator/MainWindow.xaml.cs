@@ -177,6 +177,7 @@ namespace Pic_Simulator
                 tableStack.Rows[i][0] = Command.callStack[i];
 
             }
+            CallPos.Text = Command.callPosition.ToString();
         }
 
         private void refreshIntCon()
@@ -426,6 +427,7 @@ namespace Pic_Simulator
             }
             
             StackGrid.ItemsSource = tableStack.DefaultView;
+            CallPos.Text = Command.callPosition.ToString();
         }
 
         private void PrintSTR()
@@ -511,11 +513,10 @@ namespace Pic_Simulator
                 dt.Columns.Add(i.ToString(), typeof(string));
             }
             int zaehler = 0;
+            int tmpBank = 0;
             for (int row = 0; row < nbRows; row++)
             {
-                DataRow dr = dt.NewRow();
-
-                int tmpBank = 0;
+                DataRow dr = dt.NewRow();            
                 for (int i = 0; i < nbColumns; i++)
                 {
                     dr[i] = Command.ram[tmpBank, zaehler].ToString("X");
