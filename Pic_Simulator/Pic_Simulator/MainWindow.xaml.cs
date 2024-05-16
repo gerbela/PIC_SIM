@@ -41,7 +41,7 @@ namespace Pic_Simulator
         private void LoadFile(object sender, RoutedEventArgs e)
         {
             LST_File.LoadFile(Stack, CodeScroller);
-            Command.ResetController();
+            Command.ResetController(Stack);
         }
         void selectedCellsChangedRA(object sender, RoutedEventArgs e)
         {
@@ -195,12 +195,15 @@ namespace Pic_Simulator
                 LST_File.MarkLine(Stack, CodeScroller);
                 return;
             };
-            int command = Fetch();
-            if (!Decode(command)) return;
-            Command.Mirroring();
-            Command.RB0Interrupt(Stack);
-            Command.RB4RB7Interrupt(Stack);
-            LST_File.MarkLine(Stack, CodeScroller);
+            if(!Command.sleepModus)
+            {
+                int command = Fetch();
+                if (!Decode(command)) return;
+                Command.Mirroring();
+                Command.RB0Interrupt(Stack);
+                Command.RB4RB7Interrupt(Stack);
+                LST_File.MarkLine(Stack, CodeScroller);
+            } 
             Result.Text = "";
             //print ram
             /*for (int i = 0; i < 128; i++)
@@ -706,8 +709,12 @@ namespace Pic_Simulator
             {
                 deltaT = Command.RETFIE(Stack);
             }
+            if((command & 0xFFFF) == 0x0063)
+            {
+                Command.SLEEP();
+            }
             if(!((command & 0x3F80) == 0x0080 && (command & 0x7F) == 1)) Command.Timer0(Stack,deltaT);
-            Command.Watchdog(deltaT);
+            Command.Watchdog(Stack,deltaT);
             displayrunTime(deltaT);
             return true;
         }

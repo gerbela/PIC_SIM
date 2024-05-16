@@ -24,6 +24,7 @@ public class Command
     static int oldRB0 = 0;
     static int[] oldRBValues = new int[8];
     static int interruptPos = 0;
+    public static bool sleepModus = false;
 
     public static void setQuarzfrequenz(int newQuarzfrezuenz)
     {
@@ -63,7 +64,7 @@ public class Command
     {
         if (storageLocation == 0) storageLocation = ram[bank, 4];
         ram[bank, storageLocation] = wReg;
-        if (bank == 0 && storageLocation == 1) SetPrescaler();
+        if (storageLocation == 1) SetPrescaler();
         return 1;
     }
     public static int ADDLW(int literal)
@@ -448,6 +449,18 @@ public class Command
         return (value | rotatedBit);
     }
 
+    public static void SLEEP()
+    {
+        ram[bank,3] = SetSelectedBit(ram[bank, 3], 3, 0);
+        ram[bank,3] = SetSelectedBit(ram[bank, 3], 4, 1);
+        SetPrescaler();
+        watchdog = 0;
+        sleepModus = true;
+    }
+    public static void WakeUp()
+    {
+        sleepModus = false;
+    }
     public static void Timer0(StackPanel stack, int steps)
     {
         if (GetSelectedBit(ram[1, 1], 5) == 0)
@@ -538,7 +551,7 @@ public class Command
             prescalerToWatchdog = true;
         }
     }
-    public static void Watchdog(int deltaT)
+    public static void Watchdog(StackPanel stack, int deltaT)
     {
         deltaT = deltaT * 4000000 / quarzfrequenz;
         if (watchdog + deltaT >= 18000)
@@ -548,15 +561,19 @@ public class Command
                 if (prescaler != 0)
                 {
                     prescaler--;
-                    watchdog = watchdog + deltaT - 18000;
+                    watchdog = watchdog - 18000;
                 }
                 else
                 {
+                    WakeUp();
+                    ResetController(stack);
                     MessageBox.Show("Some text", "Watchdog", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
             }
             else
             {
+                WakeUp();
+                ResetController(stack);
                 MessageBox.Show("Some text", "Watchdog oo", MessageBoxButton.OK, MessageBoxImage.Error);
             }
 
@@ -574,6 +591,7 @@ public class Command
             {
                 interruptPos = ram[bank, 2] - 1;
                 LST_File.JumpToLine(stack, 4);
+                WakeUp();
             }
         }
     }
@@ -589,6 +607,7 @@ public class Command
         {
             interruptPos = ram[bank, 2] - 1;
             LST_File.JumpToLine(stack, 4);
+            WakeUp();
         }
     }
 
@@ -610,14 +629,16 @@ public class Command
         {
             interruptPos = ram[bank, 2] - 1;
             LST_File.JumpToLine(stack, 4);
+            WakeUp();
         }
     }
-    public static void ResetController()
+    public static void ResetController(StackPanel stack)
     {
         //todo change to reset 0b1111111;
         ram[1, 1] = 0b11111111;
         ram[0, 11] = 0b00100000;
         SetPrescaler();
+        LST_File.JumpToLine(stack, 0);
     }
 
     public static void Mirroring()
