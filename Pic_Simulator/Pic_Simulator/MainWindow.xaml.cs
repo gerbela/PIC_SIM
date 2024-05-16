@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.CodeDom;
 
 
 namespace Pic_Simulator
@@ -24,6 +25,7 @@ namespace Pic_Simulator
         DataTable tableSTR = new DataTable();
         DataTable tableIntCon = new DataTable();
         DataTable tableOption = new DataTable();
+        DataTable tableStack = new DataTable();
         double runTime = 0;
 
         public MainWindow()
@@ -35,6 +37,7 @@ namespace Pic_Simulator
             PrintSTR();
             PrintOption();
             PrintINTCON();
+            PrintStack(); 
 
         }
         
@@ -167,6 +170,16 @@ namespace Pic_Simulator
             }
         }
 
+        private void refreshStack()
+        {
+            for (int i = 0; i < 8; i++)
+            {
+                tableStack.Rows[i][0] = Command.callStack[i];
+
+            }
+            CallPos.Text = Command.callPosition.ToString();
+        }
+
         private void refreshIntCon()
         {
             for (int i = 7; i >= 0; i--)
@@ -216,6 +229,7 @@ namespace Pic_Simulator
             refreshSTR();
             refreshIntCon();
             refreshOption();
+            refreshStack(); 
             lightLEDs(); 
         }
         
@@ -403,6 +417,22 @@ namespace Pic_Simulator
 
         }
 
+        private void PrintStack()
+        {
+            tableStack.Columns.Add("Stack", typeof(int)); 
+            
+             
+            for (int i= 0; i < 8; i++)
+            {
+                DataRow row = tableStack.NewRow();
+                row[0] = Command.callStack[i];
+                tableStack.Rows.Add(row);
+            }
+            
+            StackGrid.ItemsSource = tableStack.DefaultView;
+            CallPos.Text = Command.callPosition.ToString();
+        }
+
         private void PrintSTR()
         {
 
@@ -486,11 +516,10 @@ namespace Pic_Simulator
                 dt.Columns.Add(i.ToString(), typeof(string));
             }
             int zaehler = 0;
+            int tmpBank = 0;
             for (int row = 0; row < nbRows; row++)
             {
-                DataRow dr = dt.NewRow();
-
-                int tmpBank = 0;
+                DataRow dr = dt.NewRow();            
                 for (int i = 0; i < nbColumns; i++)
                 {
                     dr[i] = Command.ram[tmpBank, zaehler].ToString("X");

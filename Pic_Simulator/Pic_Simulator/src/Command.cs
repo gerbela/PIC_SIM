@@ -14,8 +14,8 @@ public class Command
     public static int bank = 0;
     public static int prescaler;
     public static int watchdog;
-    public static int[] callStack = { -1, -1, -1, -1, -1, -1, -1, -1 };
-    static int callPosition = 0;
+    public static int[] callStack = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    public static int callPosition = 0;
     private static int setTMR = 0;
     public static int quarzfrequenz = 4000000;
     static int lastEdge = 0;
