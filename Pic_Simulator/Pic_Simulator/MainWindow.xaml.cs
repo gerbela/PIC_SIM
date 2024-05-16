@@ -7,6 +7,8 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.CodeDom;
+using System.Timers;
+using System.Windows.Threading;
 
 
 namespace Pic_Simulator
@@ -27,6 +29,14 @@ namespace Pic_Simulator
         DataTable tableOption = new DataTable();
         DataTable tableStack = new DataTable();
         double runTime = 0;
+        private DispatcherTimer timer;
+        bool run = false; 
+
+
+        private void dispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            // code goes here
+        }
 
         public MainWindow()
         {
@@ -37,8 +47,7 @@ namespace Pic_Simulator
             PrintSTR();
             PrintOption();
             PrintINTCON();
-            PrintStack(); 
-
+            PrintStack();           
         }
         
         private void LoadFile(object sender, RoutedEventArgs e)
@@ -196,6 +205,35 @@ namespace Pic_Simulator
                 tableOption.Rows[0][i] = Command.GetSelectedBit(Command.ram[1, 1], Math.Abs(i - 7));
 
             }
+        }
+
+        private void RunButton(object sender, RoutedEventArgs e)
+        {
+            
+            if (!run)
+            {
+                timer = new DispatcherTimer();
+                timer.Interval = TimeSpan.FromSeconds(0.3);
+
+                // Füge den Event-Handler für das Tick-Ereignis hinzu
+                timer.Tick += Run;
+
+                // Starte den Timer
+                timer.Start();
+                run = true;
+                runButton.Background = Brushes.LightGreen; 
+            }
+            else
+            {
+                timer.Stop();
+                run = false;
+                runButton.Background = Brushes.LightGray;
+            }
+        }
+
+        private void Run(object sender, EventArgs e)
+        {
+            OneStep(null, null);  
         }
 
 
