@@ -233,7 +233,23 @@ namespace Pic_Simulator
 
         private void Run(object sender, EventArgs e)
         {
-            OneStep(null, null);  
+            bool breakpointactive = false; 
+            foreach (var breakpoint in LST_File.breakpoints)
+            {
+                
+                int lineIndex = breakpoint.Key;
+                if (LST_File.pos == lineIndex)
+                {
+                    breakpointactive = true; 
+                }
+
+
+            }
+            if (!breakpointactive)
+            {
+                OneStep(null, null);
+            }
+              
         }
 
 

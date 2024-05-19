@@ -87,6 +87,7 @@ public class LST_File()
         }
         else
         {
+            MessageBox.Show(lineIndex.ToString());
             breakpoints[lineIndex] = textBlock;
             textBlock.Background = Brushes.Red;
         }
@@ -113,6 +114,7 @@ public class LST_File()
     }
     public static void MarkLine(StackPanel stack, ScrollViewer codeScroller)
     {
+        
         if (!loadedFile) return;
         if (pos > fileSize) return;
         if (pos == 0)
@@ -124,31 +126,84 @@ public class LST_File()
             return;
         }
         TextBlock text = (TextBlock)stack.Children[pos];
-        foreach (var breakpoint in breakpoints)
+        if(breakpoints.Count != 0)
         {
-            int lineIndex = breakpoint.Key;
-            TextBlock textBlock = breakpoint.Value;            
-            // Do something with the line index and TextBlock
-            if(lineIndex == pos)
+            foreach (var breakpoint in breakpoints)
             {
-                text.Background = Brushes.Red;
-            }
-            else
-            {
-                text.Background = Brushes.White;
+                int lineIndex = breakpoint.Key;
+                TextBlock textBlock = breakpoint.Value;
+                // Do something with the line index and TextBlock
+                if (lineIndex == pos)
+                {
+                    text.Background = Brushes.Red;
+                    
+                }
+                else
+                {
+                    text.Background = Brushes.Yellow;
+                }
             }
         }
+        else
+        {
+            text.Background = Brushes.Yellow;
+        }
+        
         
         pos++;
-        text = (TextBlock)stack.Children[pos];
-        text.Background = Brushes.LightGreen;
+        TextBlock textnew = (TextBlock)stack.Children[pos];
+        
+
+        if (breakpoints.Count != 0)
+        {
+            foreach (var breakpoint in breakpoints)
+            {
+                int lineIndex = breakpoint.Key;
+                TextBlock textBlock = breakpoint.Value;
+                // Do something with the line index and TextBlock
+                if (lineIndex == pos)
+                {
+                    textnew.Background = Brushes.OrangeRed;
+                }
+                else
+                {
+                    textnew.Background = Brushes.LightGreen;
+                }
+            }
+        }
+        else
+        {
+            textnew.Background = Brushes.LightGreen;
+        }
+        
         codeScroller.ScrollToVerticalOffset(startPos + 25 * (pos - 4));
     }
 
     public static void ClearMarker(StackPanel stack)
     {
         TextBlock text = (TextBlock)stack.Children[pos];
-        text.Background = Brushes.White;
+
+        if (breakpoints.Count != 0)
+        {
+            foreach (var breakpoint in breakpoints)
+            {
+                int lineIndex = breakpoint.Key;
+                TextBlock textBlock = breakpoint.Value;
+                // Do something with the line index and TextBlock
+                if (lineIndex == pos)
+                {
+                    text.Background = Brushes.Red;
+                }
+                else
+                {
+                    text.Background = Brushes.Yellow;
+                }
+            }
+        }
+        else
+        {
+            text.Background = Brushes.Yellow;
+        }
     }
 
     public static int FindFilePos(StackPanel stack, int programPos)
