@@ -33,10 +33,6 @@ namespace Pic_Simulator
         bool run = false; 
 
 
-        private void dispatcherTimer_Tick(object sender, EventArgs e)
-        {
-            // code goes here
-        }
 
         public MainWindow()
         {
