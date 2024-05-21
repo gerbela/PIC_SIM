@@ -1,7 +1,9 @@
 ﻿
 using Pic_Simulator;
 using System.IO;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 
 public class LST_File()
@@ -10,6 +12,7 @@ public class LST_File()
     public static int fileSize;
     static int startPos;
     public static int pos = 0;
+    public static  Dictionary<int, TextBlock> breakpoints = new Dictionary<int, TextBlock>();
     public static void LoadFile(StackPanel stack, ScrollViewer codeScroller)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog();
@@ -45,19 +48,47 @@ public class LST_File()
                         counter++;
                     }
                 }
-                TextBox textBox = new TextBox();
+                TextBlock textBox = new TextBlock();
                 textBox.Text = file;
-                textBox.IsReadOnly = true;
-                textBox.Height = 25;
-                stack.Children.Add(textBox);
+                
+                textBox.Height = 25;               
                 pos++;
                 fileSize++;
-
+                textBox.MouseDown += (sender, e) =>
+                {
+                    TextBox_MouseDoubleClick(sender, e, stack);
+                };
+                stack.Children.Add(textBox);
             }
             //print commands
             //foreach (int i in commands) Result.Text = Result.Text + i + "\n";
             loadedFile = true;
             Setup(stack, codeScroller);
+        }
+    }
+
+    private static void TextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e, StackPanel stackPanel)
+    {
+        var textBlock = sender as TextBlock;
+        if (textBlock != null)
+        {
+            int lineIndex = stackPanel.Children.IndexOf(textBlock);
+            ToggleBreakpoint(lineIndex, textBlock);
+        }
+
+    }
+
+    private static void ToggleBreakpoint(int lineIndex, TextBlock textBlock)
+    {
+        if (breakpoints.ContainsKey(lineIndex))
+        {
+            breakpoints.Remove(lineIndex);
+            textBlock.Background = Brushes.Transparent;
+        }
+        else
+        {
+            breakpoints[lineIndex] = textBlock;
+            textBlock.Background = Brushes.Red;
         }
     }
 
@@ -67,8 +98,8 @@ public class LST_File()
         if (pos == 0)
         {
             pos = startPos;
-            TextBox t = (TextBox)stack.Children[pos];
-            t.Background = Brushes.OrangeRed;
+            TextBlock t = (TextBlock)stack.Children[pos];
+            t.Background = Brushes.LightGreen;
             codeScroller.ScrollToVerticalOffset(codeScroller.VerticalOffset + 25 * (startPos - 4));
             return;
         }
@@ -82,33 +113,104 @@ public class LST_File()
     }
     public static void MarkLine(StackPanel stack, ScrollViewer codeScroller)
     {
+        
         if (!loadedFile) return;
         if (pos > fileSize) return;
         if (pos == 0)
         {
             pos = startPos;
             TextBox t = (TextBox)stack.Children[pos];
-            t.Background = Brushes.OrangeRed;
+            t.Background = Brushes.LightGreen;
             codeScroller.ScrollToVerticalOffset(codeScroller.VerticalOffset + 25 * (startPos - 4));
             return;
         }
-        TextBox text = (TextBox)stack.Children[pos];
-        text.Background = Brushes.White;
+        TextBlock text = (TextBlock)stack.Children[pos];
+        if(breakpoints.Count != 0)
+        {
+            foreach (var breakpoint in breakpoints)
+            {
+                int lineIndex = breakpoint.Key;
+                TextBlock textBlock = breakpoint.Value;
+                // Do something with the line index and TextBlock
+                if (lineIndex == pos)
+                {
+                    text.Background = Brushes.Red;
+                    break; 
+                    
+                }
+                else
+                {
+                    text.Background = Brushes.Transparent;
+                }
+            }
+        }
+        else
+        {
+            text.Background = Brushes.Transparent;
+        }
+        
+        
         pos++;
-        text = (TextBox)stack.Children[pos];
-        text.Background = Brushes.OrangeRed;
+        TextBlock textnew = (TextBlock)stack.Children[pos];
+        
+
+        if (breakpoints.Count != 0)
+        {
+            foreach (var breakpoint in breakpoints)
+            {
+                int lineIndex = breakpoint.Key;
+                TextBlock textBlock = breakpoint.Value;
+                // Do something with the line index and TextBlock
+                if (lineIndex == pos)
+                {
+                    textnew.Background = Brushes.OrangeRed;
+                    break; 
+                }
+                else
+                {
+                    textnew.Background = Brushes.LightGreen;
+                }
+            }
+        }
+        else
+        {
+            textnew.Background = Brushes.LightGreen;
+        }
+        
         codeScroller.ScrollToVerticalOffset(startPos + 25 * (pos - 4));
     }
 
     public static void ClearMarker(StackPanel stack)
     {
-        TextBox text = (TextBox)stack.Children[pos];
-        text.Background = Brushes.White;
+        TextBlock text = (TextBlock)stack.Children[pos];
+
+        if (breakpoints.Count != 0)
+        {
+            foreach (var breakpoint in breakpoints)
+            {
+                int lineIndex = breakpoint.Key;
+                TextBlock textBlock = breakpoint.Value;
+                // Do something with the line index and TextBlock
+                if (lineIndex == pos)
+                {
+                    text.Background = Brushes.Red;
+                    break; 
+                }
+                else
+                {
+                    text.Background = Brushes.Transparent;
+                }
+            }
+        }
+        else
+        {
+            text.Background = Brushes.Transparent;
+        }
     }
 
     public static int FindFilePos(StackPanel stack, int programPos)
     {
-        foreach (TextBox t in stack.Children)
+        foreach (TextBlock t in stack.Children)
         {
             if (t.Text.StartsWith(" ")) continue;
             int commandPos = Convert.ToInt32(t.Text.Substring(0, 4), 16);
@@ -123,7 +225,7 @@ public class LST_File()
 
     public static Boolean CheckCommand(StackPanel stack)
     {
-        TextBox t = (TextBox)stack.Children[pos];
+        TextBlock t = (TextBlock)stack.Children[pos];
         if (t.Text.StartsWith(" ")) return false;
         int commandPos = Convert.ToInt32(t.Text.Substring(20, 5));
         if (commandPos - 1 == pos) return true;
