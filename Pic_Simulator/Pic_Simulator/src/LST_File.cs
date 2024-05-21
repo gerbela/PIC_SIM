@@ -87,7 +87,6 @@ public class LST_File()
         }
         else
         {
-            MessageBox.Show(lineIndex.ToString());
             breakpoints[lineIndex] = textBlock;
             textBlock.Background = Brushes.Red;
         }
