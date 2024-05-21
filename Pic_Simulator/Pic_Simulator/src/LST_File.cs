@@ -136,17 +136,18 @@ public class LST_File()
                 if (lineIndex == pos)
                 {
                     text.Background = Brushes.Red;
+                    break; 
                     
                 }
                 else
                 {
-                    text.Background = Brushes.Yellow;
+                    text.Background = Brushes.Transparent;
                 }
             }
         }
         else
         {
-            text.Background = Brushes.Yellow;
+            text.Background = Brushes.Transparent;
         }
         
         
@@ -164,6 +165,7 @@ public class LST_File()
                 if (lineIndex == pos)
                 {
                     textnew.Background = Brushes.OrangeRed;
+                    break; 
                 }
                 else
                 {
@@ -193,16 +195,17 @@ public class LST_File()
                 if (lineIndex == pos)
                 {
                     text.Background = Brushes.Red;
+                    break; 
                 }
                 else
                 {
-                    text.Background = Brushes.Yellow;
+                    text.Background = Brushes.Transparent;
                 }
             }
         }
         else
         {
-            text.Background = Brushes.Yellow;
+            text.Background = Brushes.Transparent;
         }
     }
 
