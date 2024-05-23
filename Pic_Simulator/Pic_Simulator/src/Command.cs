@@ -1,6 +1,7 @@
 using Pic_Simulator;
 using System.DirectoryServices;
 using System.IO;
+using System.IO.Packaging;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows;
@@ -25,6 +26,7 @@ public class Command
     static int[] oldRBValues = new int[8];
     static int interruptPos = 0;
     public static bool sleepModus = false;
+    public static int PCLATH = 0;
 
     public static void setQuarzfrequenz(int newQuarzfrezuenz)
     {
@@ -114,7 +116,7 @@ public class Command
             return 0;
         }
         callStack[callPosition] = ram[bank, 2] - 1;
-        ram[bank, 2] = address;
+        ChangePCLATH(address);
         callPosition++;
         LST_File.JumpToLine(stack, address);
         return 2;
@@ -157,7 +159,7 @@ public class Command
         DecideSaving(result, address);
         if (result == 0)
         {
-            ram[bank, 2] += 1;
+            ChangePCLATH(PCLATH + 1);
             LST_File.JumpToLine(stack, ram[bank, 2]);
             return 2;
         }
@@ -178,7 +180,7 @@ public class Command
         DecideSaving(result, address);
         if (result == 0)
         {
-            ram[bank, 2] += 1;
+            ChangePCLATH(PCLATH + 1);
             LST_File.JumpToLine(stack, ram[bank, 2]);
             return 2;
         }
@@ -272,7 +274,7 @@ public class Command
 
     public static int GOTO(int address, StackPanel stack)
     {
-        ram[bank, 2] = address;
+        ChangePCLATH(address);
         LST_File.JumpToLine(stack, ram[bank, 2]);
         return 2;
     }
@@ -371,6 +373,11 @@ public class Command
         {
             if (address == -1) return;
             if (bank == 0 && address == 1) SetPrescaler();
+            if (address == 2)
+            {
+                ChangePCLATH(PCLATH + value);
+                return;
+            }
             ram[bank, address & 0x7F] = value;
         }
         else
@@ -419,6 +426,11 @@ public class Command
             ram[bank, 3] = ram[bank, 3] & 0b11111101; //Half Carryflag
         }
     }
+    public static void ChangePCLATH(int value)
+    {
+        PCLATH = value;
+        ram[bank, 2] = PCLATH & 0xFF;
+    }
 
     public static int GetSelectedBit(int value, int pos)
     {
@@ -459,6 +471,8 @@ public class Command
     }
     public static void WakeUp()
     {
+        ram[bank, 3] = SetSelectedBit(ram[bank, 3], 3, 1);
+        ram[bank, 3] = SetSelectedBit(ram[bank, 3], 4, 0);
         sleepModus = false;
     }
     public static void Timer0(StackPanel stack, int steps)
@@ -565,22 +579,37 @@ public class Command
                 }
                 else
                 {
-                    WakeUp();
-                    ResetController(stack);
+                    if (sleepModus)
+                    {
+                        SetSelectedBit(ram[0, 3],4, 0);
+                        watchdog = 0;
+                        return;
+                    }
                     MessageBox.Show("Some text", "Watchdog", MessageBoxButton.OK, MessageBoxImage.Error);
+                    ResetController(stack);
                 }
             }
             else
             {
-                WakeUp();
-                ResetController(stack);
+                if(sleepModus)
+                {
+                    SetSelectedBit(ram[0, 3], 4, 0);
+                    watchdog = 0;
+                    return;
+                }
                 MessageBox.Show("Some text", "Watchdog oo", MessageBoxButton.OK, MessageBoxImage.Error);
+                ResetController(stack);
             }
 
         }
         watchdog += deltaT;
     }
 
+    public static void Interrupts(StackPanel stack)
+    {
+        RB0Interrupt(stack);
+        RB4RB7Interrupt(stack);
+    }
     public static void Timer0Interrupt(StackPanel stack)
     {
         if (ram[0,1] >= 256)
@@ -635,8 +664,10 @@ public class Command
     public static void ResetController(StackPanel stack)
     {
         //todo change to reset 0b1111111;
-        ram[1, 1] = 0b11111111;
+        //ram[1, 1] = 0b11111111;
+        ram[1, 1] = 0b00000000;
         ram[0, 11] = 0b00100000;
+        ram[0,3] = 0b00011000;
         SetPrescaler();
         LST_File.JumpToLine(stack, 0);
     }

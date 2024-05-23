@@ -260,17 +260,16 @@ namespace Pic_Simulator
             {
                 int command = Fetch();
                 if (!Decode(command)) return;
-                Command.Mirroring();
-                Command.RB0Interrupt(Stack);
-                Command.RB4RB7Interrupt(Stack);
-                LST_File.MarkLine(Stack, CodeScroller);
+                if(!Command.sleepModus)LST_File.MarkLine(Stack, CodeScroller);
             } 
             Result.Text = "";
-            //print ram
-            /*for (int i = 0; i < 128; i++)
+            Command.Mirroring();
+            Command.Interrupts(Stack);   
+            if (Command.sleepModus)
             {
-                Result.Text = Result.Text + " " + Command.ram[Command.bank, i];
-            }*/
+                Command.Watchdog(Stack, 1);
+                displayrunTime(1);
+            }
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog;
             PrintRam();
             refreshRAB();
@@ -637,7 +636,7 @@ namespace Pic_Simulator
             int programCounter = Command.ram[Command.bank, 2];
             int command = commands[programCounter];
             programCounter++;
-            Command.ram[Command.bank, 2] = programCounter;
+            Command.ChangePCLATH(Command.ram[Command.bank, 2] + 1);
             return command;
         }
         private void displayrunTime(int deltaT)
