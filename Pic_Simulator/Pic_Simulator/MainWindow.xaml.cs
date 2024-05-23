@@ -267,6 +267,7 @@ namespace Pic_Simulator
                 int command = Fetch();
                 if (!Decode(command)) return;
                 if(!Command.sleepModus)LST_File.MarkLine(Stack, CodeScroller);
+                Command.EEPROM();
             } 
             Result.Text = "";
             Command.Mirroring();

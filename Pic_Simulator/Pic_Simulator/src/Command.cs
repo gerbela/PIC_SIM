@@ -27,6 +27,7 @@ public class Command
     static int interruptPos = 0;
     public static bool sleepModus = false;
     public static int PCLATH = 0;
+    public static int[] EEPROMStorage = new int[64];
 
     public static void setQuarzfrequenz(int newQuarzfrezuenz)
     {
@@ -640,6 +641,23 @@ public class Command
         }
     }
 
+    public static void EEPROM()
+    {
+        if (GetSelectedBit(ram[1,8],0) == 1)
+        {
+            ReadEEPROMValue();
+        }
+        if(GetSelectedBit(ram[1, 8], 1) == 1 && GetSelectedBit(ram[1, 8], 2) == 1)
+        {
+            EEPROMStorage[ram[0, 9]] = ram[0, 8];
+            ram[1, 8] = SetSelectedBit(ram[1, 8], 4, 1);
+        }
+    }
+
+    public static void ReadEEPROMValue()
+    {
+        ram[0, 8] = EEPROMStorage[ram[0, 9]];
+    }
     public static void RB4RB7Interrupt(StackPanel stack)
     {
         bool isInterrupt = false;
@@ -665,9 +683,10 @@ public class Command
     {
         //todo change to reset 0b1111111;
         //ram[1, 1] = 0b11111111;
-        ram[1, 1] = 0b00000000;
+        ram[1, 1] = 0b11111111;
         ram[0, 11] = 0b00100000;
         ram[0,3] = 0b00011000;
+        ram[1, 8] = 0b00000000;
         SetPrescaler();
         LST_File.JumpToLine(stack, 0);
     }
