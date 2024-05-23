@@ -45,11 +45,26 @@ namespace Pic_Simulator
             PrintINTCON();
             PrintStack();           
         }
+
+        private void refreshUI()
+        {
+            PrintRam();
+            refreshRAB();
+            refreshSTR();
+            refreshIntCon();
+            refreshOption();
+            refreshStack();
+            lightLEDs();
+        }
         
         private void LoadFile(object sender, RoutedEventArgs e)
         {
             LST_File.LoadFile(Stack, CodeScroller);
             Command.ResetController(Stack);
+            refreshUI();
+            resetLEDs();
+
+
         }
         void selectedCellsChangedRA(object sender, RoutedEventArgs e)
         {
@@ -66,7 +81,7 @@ namespace Pic_Simulator
             }           
             int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 5], Math.Abs(colIndex - 7), newBit);
             Command.ram[Command.bank, 5] = ramBit;
-            PrintRam();
+            refreshUI();
         }
 
         private void selectedCellsChangedSTR(object sender, RoutedEventArgs e) {
@@ -82,7 +97,7 @@ namespace Pic_Simulator
             }
             int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 3], Math.Abs(colIndex - 7), newBit);
             Command.ram[Command.bank, 3] = ramBit;
-            PrintRam();
+            refreshUI();
 
         }
 
@@ -100,7 +115,7 @@ namespace Pic_Simulator
             }
             int ramBit = Command.SetSelectedBit(Command.ram[0, 11], Math.Abs(colIndex - 7), newBit);
             Command.ram[0, 11] = ramBit;
-            PrintRam();
+            refreshUI();
         }
 
         private void selectedCellsChangedOption(object sender, RoutedEventArgs e)
@@ -117,8 +132,7 @@ namespace Pic_Simulator
             }
             int ramBit = Command.SetSelectedBit(Command.ram[1, 1], Math.Abs(colIndex - 7), newBit);
             Command.ram[1, 1] = ramBit;
-            PrintRam();
-            lightLEDs();
+            refreshUI();
         }
 
 
@@ -139,8 +153,7 @@ namespace Pic_Simulator
             }
             int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 6], Math.Abs(colIndex - 7), newBit);
             Command.ram[Command.bank, 6] = ramBit;
-            PrintRam();
-            lightLEDs(); 
+            refreshUI();
         }
         private void refreshRAB()
         {
@@ -273,13 +286,19 @@ namespace Pic_Simulator
                 displayrunTime(1);
             }
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog;
-            PrintRam();
-            refreshRAB();
-            refreshSTR();
-            refreshIntCon();
-            refreshOption();
-            refreshStack(); 
-            lightLEDs(); 
+            refreshUI();
+        }
+
+        private void resetLEDs()
+        {
+            LEDOne.Fill = new SolidColorBrush(Colors.LightGray);
+            LEDOTwo.Fill = new SolidColorBrush(Colors.LightGray);
+            LEDThree.Fill = new SolidColorBrush(Colors.LightGray);
+            LEDFour.Fill = new SolidColorBrush(Colors.LightGray);
+            LEDFive.Fill = new SolidColorBrush(Colors.LightGray);
+            LEDSix.Fill = new SolidColorBrush(Colors.LightGray);
+            LEDSeven.Fill = new SolidColorBrush(Colors.LightGray);
+            LEDEight.Fill = new SolidColorBrush(Colors.LightGray);
         }
         
         private void lightLEDs()

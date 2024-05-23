@@ -21,7 +21,10 @@ public class LST_File()
         bool? result = dialog.ShowDialog();
 
         if (result == true)
-        {
+        {           
+            stack.Children.Clear();
+            breakpoints.Clear(); 
+            MainWindow.commands.Clear();
             int counter = 0x0000;
             int pos = 1;
 
@@ -63,7 +66,8 @@ public class LST_File()
             //print commands
             //foreach (int i in commands) Result.Text = Result.Text + i + "\n";
             loadedFile = true;
-            Setup(stack, codeScroller);
+            Setup(stack, codeScroller);           
+            
         }
     }
 
@@ -182,29 +186,32 @@ public class LST_File()
 
     public static void ClearMarker(StackPanel stack)
     {
-        TextBlock text = (TextBlock)stack.Children[pos];
-
-        if (breakpoints.Count != 0)
+        if (stack != null)
         {
-            foreach (var breakpoint in breakpoints)
+            TextBlock text = (TextBlock)stack.Children[pos];
+
+            if (breakpoints.Count != 0)
             {
-                int lineIndex = breakpoint.Key;
-                TextBlock textBlock = breakpoint.Value;
-                // Do something with the line index and TextBlock
-                if (lineIndex == pos)
+                foreach (var breakpoint in breakpoints)
                 {
-                    text.Background = Brushes.Red;
-                    break; 
-                }
-                else
-                {
-                    text.Background = Brushes.Transparent;
+                    int lineIndex = breakpoint.Key;
+                    TextBlock textBlock = breakpoint.Value;
+                    // Do something with the line index and TextBlock
+                    if (lineIndex == pos)
+                    {
+                        text.Background = Brushes.Red;
+                        break;
+                    }
+                    else
+                    {
+                        text.Background = Brushes.Transparent;
+                    }
                 }
             }
-        }
-        else
-        {
-            text.Background = Brushes.Transparent;
+            else
+            {
+                text.Background = Brushes.Transparent;
+            }
         }
     }
 
