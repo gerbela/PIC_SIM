@@ -236,13 +236,11 @@ namespace Pic_Simulator
                 int lineIndex = breakpoint.Key;
                 if (LST_File.pos == lineIndex)
                 {
-                    breakpointactive = true; 
+                    breakpointactive = true;                 
                 }
-
-
             }
             if (!breakpointactive)
-            {
+            {               
                 OneStep(null, null);
             }
               

@@ -28,7 +28,7 @@
         </Menu>
 
         <TextBox Name ="Result" HorizontalAlignment="Left" Margin="1133,45,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="141" Height="196"/>
-        <Button Content="Weiter" HorizontalAlignment="Left" Margin="1204,500,0,0" VerticalAlignment="Top" Height="28" Width="70" Click="OneStep"/>
+        <Button Name="weiterButton"  Content="Weiter" HorizontalAlignment="Left" Margin="1204,500,0,0" VerticalAlignment="Top" Height="28" Width="70" Click="OneStep"/>
         <Button Name="runButton" Content="Run" HorizontalAlignment="Left" Margin="1204,533,0,0" VerticalAlignment="Top" Height="28" Width="70" Click="RunButton"/>
         <ScrollViewer Name="CodeScroller" VerticalScrollBarVisibility="Visible" Margin="322,411,205,10">
             <StackPanel Name="Stack" Height="Auto" Width="653"/>
