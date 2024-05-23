@@ -666,8 +666,10 @@ public class Command
         //todo change to reset 0b1111111;
         //ram[1, 1] = 0b11111111;
         ram[1, 1] = 0b00000000;
-        ram[0, 11] = 0b00100000;
-        ram[0,3] = 0b00011000;
+        ram[0,11] = 0b00100000;
+        ram[0, 3] = 0b00011000;
+        ram[1, 5] = 0b11111111;
+        ram[1, 6] = 0b11111111;
         SetPrescaler();
         LST_File.JumpToLine(stack, 0);
     }

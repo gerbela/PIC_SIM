@@ -118,6 +118,7 @@ namespace Pic_Simulator
             int ramBit = Command.SetSelectedBit(Command.ram[1, 1], Math.Abs(colIndex - 7), newBit);
             Command.ram[1, 1] = ramBit;
             PrintRam();
+            lightLEDs();
         }
 
 
@@ -139,6 +140,7 @@ namespace Pic_Simulator
             int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 6], Math.Abs(colIndex - 7), newBit);
             Command.ram[Command.bank, 6] = ramBit;
             PrintRam();
+            lightLEDs(); 
         }
         private void refreshRAB()
         {
@@ -282,7 +284,7 @@ namespace Pic_Simulator
         
         private void lightLEDs()
         {
-            int port = 5; // this can be changed weather its PortA or PortB, needs to implemented later
+            int port = 6; // this can be changed weather its PortA or PortB, needs to implemented later
 
             
             int intValue= Command.ram[Command.bank, port]; 
@@ -299,7 +301,7 @@ namespace Pic_Simulator
                         case 0:
                             if (LED == 0)
                             {
-                                LEDOne.Fill = new SolidColorBrush(Colors.Gray);
+                                LEDOne.Fill = new SolidColorBrush(Colors.LightGray);
                             }
                             else
                             {
@@ -309,7 +311,7 @@ namespace Pic_Simulator
                         case 1:
                             if (LED == 0)
                             {
-                                LEDOTwo.Fill = new SolidColorBrush(Colors.Gray);
+                                LEDOTwo.Fill = new SolidColorBrush(Colors.LightGray);
                             }
                             else
                             {
@@ -319,7 +321,7 @@ namespace Pic_Simulator
                         case 2:
                             if (LED == 0)
                             {
-                                LEDThree.Fill = new SolidColorBrush(Colors.Gray);
+                                LEDThree.Fill = new SolidColorBrush(Colors.LightGray);
                             }
                             else
                             {
@@ -329,7 +331,7 @@ namespace Pic_Simulator
                         case 3:
                             if (LED == 0)
                             {
-                                LEDFour.Fill = new SolidColorBrush(Colors.Gray);
+                                LEDFour.Fill = new SolidColorBrush(Colors.LightGray);
                             }
                             else
                             {
@@ -339,7 +341,7 @@ namespace Pic_Simulator
                         case 4:
                             if (LED == 0)
                             {
-                                LEDFive.Fill = new SolidColorBrush(Colors.Gray);
+                                LEDFive.Fill = new SolidColorBrush(Colors.LightGray);
                             }
                             else
                             {
@@ -349,7 +351,7 @@ namespace Pic_Simulator
                         case 5:
                             if (LED == 0)
                             {
-                                LEDSix.Fill = new SolidColorBrush(Colors.Gray);
+                                LEDSix.Fill = new SolidColorBrush(Colors.LightGray);
                             }
                             else
                             {
@@ -359,7 +361,7 @@ namespace Pic_Simulator
                         case 6:
                             if (LED == 0)
                             {
-                                LEDSeven.Fill = new SolidColorBrush(Colors.Gray);
+                                LEDSeven.Fill = new SolidColorBrush(Colors.LightGray);
                             }
                             else
                             {
@@ -369,7 +371,7 @@ namespace Pic_Simulator
                         case 7:
                             if (LED == 0)
                             {
-                                LEDEight.Fill = new SolidColorBrush(Colors.Gray);
+                                LEDEight.Fill = new SolidColorBrush(Colors.LightGray);
                             }
                             else
                             {
@@ -822,6 +824,16 @@ namespace Pic_Simulator
            
         }
 
-
-}
+        private void resetButton_Click(object sender, RoutedEventArgs e)
+        {
+            Command.ResetController(Stack);
+            PrintRam();
+            refreshRAB();
+            refreshSTR();
+            refreshIntCon();
+            refreshOption();
+            refreshStack();
+            lightLEDs();
+        }
+    }
 }
