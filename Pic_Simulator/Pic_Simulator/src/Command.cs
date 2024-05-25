@@ -689,7 +689,7 @@ public class Command
         ram[1, 5] = 0b11111111;
         ram[1, 6] = 0b11111111;
         SetPrescaler();
-        LST_File.JumpToLine(stack, 0);
+        if(stack.Children.Count != 0) LST_File.JumpToLine(stack, 0);
     }
 
     public static void Mirroring()

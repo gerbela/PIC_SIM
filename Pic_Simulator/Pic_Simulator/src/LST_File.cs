@@ -26,7 +26,7 @@ public class LST_File()
             breakpoints.Clear(); 
             MainWindow.commands.Clear();
             int counter = 0x0000;
-            int pos = 1;
+            int tmppos = 1;
 
             foreach (string s in File.ReadLines(dialog.FileName))
             {
@@ -45,7 +45,7 @@ public class LST_File()
                     string command = "0x" + s.Substring(5, 4);
                     if (value == counter)
                     {
-                        if (value == 0) startPos = pos - 1;
+                        if (value == 0) startPos = tmppos - 1;
                         MainWindow.commands.Add(Convert.ToInt32(command, 16));
                         file = file + s;
                         counter++;
@@ -55,7 +55,7 @@ public class LST_File()
                 textBox.Text = file;
                 
                 textBox.Height = 25;               
-                pos++;
+                tmppos++;
                 fileSize++;
                 textBox.MouseDown += (sender, e) =>
                 {
@@ -66,6 +66,7 @@ public class LST_File()
             //print commands
             //foreach (int i in commands) Result.Text = Result.Text + i + "\n";
             loadedFile = true;
+            pos = 0;
             Setup(stack, codeScroller);           
             
         }
