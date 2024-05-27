@@ -279,6 +279,7 @@ namespace Pic_Simulator
                 Command.EEPROM();
             } 
             Result.Text = "";
+            Command.CheckWriteEEPROM();
             Command.Mirroring();
             Command.Interrupts(Stack);   
             if (Command.sleepModus)
