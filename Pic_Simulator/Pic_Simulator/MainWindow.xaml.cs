@@ -287,7 +287,7 @@ namespace Pic_Simulator
                 Command.Watchdog(Stack, 1);
                 displayrunTime(1);
             }
-            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog + "\n" + "PCLATH: " + Command.PCLATH;
+            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog + "\n" + "PCL: " + (Command.PCLATH & 0xFF) + "\n" + "PCLATH: " + (Command.PCLATH & 0x1F00) + "\n" + "SFR: " + (Command.ram[0,4]);
             refreshUI();
         }
 
