@@ -286,7 +286,7 @@ namespace Pic_Simulator
                 Command.Watchdog(Stack, 1);
                 displayrunTime(1);
             }
-            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog;
+            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog + "\n" + "PCLATH: " + Command.PCLATH;
             refreshUI();
         }
 
