@@ -28,6 +28,7 @@ public class Command
     public static bool sleepModus = false;
     public static int PCLATH = 0;
     public static int[] EEPROMStorage = new int[64];
+    static bool firstWriteEEPROMMuster = false;
 
     public static void setQuarzfrequenz(int newQuarzfrezuenz)
     {
@@ -647,7 +648,7 @@ public class Command
         {
             ReadEEPROMValue();
         }
-        if(GetSelectedBit(ram[1, 8], 1) == 1 && GetSelectedBit(ram[1, 8], 2) == 1)
+        if(GetSelectedBit(ram[1, 8], 1) == 1 && GetSelectedBit(ram[1, 8], 2) == 1 && GetSelectedBit(ram[bank, 11], 7) == 0)
         {
             EEPROMStorage[ram[0, 9]] = ram[0, 8];
             ram[1, 8] = SetSelectedBit(ram[1, 8], 4, 1);
@@ -657,6 +658,26 @@ public class Command
     public static void ReadEEPROMValue()
     {
         ram[0, 8] = EEPROMStorage[ram[0, 9]];
+        ram[1, 8] = SetSelectedBit(ram[1, 8], 0, 0);
+    }
+    public static void WriteEEPROMValue()
+    {
+        EEPROMStorage[ram[0, 9]] = ram[0, 8];
+        ram[1, 8] = SetSelectedBit(ram[1, 8], 4, 1);
+    }
+    public static void CheckWriteEEPROM()
+    {
+        if (ram[1, 9] == 0x55) firstWriteEEPROMMuster = true;
+        if (GetSelectedBit(ram[1, 8], 1) == 1 && GetSelectedBit(ram[1, 8], 2) == 1 && GetSelectedBit(ram[bank, 11], 7) == 0)
+        {
+            if (firstWriteEEPROMMuster && ram[1, 9] == 0xAA)
+            {
+                WriteEEPROMValue();
+                firstWriteEEPROMMuster = false;
+                ram[1,8] = SetSelectedBit(ram[1, 8], 1, 0);
+                ram[1,8] = SetSelectedBit(ram[1, 8], 4, 1);
+            }
+        }
     }
     public static void RB4RB7Interrupt(StackPanel stack)
     {
