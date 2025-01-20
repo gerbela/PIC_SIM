@@ -1,15 +1,7 @@
-using Pic_Simulator;
-using System.DirectoryServices;
-using System.IO;
-using System.IO.Packaging;
-using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Xps;
 
 public class Command
 {
+    IOutputController outputController;
     public static int wReg = 0;
     public static int[,] ram = new int[2, 128];
     public static int bank = 0;
@@ -30,6 +22,10 @@ public class Command
     public static int[] EEPROMStorage = new int[64];
     static bool firstWriteEEPROMMuster = false;
 
+    public Command(IOutputController outputController)
+    {
+        this.outputController = outputController;
+    }
     public static void setQuarzfrequenz(int newQuarzfrezuenz)
     {
         quarzfrequenz = newQuarzfrezuenz; 
@@ -110,17 +106,17 @@ public class Command
         return 1;
     }
 
-    public static int CALL(int address, StackPanel stack)
+    public int CALL(int address,List<string> text)
     {
         if (callPosition == 8)
         {
-            MessageBox.Show("Some text", "Stack overflow", MessageBoxButton.OK, MessageBoxImage.Error);
-            return 0;
+            //MessageBox.Show("Some text", "Stack overflow", MessageBoxButton.OK, MessageBoxImage.Error);
+            return -1;
         }
         callStack[callPosition] = ram[bank, 2] - 1;
         ChangePCLATH(address);
         callPosition++;
-        LST_File.JumpToLine(stack, address);
+        outputController.JumpToLine(text, address);
         return 2;
     }
 
@@ -133,28 +129,28 @@ public class Command
         return 1;
     }
 
-    public static int RETURN(StackPanel stack)
+    public int RETURN(List<string> stack)
     {
         if (callPosition <= 0)
         {
             //LST_File.pos++;
-            MessageBox.Show("Some text", "Stack Underflow", MessageBoxButton.OK, MessageBoxImage.Error);
-            return 0;
+            //MessageBox.Show("Some text", "Stack Underflow", MessageBoxButton.OK, MessageBoxImage.Error);
+            return -1;
         }
         int address = callStack[callPosition - 1];
         callStack[callPosition - 1] = -1;
         callPosition--;
-        LST_File.JumpToLine(stack, address + 1);
+        outputController.JumpToLine(stack, address + 1);
         return 2;
     }
-    public static int RETFIE(StackPanel stack)
+    public int RETFIE(List<string> stack)
     {
         int address = interruptPos;
-        LST_File.JumpToLine(stack, address + 1);
+        outputController.JumpToLine(stack, address + 1);
         return 2;
     }
 
-    public static int DECFSZ(int address, StackPanel stack)
+    public int DECFSZ(int address, List<string> stack)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = (ram[bank, address & 0x7F] - 1) % 256;
@@ -162,7 +158,7 @@ public class Command
         if (result == 0)
         {
             ChangePCLATH(PCLATH + 1);
-            LST_File.JumpToLine(stack, ram[bank, 2]);
+            outputController.JumpToLine(stack, ram[bank, 2]);
             return 2;
         }
         return 1;
@@ -175,7 +171,7 @@ public class Command
         Zeroflag(result);
         return 1;
     }
-    public static int INCFSZ(int address, StackPanel stack)
+    public int INCFSZ(int address, List<string> stack)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = (ram[bank, address & 0x7F] + 1) % 256;
@@ -183,7 +179,7 @@ public class Command
         if (result == 0)
         {
             ChangePCLATH(PCLATH + 1);
-            LST_File.JumpToLine(stack, ram[bank, 2]);
+            outputController.JumpToLine(stack, ram[bank, 2]);
             return 2;
         }
         return 1;
@@ -274,14 +270,14 @@ public class Command
         return 1;
     }
 
-    public static int GOTO(int address, StackPanel stack)
+    public int GOTO(int address, List<string> stack)
     {
         ChangePCLATH(address);
-        LST_File.JumpToLine(stack, ram[bank, 2]);
+        outputController.JumpToLine(stack, ram[bank, 2]);
         return 2;
     }
 
-    public static int RETLW(int value, StackPanel stack)
+    public int RETLW(int value, List<string> stack)
     {
         RETURN(stack);
         wReg = value;
@@ -310,22 +306,22 @@ public class Command
         if ((ram[bank, 0x3] & 0x20) == 0x20) bank = 1;
         return 1;
     }
-    public static int BTFSC(int address, StackPanel stack)
+    public int BTFSC(int address, List<string> stack)
     {
         if ((address & 0x7F) == 0) address = (address & 0xFF80) | ram[bank, 4];
         int bit = (address & 0x380) >> 7;
         int rotated = (ram[bank, address & 0x7F] >> bit) & 0x1;
         if (rotated == 1) return 1;
-        LST_File.JumpToLine(stack, ram[bank, 2] + 1);
+        outputController.JumpToLine(stack, ram[bank, 2] + 1);
         return 2;
     }
-    public static int BTFSS(int address, StackPanel stack)
+    public int BTFSS(int address, List<string> stack)
     {
         if ((address & 0x7F) == 0) address = (address & 0xFF80) | ram[bank, 4];
         int bit = (address & 0x380) >> 7;
         int rotated = (ram[bank, address & 0x7F] >> bit) & 0x1;
         if (rotated == 0) return 1;
-        LST_File.JumpToLine(stack, ram[bank, 2] + 1);
+        outputController.JumpToLine(stack, ram[bank, 2] + 1);
         return 2;
     }
     public static int SWAPF(int address)
@@ -477,7 +473,7 @@ public class Command
         ram[bank, 3] = SetSelectedBit(ram[bank, 3], 4, 0);
         sleepModus = false;
     }
-    public static void Timer0(StackPanel stack, int steps)
+    public void Timer0(List<string> stack, int steps)
     {
         if (GetSelectedBit(ram[1, 1], 5) == 0)
         {
@@ -567,7 +563,7 @@ public class Command
             prescalerToWatchdog = true;
         }
     }
-    public static void Watchdog(StackPanel stack, int deltaT)
+    public void Watchdog(List<string> stack, int deltaT)
     {
         deltaT = deltaT * 4000000 / quarzfrequenz;
         if (watchdog + deltaT >= 18000)
@@ -587,7 +583,7 @@ public class Command
                         watchdog = 0;
                         return;
                     }
-                    MessageBox.Show("Some text", "Watchdog", MessageBoxButton.OK, MessageBoxImage.Error);
+                    //MessageBox.Show("Some text", "Watchdog", MessageBoxButton.OK, MessageBoxImage.Error);
                     ResetController(stack);
                 }
             }
@@ -599,7 +595,7 @@ public class Command
                     watchdog = 0;
                     return;
                 }
-                MessageBox.Show("Some text", "Watchdog oo", MessageBoxButton.OK, MessageBoxImage.Error);
+                //MessageBox.Show("Some text", "Watchdog oo", MessageBoxButton.OK, MessageBoxImage.Error);
                 ResetController(stack);
             }
 
@@ -607,12 +603,12 @@ public class Command
         watchdog += deltaT;
     }
 
-    public static void Interrupts(StackPanel stack)
+    public void Interrupts(List<string> stack)
     {
         RB0Interrupt(stack);
         RB4RB7Interrupt(stack);
     }
-    public static void Timer0Interrupt(StackPanel stack)
+    public void Timer0Interrupt(List<string> stack)
     {
         if (ram[0,1] >= 256)
         {
@@ -621,12 +617,12 @@ public class Command
             if (GetSelectedBit(ram[0, 11], 2) == 1 && GetSelectedBit(ram[0, 11], 5) == 1 && GetSelectedBit(ram[0, 11], 7) == 1)
             {
                 interruptPos = ram[bank, 2] - 1;
-                LST_File.JumpToLine(stack, 4);
+                outputController.JumpToLine(stack, 4);
                 WakeUp();
             }
         }
     }
-    public static void RB0Interrupt(StackPanel stack)
+    public void RB0Interrupt(List<string> stack)
     {
         bool flanke = false;
         if (GetSelectedBit(ram[1, 1], 6) == 1 && oldRB0 == 0 && GetSelectedBit(ram[bank, 6], 0) == 1) flanke = true;
@@ -637,7 +633,7 @@ public class Command
         if (flanke && GetSelectedBit(ram[0, 11], 1) == 1 && GetSelectedBit(ram[0, 11], 4) == 1 && GetSelectedBit(ram[0, 11], 7) == 1)
         {
             interruptPos = ram[bank, 2] - 1;
-            LST_File.JumpToLine(stack, 4);
+            outputController.JumpToLine(stack, 4);
             WakeUp();
         }
     }
@@ -679,7 +675,7 @@ public class Command
             }
         }
     }
-    public static void RB4RB7Interrupt(StackPanel stack)
+    public void RB4RB7Interrupt(List<string> stack)
     {
         bool isInterrupt = false;
         for (int i = 0; i < 8; i++)
@@ -696,11 +692,11 @@ public class Command
         if (isInterrupt && GetSelectedBit(ram[0, 11], 0) == 1 && GetSelectedBit(ram[0, 11], 3) == 1 && GetSelectedBit(ram[0, 11], 7) == 1)
         {
             interruptPos = ram[bank, 2] - 1;
-            LST_File.JumpToLine(stack, 4);
+            outputController.JumpToLine(stack, 4);
             WakeUp();
         }
     }
-    public static void ResetController(StackPanel stack)
+    public void ResetController(List<string> stack)
     {
         //todo change to reset 0b1111111;
         //ram[1, 1] = 0b11111111;
@@ -710,7 +706,7 @@ public class Command
         ram[1, 5] = 0b11111111;
         ram[1, 6] = 0b11111111;
         SetPrescaler();
-        if(stack.Children.Count != 0) LST_File.JumpToLine(stack, 0);
+        if(stack.Count != 0) outputController.JumpToLine(stack, 0);
     }
 
     public static void Mirroring()

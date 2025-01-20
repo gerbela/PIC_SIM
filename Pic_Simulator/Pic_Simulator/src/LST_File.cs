@@ -5,14 +5,23 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using static System.Net.Mime.MediaTypeNames;
 
-public class LST_File()
+
+public enum TextColor
+{
+    Red,
+    Transparent,
+    OrangeRed,
+    LightGreen
+}
+public class LST_File : IOutputController
 {
     public static bool loadedFile = false;
     public static int fileSize;
     static int startPos;
     public static int pos = 0;
-    public static  Dictionary<int, TextBlock> breakpoints = new Dictionary<int, TextBlock>();
+    public static  Dictionary<int, TextColor> breakpoints = new Dictionary<int, TextColor>();
     public static void LoadFile(StackPanel stack, ScrollViewer codeScroller)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog();
@@ -92,7 +101,7 @@ public class LST_File()
         }
         else
         {
-            breakpoints[lineIndex] = textBlock;
+            breakpoints[lineIndex] = Change(textBlock);
             textBlock.Background = Brushes.Red;
         }
     }
@@ -110,12 +119,43 @@ public class LST_File()
         }
     }
 
-    public static void JumpToLine(StackPanel stack, int address)
+    public static TextColor Change(TextBlock text)
     {
-        ClearMarker(stack);
-        pos = FindFilePos(stack, address) - 2;
+        if(text.Background == Brushes.Red)
+        {
+            return TextColor.Red;
+        }
+        else
+        {
+            return TextColor.Transparent;
+        }
+    }
+
+    public void JumpToLine(List<string> text, int address)
+    {
+        pos = FindFilePos(text, address) - 2;
         Command.ram[Command.bank, 2] = address;
     }
+
+    public static TextColor SwitchColor()
+    {
+        foreach (var breakpoint in breakpoints)
+        {
+            int lineIndex = breakpoint.Key;
+            //TextBlock textBlock = breakpoint.Value;
+            // Do something with the line index and TextBlock
+            if (lineIndex == pos)
+            {
+                return TextColor.Red;
+            }
+            else
+            {
+                return TextColor.Transparent;
+            }
+        }
+        return TextColor.Transparent;
+    }
+
     public static void MarkLine(StackPanel stack, ScrollViewer codeScroller)
     {
         
@@ -135,7 +175,7 @@ public class LST_File()
             foreach (var breakpoint in breakpoints)
             {
                 int lineIndex = breakpoint.Key;
-                TextBlock textBlock = breakpoint.Value;
+                TextColor textBlock = breakpoint.Value;
                 // Do something with the line index and TextBlock
                 if (lineIndex == pos)
                 {
@@ -164,7 +204,7 @@ public class LST_File()
             foreach (var breakpoint in breakpoints)
             {
                 int lineIndex = breakpoint.Key;
-                TextBlock textBlock = breakpoint.Value;
+                TextColor textBlock = breakpoint.Value;
                 // Do something with the line index and TextBlock
                 if (lineIndex == pos)
                 {
@@ -196,7 +236,7 @@ public class LST_File()
                 foreach (var breakpoint in breakpoints)
                 {
                     int lineIndex = breakpoint.Key;
-                    TextBlock textBlock = breakpoint.Value;
+                    //TextBlock textBlock = breakpoint.Value;
                     // Do something with the line index and TextBlock
                     if (lineIndex == pos)
                     {
@@ -216,6 +256,20 @@ public class LST_File()
         }
     }
 
+    public static int FindFilePos(List<string> text, int programPos)
+    {
+        foreach (string s in text)
+        {
+            if (s.StartsWith(" ")) continue;
+            int commandPos = Convert.ToInt32(s.Substring(0, 4), 16);
+            if (commandPos == programPos)
+            {
+                int tmp = Convert.ToInt32(s.Substring(20, 5));
+                return tmp;
+            }
+        }
+        return -1;
+    }
     public static int FindFilePos(StackPanel stack, int programPos)
     {
         foreach (TextBlock t in stack.Children)
@@ -240,6 +294,15 @@ public class LST_File()
         return false;
     }
 
+    public int GetPos()
+    {
+        return pos;
+    }
+
+    public Dictionary<int, TextColor> GetBreakpoints()
+    {
+        return breakpoints;
+    }
 }
 
 

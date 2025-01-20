@@ -30,9 +30,9 @@ namespace Pic_Simulator
         DataTable tableStack = new DataTable();
         double runTime = 0;
         private DispatcherTimer timer;
-        bool run = false; 
-
-
+        bool run = false;
+        public WPFController wpfController;
+        LST_File file = new LST_File();
 
         public MainWindow()
         {
@@ -43,7 +43,8 @@ namespace Pic_Simulator
             PrintSTR();
             PrintOption();
             PrintINTCON();
-            PrintStack();           
+            PrintStack();
+            wpfController = new WPFController(file);
         }
 
         private void refreshUI()
@@ -60,7 +61,7 @@ namespace Pic_Simulator
         private void LoadFile(object sender, RoutedEventArgs e)
         {
             LST_File.LoadFile(Stack, CodeScroller);
-            Command.ResetController(Stack);
+            wpfController.ResetControllerRoutine(Stack);
             refreshUI();
             resetLEDs();
 
@@ -134,10 +135,6 @@ namespace Pic_Simulator
             Command.ram[1, 1] = ramBit;
             refreshUI();
         }
-
-
-
-
 
         void selectedCellsChangedRB(object sender, RoutedEventArgs e)
         {
@@ -281,10 +278,10 @@ namespace Pic_Simulator
             Result.Text = "";
             Command.CheckWriteEEPROM();
             Command.Mirroring();
-            Command.Interrupts(Stack);   
+            wpfController.InterruptRoutine(Stack);   
             if (Command.sleepModus)
             {
-                Command.Watchdog(Stack, 1);
+                wpfController.WatchdogRoutine(Stack, 1);
                 displayrunTime(1);
             }
             Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog + "\n" + "PCL: " + (Command.PCLATH & 0xFF) + "\n" + "PCLATH: " + (Command.PCLATH & 0x1F00) + "\n" + "SFR: " + (Command.ram[0,4]);
@@ -408,9 +405,6 @@ namespace Pic_Simulator
 
         }
 
-        
-
-
         private void PrintRaRb()
         {
 
@@ -480,11 +474,6 @@ namespace Pic_Simulator
             }
             tableRB.Rows.Add(rowTrisRB);
             RBGrid.ItemsSource = tableRB.DefaultView;
-
-            
-
-            
-
         }
 
         private void PrintStack()
@@ -714,23 +703,23 @@ namespace Pic_Simulator
             }
             if ((command & 0x3800) == 0x2000)
             {
-                deltaT = Command.CALL(command & 0xFF, Stack);
+                deltaT = wpfController.CallRoutine(command & 0xFF, Stack);
             }
             if ((command & 0xFFFF) == 0x0008)
             {
-                deltaT = Command.RETURN(Stack);
+                deltaT = wpfController.RETURNRoutine(Stack);
             }
             if ((command & 0x3800) == 0x2800)
             {
-                deltaT = Command.GOTO(command & 0x7FF, Stack);
+                deltaT = wpfController.GoToRoutine(command & 0x7FF, Stack);
             }
             if ((command & 0xFC00) == 0x3400)
             {
-                deltaT = Command.RETLW(command & 0xFF, Stack);
+                deltaT = wpfController.RetLwRoutine(command & 0xFF, Stack);
             }
             if ((command & 0x3F80) == 0x0B80 || (command & 0x3F80) == 0x0B00)
             {
-                deltaT = Command.DECFSZ(command & 0xFF, Stack);
+                deltaT = wpfController.DecFszRoutine(command & 0xFF, Stack);
             }
             if ((command & 0x3F80) == 0x0A80 || (command & 0x3F80) == 0x0A00)
             {
@@ -738,7 +727,7 @@ namespace Pic_Simulator
             }
             if ((command & 0x3F80) == 0x0F80 || (command & 0x3F80) == 0xF00)
             {
-                deltaT = Command.INCFSZ(command & 0xFF, Stack);
+                deltaT = wpfController.IncFszRoutine(command & 0xFF, Stack);
             }
             if ((command & 0x3F80) == 0x0480 || (command & 0x3F80) == 0x0400)
             {
@@ -778,11 +767,11 @@ namespace Pic_Simulator
             }
             if ((command & 0x3C00) == 0x1800)
             {
-                deltaT = Command.BTFSC(command & 0x03FF, Stack);
+                deltaT = wpfController.BitFscRoutine(command & 0x03FF, Stack);
             }
             if ((command & 0x3C00) == 0x1C00)
             {
-                deltaT = Command.BTFSS(command & 0x03FF, Stack);
+                deltaT = wpfController.BitFssRoutine(command & 0x03FF, Stack);
             }
             if ((command & 0x3F00) == 0x0E00)
             {
@@ -806,14 +795,14 @@ namespace Pic_Simulator
             }
             if((command & 0xFFFF) == 0x0009)
             {
-                deltaT = Command.RETFIE(Stack);
+                deltaT = wpfController.RetFieRoutine(Stack);
             }
             if((command & 0xFFFF) == 0x0063)
             {
                 Command.SLEEP();
             }
-            if(!((command & 0x3F80) == 0x0080 && (command & 0x7F) == 1)) Command.Timer0(Stack,deltaT);
-            Command.Watchdog(Stack,deltaT);
+            if(!((command & 0x3F80) == 0x0080 && (command & 0x7F) == 1)) wpfController.Timer0Routine(Stack,deltaT);
+            wpfController.WatchdogRoutine(Stack,deltaT);
             displayrunTime(deltaT);
             return true;
         }
@@ -847,7 +836,7 @@ namespace Pic_Simulator
 
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
-            Command.ResetController(Stack);
+            wpfController.ResetControllerRoutine(Stack);
             PrintRam();
             refreshRAB();
             refreshSTR();
