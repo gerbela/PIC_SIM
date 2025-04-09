@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kern\Kern.csproj" />
+    <ProjectReference Include="..\Use Case\Anwendungsschicht.csproj" />
   </ItemGroup>
 
 </Project>

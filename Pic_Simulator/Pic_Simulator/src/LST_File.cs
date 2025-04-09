@@ -1,11 +1,11 @@
 ﻿
 using Pic_Simulator;
+using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using static System.Net.Mime.MediaTypeNames;
 
 
 public enum TextColor
@@ -17,54 +17,35 @@ public enum TextColor
 }
 public class LST_File : IOutputController
 {
+    public static LST_File1 filetype = new LST_File1();
+    public static FileManger manager = new(filetype);
     public static bool loadedFile = false;
     public static int fileSize;
     static int startPos;
     public static int pos = 0;
     public static  Dictionary<int, TextColor> breakpoints = new Dictionary<int, TextColor>();
-    public static void LoadFile(StackPanel stack, ScrollViewer codeScroller)
+
+    public static bool LoadFile(StackPanel stack, ScrollViewer codeScroller)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog();
         dialog.DefaultExt = ".lst";
-        dialog.Filter = "Text documents (.lst)|*.lst";
+        dialog.Filter = "Text documents (.lst,.csv)|*.lst;*.csv";
         bool? result = dialog.ShowDialog();
 
+        
         if (result == true)
-        {           
+        {
             stack.Children.Clear();
-            breakpoints.Clear(); 
+            breakpoints.Clear();
             MainWindow.commands.Clear();
-            int counter = 0x0000;
-            int tmppos = 1;
+            List<string> content = File.ReadLines(dialog.FileName).ToList();
 
-            foreach (string s in File.ReadLines(dialog.FileName))
+            foreach (string s in manager.LoadFile(content))
             {
-                string file = "";
-
-                string firstFour = s.Substring(0, 4);
-                if (s.Substring(0, 4) == "    ")
-                {
-                    string tmp = "        " + s;
-                    file = file + tmp;
-                }
-                else
-                {
-                    firstFour = "0x" + firstFour;
-                    int value = Convert.ToInt32(firstFour, 16);
-                    string command = "0x" + s.Substring(5, 4);
-                    if (value == counter)
-                    {
-                        if (value == 0) startPos = tmppos - 1;
-                        MainWindow.commands.Add(Convert.ToInt32(command, 16));
-                        file = file + s;
-                        counter++;
-                    }
-                }
                 TextBlock textBox = new TextBlock();
-                textBox.Text = file;
-                
-                textBox.Height = 25;               
-                tmppos++;
+                textBox.Text = s;
+
+                textBox.Height = 25;
                 fileSize++;
                 textBox.MouseDown += (sender, e) =>
                 {
@@ -72,13 +53,13 @@ public class LST_File : IOutputController
                 };
                 stack.Children.Add(textBox);
             }
-            //print commands
-            //foreach (int i in commands) Result.Text = Result.Text + i + "\n";
+            MainWindow.commands = manager.GetCommands();
             loadedFile = true;
             pos = 0;
-            Setup(stack, codeScroller);           
-            
+            Setup(stack, codeScroller);
+            return true;
         }
+        return false;
     }
 
     private static void TextBox_MouseDoubleClick(object sender, MouseButtonEventArgs e, StackPanel stackPanel)

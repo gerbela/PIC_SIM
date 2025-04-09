@@ -60,7 +60,8 @@ namespace Pic_Simulator
         
         private void LoadFile(object sender, RoutedEventArgs e)
         {
-            LST_File.LoadFile(Stack, CodeScroller);
+            bool loading_sucess = LST_File.LoadFile(Stack, CodeScroller);
+            if (!loading_sucess) return;
             wpfController.ResetControllerRoutine(Stack);
             refreshUI();
             resetLEDs();
