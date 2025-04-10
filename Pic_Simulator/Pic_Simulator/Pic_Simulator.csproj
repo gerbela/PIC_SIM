@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Kern\Kern.csproj" />
-    <ProjectReference Include="..\Use Case\Anwendungsschicht.csproj" />
+    <ProjectReference Include="..\Plugin\Plugin.csproj" />
   </ItemGroup>
 
 </Project>
