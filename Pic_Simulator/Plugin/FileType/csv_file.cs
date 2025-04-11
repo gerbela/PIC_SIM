@@ -1,6 +1,6 @@
 ﻿
 
-public class csv_file : IFileType
+public class CSV_File : IFileType
 {
     private List<int> commands = new List<int>();
     public List<int> GetCommands()

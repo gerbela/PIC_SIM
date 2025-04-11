@@ -105,7 +105,7 @@ public class WPFController
     {
         ClearMarker(stack);
         List<string> panelLines = StackpanelToList(stack);
-        outputController.JumpToLine(panelLines, address);
+        outputController.JumpToLine(panelLines, address,command);
     }
 
     public List<string> StackpanelToList(StackPanel stack)

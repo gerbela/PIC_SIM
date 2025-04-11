@@ -17,4 +17,9 @@ public class FileManger
         return fileType.GetCommands();
     }
 
+    public void ChangeFIleType(IFileType fileType)
+    {
+        this.fileType = fileType;
+    }
+
 }

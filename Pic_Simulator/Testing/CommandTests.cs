@@ -1,117 +1,150 @@
 using System.Windows.Input;
 using Xunit;
+using Moq;
 namespace Testing
 {
     public class CommandTests
     {
+        private Mock<IOutputController> output = new();
         [Fact]
         public void Test_ADDLW_empty_wReg()
         {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
             int arrange = 5;
-            Command.wReg = 0;
+            command.wReg = 0;
 
-            int result = Command.ADDLW(arrange);
+            int result = command.ADDLW(arrange);
 
-            Assert.Equal(arrange, Command.wReg);
+            Assert.Equal(arrange, command.wReg);
             Assert.Equal(1, result);
         }
 
         [Fact]
         public void Test_ADDLW_non_empty_wReg()
         {
-            Command.wReg = 5;
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
+            command.wReg = 5;
             int arrange = 5;
 
-            int result = Command.ADDLW(arrange);
+            int result = command.ADDLW(arrange);
 
-            Assert.Equal(10, Command.wReg);
+            Assert.Equal(10, command.wReg);
             Assert.Equal(1, result);
         }
 
         [Fact]
         public void Test_MOVLW()
         {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
             int arrange = 5;
 
-            int result = Command.MOVLW(arrange);
+            int result = command.MOVLW(arrange);
 
-            Assert.Equal(arrange, Command.wReg);
+            Assert.Equal(arrange, command.wReg);
             Assert.Equal(1, result);
         }
 
         [Fact]
         public void Test_MOVWF()
         {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
             int ram_postion = 10;
             int wReg_Value = 5;
-            Command.bank = 0;
-            Command.wReg = wReg_Value;
+            command.bank = 0;
+            command.wReg = wReg_Value;
 
-            int result = Command.MOVWF(ram_postion);
+            int result = command.MOVWF(ram_postion);
 
-            Assert.Equal(wReg_Value, Command.ram[0, ram_postion]);
+            Assert.Equal(wReg_Value, command.ram[0, ram_postion]);
             Assert.Equal(1, result);
         }
 
         [Fact]
         public void Test_ADDWF_empty_ram_save_in_ram()
         {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
             int ram_postion = 0x000A;
             int wReg_Value = 5;
-            Command.ram[0, 10] = 0;
-            Command.bank = 0;
-            Command.wReg = wReg_Value;
+            command.ram[0, 10] = 0;
+            command.bank = 0;
+            command.wReg = wReg_Value;
 
-            int result = Command.ADDWF(0x008A);
+            int result = command.ADDWF(0x008A);
 
-            Assert.Equal(wReg_Value, Command.ram[0, ram_postion]);
+            Assert.Equal(wReg_Value, command.ram[0, ram_postion]);
             Assert.Equal(1, result);
         }
 
         [Fact]
         public void Test_ADDWF_non_empty_ram_save_in_ram()
         {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
             int ram_postion = 0x000A;
             int wReg_Value = 5;
-            Command.ram[0, ram_postion] = 5;
-            Command.bank = 0;
-            Command.wReg = wReg_Value;
+            command.ram[0, ram_postion] = 5;
+            command.bank = 0;
+            command.wReg = wReg_Value;
 
-            int result = Command.ADDWF(0x008A);
+            int result = command.ADDWF(0x008A);
 
-            Assert.Equal(10, Command.ram[0, ram_postion]);
+            Assert.Equal(10, command.ram[0, ram_postion]);
             Assert.Equal(1, result);
         }
 
         [Fact]
         public void Test_ADDWF_empty_ram_save_in_wReg()
         {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
             int ram_postion = 0x000A;
             int wReg_Value = 5;
-            Command.ram[0, ram_postion] = 0;
-            Command.bank = 0;
-            Command.wReg = wReg_Value;
+            command.ram[0, ram_postion] = 0;
+            command.bank = 0;
+            command.wReg = wReg_Value;
 
-            int result = Command.ADDWF(ram_postion);
+            int result = command.ADDWF(ram_postion);
 
-            Assert.Equal(0, Command.ram[0, ram_postion]);
+            Assert.Equal(0, command.ram[0, ram_postion]);
             Assert.Equal(1, result);
         }
 
         [Fact]
         public void Test_ADDWF_non_empty_ram_save_in_wReg()
         {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
             int ram_postion = 0x000A;
             int wReg_Value = 5;
-            Command.ram[0, ram_postion] = 5;
-            Command.bank = 0;
-            Command.wReg = wReg_Value;
+            command.ram[0, ram_postion] = 5;
+            command.bank = 0;
+            command.wReg = wReg_Value;
 
-            int result = Command.ADDWF(ram_postion);
+            int result = command.ADDWF(ram_postion);
 
-            Assert.Equal(5, Command.ram[0, ram_postion]);
-            Assert.Equal(10, Command.wReg);
+            Assert.Equal(5, command.ram[0, ram_postion]);
+            Assert.Equal(10, command.wReg);
             Assert.Equal(1, result);
+        }
+
+        [Fact]
+        public void Test_RETURN()
+        {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
+            command.callStack[command.callPosition] = 1;
+            command.callPosition++;
+
+            int result = command.RETURN(new List<string>());
+
+            Assert.Equal(0, command.callPosition);
+            Assert.Equal(2, result);
+            Assert.Equal(-1, command.callStack[command.callPosition]);
         }
     }
 }

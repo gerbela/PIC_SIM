@@ -36,15 +36,15 @@ namespace Pic_Simulator
 
         public MainWindow()
         {
+            wpfController = new WPFController(file);
             InitializeComponent();
-            Command.startUpRam();  
+            wpfController.command.startUpRam();  
             PrintRam();
             PrintRaRb();
             PrintSTR();
             PrintOption();
             PrintINTCON();
             PrintStack();
-            wpfController = new WPFController(file);
         }
 
         private void refreshUI()
@@ -81,8 +81,8 @@ namespace Pic_Simulator
             {
                newBit = 1;
             }           
-            int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 5], Math.Abs(colIndex - 7), newBit);
-            Command.ram[Command.bank, 5] = ramBit;
+            int ramBit = Command.SetSelectedBit(wpfController.command.ram[wpfController.command.bank, 5], Math.Abs(colIndex - 7), newBit);
+            wpfController.command.ram[wpfController.command.bank, 5] = ramBit;
             refreshUI();
         }
 
@@ -97,8 +97,8 @@ namespace Pic_Simulator
             {
                 newBit = 1;
             }
-            int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 3], Math.Abs(colIndex - 7), newBit);
-            Command.ram[Command.bank, 3] = ramBit;
+            int ramBit = Command.SetSelectedBit(wpfController.command.ram[wpfController.command.bank, 3], Math.Abs(colIndex - 7), newBit);
+            wpfController.command.ram[wpfController.command.bank, 3] = ramBit;
             refreshUI();
 
         }
@@ -115,8 +115,8 @@ namespace Pic_Simulator
             {
                 newBit = 1;
             }
-            int ramBit = Command.SetSelectedBit(Command.ram[0, 11], Math.Abs(colIndex - 7), newBit);
-            Command.ram[0, 11] = ramBit;
+            int ramBit = Command.SetSelectedBit(wpfController.command.ram[0, 11], Math.Abs(colIndex - 7), newBit);
+            wpfController.command.ram[0, 11] = ramBit;
             refreshUI();
         }
 
@@ -132,8 +132,8 @@ namespace Pic_Simulator
             {
                 newBit = 1;
             }
-            int ramBit = Command.SetSelectedBit(Command.ram[1, 1], Math.Abs(colIndex - 7), newBit);
-            Command.ram[1, 1] = ramBit;
+            int ramBit = Command.SetSelectedBit(wpfController.command.ram[1, 1], Math.Abs(colIndex - 7), newBit);
+            wpfController.command.ram[1, 1] = ramBit;
             refreshUI();
         }
 
@@ -149,17 +149,17 @@ namespace Pic_Simulator
             {
                 newBit = 1;
             }
-            int ramBit = Command.SetSelectedBit(Command.ram[Command.bank, 6], Math.Abs(colIndex - 7), newBit);
-            Command.ram[Command.bank, 6] = ramBit;
+            int ramBit = Command.SetSelectedBit(wpfController.command.ram[wpfController.command.bank, 6], Math.Abs(colIndex - 7), newBit);
+            wpfController.command.ram[wpfController.command.bank, 6] = ramBit;
             refreshUI();
         }
         private void refreshRAB()
         {
             for (int i = 7; i >= 0; i--)
             {
-                tableRA.Rows[0][i] = Command.GetSelectedBit(Command.ram[0, 5], Math.Abs(i-7)).ToString() ;
-                tableRB.Rows[0][i] = Command.GetSelectedBit(Command.ram[0, 6], Math.Abs(i - 7)).ToString();
-                int trisA =  Command.GetSelectedBit(Command.ram[1, 5], Math.Abs(i - 7));
+                tableRA.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[0, 5], Math.Abs(i-7)).ToString() ;
+                tableRB.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[0, 6], Math.Abs(i - 7)).ToString();
+                int trisA =  Command.GetSelectedBit(wpfController.command.ram[1, 5], Math.Abs(i - 7));
                 if(trisA == 0)
                 {
                     tableRA.Rows[1][i] = "o"; 
@@ -167,7 +167,7 @@ namespace Pic_Simulator
                 {
                     tableRA.Rows[1][i] = "i";
                 }
-                int trisB = Command.GetSelectedBit(Command.ram[1, 6], Math.Abs(i - 7));
+                int trisB = Command.GetSelectedBit(wpfController.command.ram[1, 6], Math.Abs(i - 7));
                 if (trisB == 0)
                 {
                     tableRB.Rows[1][i] = "o";
@@ -183,7 +183,7 @@ namespace Pic_Simulator
         {
             for (int i = 7; i >= 0; i--)
             {
-                tableSTR.Rows[0][i] = Command.GetSelectedBit(Command.ram[Command.bank, 3], Math.Abs(i - 7));
+                tableSTR.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 3], Math.Abs(i - 7));
                 
             }
         }
@@ -192,17 +192,17 @@ namespace Pic_Simulator
         {
             for (int i = 0; i < 8; i++)
             {
-                tableStack.Rows[i][0] = Command.callStack[i];
+                tableStack.Rows[i][0] = wpfController.command.callStack[i];
 
             }
-            CallPos.Text = Command.callPosition.ToString();
+            CallPos.Text = wpfController.command.callPosition.ToString();
         }
 
         private void refreshIntCon()
         {
             for (int i = 7; i >= 0; i--)
             {
-                tableIntCon.Rows[0][i] = Command.GetSelectedBit(Command.ram[0, 11], Math.Abs(i - 7));
+                tableIntCon.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[0, 11], Math.Abs(i - 7));
 
             }
         }
@@ -211,7 +211,7 @@ namespace Pic_Simulator
         {
             for (int i = 7; i >= 0; i--)
             {
-                tableOption.Rows[0][i] = Command.GetSelectedBit(Command.ram[1, 1], Math.Abs(i - 7));
+                tableOption.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[1, 1], Math.Abs(i - 7));
 
             }
         }
@@ -274,18 +274,18 @@ namespace Pic_Simulator
                 int command = Fetch();
                 if (!Decode(command)) return;
                 if(!Command.sleepModus)LST_File.MarkLine(Stack, CodeScroller);
-                Command.EEPROM();
+                wpfController.command.EEPROM();
             } 
             Result.Text = "";
-            Command.CheckWriteEEPROM();
-            Command.Mirroring();
+            wpfController.command.CheckWriteEEPROM();
+            wpfController.command.Mirroring();
             wpfController.InterruptRoutine(Stack);   
             if (Command.sleepModus)
             {
                 wpfController.WatchdogRoutine(Stack, 1);
                 displayrunTime(1);
             }
-            Result.Text = Result.Text + "\n" + "W-Register: " + Command.wReg + "\n" + "Watchdog: " + Command.watchdog + "\n" + "PCL: " + (Command.PCLATH & 0xFF) + "\n" + "PCLATH: " + (Command.PCLATH & 0x1F00) + "\n" + "SFR: " + (Command.ram[0,4]);
+            Result.Text = Result.Text + "\n" + "W-Register: " + wpfController.command.wReg + "\n" + "Watchdog: " + Command.watchdog + "\n" + "PCL: " + (Command.PCLATH & 0xFF) + "\n" + "PCLATH: " + (Command.PCLATH & 0x1F00) + "\n" + "SFR: " + (wpfController.command.ram[0,4]);
             refreshUI();
         }
 
@@ -306,12 +306,12 @@ namespace Pic_Simulator
             int port = 6; // this can be changed weather its PortA or PortB, needs to implemented later
 
             
-            int intValue= Command.ram[Command.bank, port]; 
+            int intValue= wpfController.command.ram[wpfController.command.bank, port]; 
 
             for(int i = 0; i < 8; i++)
             {
                 int LED = Command.GetSelectedBit(intValue, i); 
-                int isOutputValue = Command.ram[1, port];
+                int isOutputValue = wpfController.command.ram[1, port];
                 int LEDisOutput = Command.GetSelectedBit(isOutputValue, i);
                 if(LEDisOutput == 0)
                 {
@@ -413,12 +413,12 @@ namespace Pic_Simulator
             {
                 tableRA.Columns.Add("RA" + i.ToString(), typeof(string));
             }
-            int storageRA = Command.ram[Command.bank, 5];
+            int storageRA = wpfController.command.ram[wpfController.command.bank, 5];
             DataRow rowRA = tableRA.NewRow();
             int j = 0;
             for (int i = 7; i >= 0; i--)
             {
-                rowRA[j] = Command.GetSelectedBit(Command.ram[Command.bank, 5], i).ToString();
+                rowRA[j] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 5], i).ToString();
                 j++;
             }
             tableRA.Rows.Add(rowRA);
@@ -427,7 +427,7 @@ namespace Pic_Simulator
             j = 0;
             for (int i = 7; i >= 0; i--)
             {
-                int value = Command.GetSelectedBit(Command.ram[1, 5], i);
+                int value = Command.GetSelectedBit(wpfController.command.ram[1, 5], i);
                 if (value == 0)
                 {
                     rowTrisRA[j] = "o";
@@ -453,7 +453,7 @@ namespace Pic_Simulator
             int k = 0; 
             for (int i = 7; i >= 0; i--)
             {
-                rowRB[k] = Command.GetSelectedBit(Command.ram[Command.bank, 6], i).ToString();
+                rowRB[k] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 6], i).ToString();
                 k++; 
             }
             tableRB.Rows.Add(rowRB);
@@ -462,7 +462,7 @@ namespace Pic_Simulator
             k = 0;
             for (int i = 7; i >= 0; i--)
             {
-                int value = Command.GetSelectedBit(Command.ram[1, 6], i);
+                int value = Command.GetSelectedBit(wpfController.command.ram[1, 6], i);
                 if(value == 0)
                 {
                     rowTrisRB[k] = "o";
@@ -485,12 +485,12 @@ namespace Pic_Simulator
             for (int i= 0; i < 8; i++)
             {
                 DataRow row = tableStack.NewRow();
-                row[0] = Command.callStack[i];
+                row[0] = wpfController.command.callStack[i];
                 tableStack.Rows.Add(row);
             }
             
             StackGrid.ItemsSource = tableStack.DefaultView;
-            CallPos.Text = Command.callPosition.ToString();
+            CallPos.Text = wpfController.command.callPosition.ToString();
         }
 
         private void PrintSTR()
@@ -510,7 +510,7 @@ namespace Pic_Simulator
             int k = 0;
             for (int i = 7; i >= 0; i--)
             {
-                row[k] = Command.GetSelectedBit(Command.ram[Command.bank, 3], i);
+                row[k] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 3], i);
                 k++;
             }
             tableSTR.Rows.Add(row);
@@ -534,7 +534,7 @@ namespace Pic_Simulator
             int k = 0;
             for (int i = 7; i >= 0; i--)
             {
-                row[k] = Command.GetSelectedBit(Command.ram[Command.bank, 11], i);
+                row[k] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 11], i);
                 k++;
             }
             tableIntCon.Rows.Add(row);
@@ -558,7 +558,7 @@ namespace Pic_Simulator
             int k = 0;
             for (int i = 7; i >= 0; i--)
             {
-                row[k] = Command.GetSelectedBit(Command.ram[1, 1], i);
+                row[k] = Command.GetSelectedBit(wpfController.command.ram[1, 1], i);
                 k++;
             }
             tableOption.Rows.Add(row);
@@ -582,7 +582,7 @@ namespace Pic_Simulator
                 DataRow dr = dt.NewRow();            
                 for (int i = 0; i < nbColumns; i++)
                 {
-                    dr[i] = Command.ram[tmpBank, zaehler].ToString("X");
+                    dr[i] = wpfController.command.ram[tmpBank, zaehler].ToString("X");
                     zaehler++;
 
                 }
@@ -618,14 +618,14 @@ namespace Pic_Simulator
             {
                 if(Convert.ToInt32(intArray[j], 16) > 255)
                 {
-                    Command.ram[i, (rowstart + j)] = 0; 
+                    wpfController.command.ram[i, (rowstart + j)] = 0; 
                 }
                 else
                 {
-                    Command.ram[i, (rowstart + j)] = Convert.ToInt32(intArray[j], 16); 
+                    wpfController.command.ram[i, (rowstart + j)] = Convert.ToInt32(intArray[j], 16); 
                 }
                   
-                Trace.WriteLine(Command.ram[i, (rowstart + j)]); 
+                Trace.WriteLine(wpfController.command.ram[i, (rowstart + j)]); 
             }
              
         }
@@ -646,10 +646,10 @@ namespace Pic_Simulator
 
         private int Fetch()
         {
-            int programCounter = Command.ram[Command.bank, 2];
+            int programCounter = wpfController.command.ram[wpfController.command.bank, 2];
             int command = commands[programCounter];
             programCounter++;
-            Command.ChangePCLATH(Command.ram[Command.bank, 2] + 1);
+            wpfController.command.ChangePCLATH(wpfController.command.ram[wpfController.command.bank, 2] + 1);
             return command;
         }
         private void displayrunTime(int deltaT)
@@ -664,43 +664,43 @@ namespace Pic_Simulator
             int deltaT = 0;
             if ((command & 0x3F00) == 0x3000)
             {
-                deltaT = Command.MOVLW(command & 0xFF);
+                deltaT = wpfController.command.MOVLW(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0080)
             {
-                deltaT = Command.MOVWF(command & 0x7F);
+                deltaT = wpfController.command.MOVWF(command & 0x7F);
             }
             if ((command & 0x3F80) == 0x0780 || (command & 0x3F80) == 0x0700)
             {
-                deltaT = Command.ADDWF(command & 0xFF);
+                deltaT = wpfController.command.ADDWF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0500 || (command & 0x3F80) == 0x0580)
             {
-                deltaT = Command.ANDWF(command & 0xFF);
+                deltaT = wpfController.command.ANDWF(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3E00)
             {
-                deltaT = Command.ADDLW(command & 0xFF);
+                deltaT = wpfController.command.ADDLW(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3900)
             {
-                deltaT = Command.ANDLW(command & 0xFF);
+                deltaT = wpfController.command.ANDLW(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0180)
             {
-                deltaT = Command.CLRF(command & 0x7F);
+                deltaT = wpfController.command.CLRF(command & 0x7F);
             }
             if ((command & 0x3F80) == 0x0100)
             {
-                deltaT = Command.CLRW();
+                deltaT = wpfController.command.CLRW();
             }
             if ((command & 0x3F80) == 0x0980 || (command & 0x3F80) == 0x0900)
             {
-                deltaT = Command.COMF(command & 0xFF);
+                deltaT = wpfController.command.COMF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0380 || (command & 0x3F80) == 0x0300)
             {
-                deltaT = Command.DECF(command & 0xFF);
+                deltaT = wpfController.command.DECF(command & 0xFF);
             }
             if ((command & 0x3800) == 0x2000)
             {
@@ -724,7 +724,7 @@ namespace Pic_Simulator
             }
             if ((command & 0x3F80) == 0x0A80 || (command & 0x3F80) == 0x0A00)
             {
-                deltaT = Command.INCF(command & 0xFF);
+                deltaT = wpfController.command.INCF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0F80 || (command & 0x3F80) == 0xF00)
             {
@@ -732,11 +732,11 @@ namespace Pic_Simulator
             }
             if ((command & 0x3F80) == 0x0480 || (command & 0x3F80) == 0x0400)
             {
-                deltaT = Command.IORWF(command & 0xFF);
+                deltaT = wpfController.command.IORWF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0880 || (command & 0x3F80) == 0x0800)
             {
-                deltaT = Command.MOVF(command & 0xFF);
+                deltaT = wpfController.command.MOVF(command & 0xFF);
             }
             if ((command & 0xFFFF) == 0x0000)
             {
@@ -744,27 +744,27 @@ namespace Pic_Simulator
             }
             if ((command & 0x3F80) == 0x0D80 || (command & 0x3F80) == 0x0D00)
             {
-                deltaT = Command.RLF(command & 0xFF);
+                deltaT = wpfController.command.RLF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0C80 || (command & 0x3F80) == 0x0C00)
             {
-                deltaT = Command.RRF(command & 0xFF);
+                deltaT = wpfController.command.RRF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0680 || (command & 0x3F80) == 0x0600)
             {
-                deltaT = Command.XORWF(command & 0xFF);
+                deltaT = wpfController.command.XORWF(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3A00)
             {
-                deltaT = Command.XORLW(command & 0xFF);
+                deltaT = wpfController.command.XORLW(command & 0xFF);
             }
             if ((command & 0x3C00) == 0x1000)
             {
-                deltaT = Command.BCF(command & 0x03FF);
+                deltaT = wpfController.command.BCF(command & 0x03FF);
             }
             if ((command & 0x3C00) == 0x1400)
             {
-                deltaT = Command.BSF(command & 0x03FF);
+                deltaT = wpfController.command.BSF(command & 0x03FF);
             }
             if ((command & 0x3C00) == 0x1800)
             {
@@ -776,23 +776,23 @@ namespace Pic_Simulator
             }
             if ((command & 0x3F00) == 0x0E00)
             {
-                deltaT = Command.SWAPF(command & 0xFF);
+                deltaT = wpfController.command.SWAPF(command & 0xFF);
             }
             if ((command & 0x3F80) == 0x0280 || (command & 0x3F80) == 0x0200)
             {
-                deltaT = Command.SUBWF(command & 0xFF);
+                deltaT = wpfController.command.SUBWF(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3800)
             {
-                deltaT = Command.IORLW(command & 0xFF);
+                deltaT = wpfController.command.IORLW(command & 0xFF);
             }
             if ((command & 0x3F00) == 0x3C00)
             {
-                deltaT = Command.SUBLW(command & 0xFF);
+                deltaT = wpfController.command.SUBLW(command & 0xFF);
             }
             if((command & 0xFFFF) == 0x0060)
             {
-                deltaT = Command.CLRWDT();
+                deltaT = wpfController.command.CLRWDT();
             }
             if((command & 0xFFFF) == 0x0009)
             {
@@ -800,7 +800,7 @@ namespace Pic_Simulator
             }
             if((command & 0xFFFF) == 0x0063)
             {
-                Command.SLEEP();
+                wpfController.command.SLEEP();
             }
             if(!((command & 0x3F80) == 0x0080 && (command & 0x7F) == 1)) wpfController.Timer0Routine(Stack,deltaT);
             wpfController.WatchdogRoutine(Stack,deltaT);

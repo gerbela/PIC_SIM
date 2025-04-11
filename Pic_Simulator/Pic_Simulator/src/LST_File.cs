@@ -17,7 +17,7 @@ public enum TextColor
 }
 public class LST_File : IOutputController
 {
-    public static LST_File1 filetype = new LST_File1();
+    public static IFileType filetype = new LST_File1();
     public static FileManger manager = new(filetype);
     public static bool loadedFile = false;
     public static int fileSize;
@@ -31,10 +31,22 @@ public class LST_File : IOutputController
         dialog.DefaultExt = ".lst";
         dialog.Filter = "Text documents (.lst,.csv)|*.lst;*.csv";
         bool? result = dialog.ShowDialog();
-
         
         if (result == true)
         {
+            if (dialog.FileName.ToLower().EndsWith(".lst"))
+            {
+                filetype = new LST_File1();
+            }
+            else if(dialog.FileName.ToLower().EndsWith(".csv"))
+            {
+                filetype = new CSV_File();
+            }
+            else
+            {
+                MessageBox.Show("File type not supported");
+                return false;
+            }
             stack.Children.Clear();
             breakpoints.Clear();
             MainWindow.commands.Clear();
@@ -112,10 +124,10 @@ public class LST_File : IOutputController
         }
     }
 
-    public void JumpToLine(List<string> text, int address)
+    public void JumpToLine(List<string> text, int address, Command command)
     {
         pos = FindFilePos(text, address) - 2;
-        Command.ram[Command.bank, 2] = address;
+        command.ram[command.bank, 2] = address;
     }
 
     public static TextColor SwitchColor()

@@ -2,13 +2,13 @@
 public class Command
 {
     IOutputController outputController;
-    public static int wReg = 0;
-    public static int[,] ram = new int[2, 128];
-    public static int bank = 0;
+    public int wReg = 0;
+    public int[,] ram = new int[2, 128];
+    public int bank = 0;
     public static int prescaler;
     public static int watchdog;
-    public static int[] callStack = { 0, 0, 0, 0, 0, 0, 0, 0 };
-    public static int callPosition = 0;
+    public int[] callStack = { 0, 0, 0, 0, 0, 0, 0, 0 };
+    public int callPosition = 0;
     private static int setTMR = 0;
     public static int quarzfrequenz = 4000000;
     static int lastEdge = 0;
@@ -31,7 +31,7 @@ public class Command
         quarzfrequenz = newQuarzfrezuenz; 
     }
 
-    public static int ANDWF(int address)
+    public int ANDWF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = wReg & ram[bank, address & 0x7F];
@@ -40,48 +40,48 @@ public class Command
         return 1;
     }
 
-    public static int ADDWF(int address)
+    public int ADDWF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = ADD(ram[bank, address & 0x007F], wReg);
         DecideSaving(result, address);
         return 1;
     }
-    private static int ADD(int value1, int value2)
+    private int ADD(int value1, int value2)
     {
         HalfCarry(value1, value2);
         Carry(value1 + value2);
         Zeroflag((value1 + value2) % 256);
         return (value1 + value2) & 0xFF; // Wird carry immer aktiv auf 0 gesetzt?
     }
-    public static int MOVLW(int literal)
+    public int MOVLW(int literal)
     {
         wReg = literal;
         return 1;
     }
 
-    public static int MOVWF(int storageLocation)
+    public int MOVWF(int storageLocation)
     {
         if (storageLocation == 0) storageLocation = ram[bank, 4];
         ram[bank, storageLocation] = wReg;
         if (storageLocation == 1) SetPrescaler();
         return 1;
     }
-    public static int ADDLW(int literal)
+    public int ADDLW(int literal)
     {
         int result = ADD(literal, wReg);
         wReg = result;
         return 1;
     }
 
-    public static int ANDLW(int literal)
+    public int ANDLW(int literal)
     {
         wReg = literal & wReg;
         Zeroflag(wReg);
         return 1;
     }
 
-    public static int CLRF(int address)
+    public int CLRF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         ram[bank, address] = 0;
@@ -90,13 +90,13 @@ public class Command
         return 1;
     }
 
-    public static int CLRW()
+    public int CLRW()
     {
         wReg = 0;
         Zeroflag(wReg);
         return 1;
     }
-    public static int COMF(int address)
+    public int COMF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int value = ram[bank, address & 0x7F];
@@ -116,11 +116,11 @@ public class Command
         callStack[callPosition] = ram[bank, 2] - 1;
         ChangePCLATH(address);
         callPosition++;
-        outputController.JumpToLine(text, address);
+        outputController.JumpToLine(text, address, this);
         return 2;
     }
 
-    public static int DECF(int address)
+    public int DECF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = (ram[bank, address & 0x7F] + 0xFF) % 256;
@@ -140,13 +140,13 @@ public class Command
         int address = callStack[callPosition - 1];
         callStack[callPosition - 1] = -1;
         callPosition--;
-        outputController.JumpToLine(stack, address + 1);
+        outputController.JumpToLine(stack, address + 1, this);
         return 2;
     }
     public int RETFIE(List<string> stack)
     {
         int address = interruptPos;
-        outputController.JumpToLine(stack, address + 1);
+        outputController.JumpToLine(stack, address + 1, this);
         return 2;
     }
 
@@ -158,12 +158,12 @@ public class Command
         if (result == 0)
         {
             ChangePCLATH(PCLATH + 1);
-            outputController.JumpToLine(stack, ram[bank, 2]);
+            outputController.JumpToLine(stack, ram[bank, 2], this);
             return 2;
         }
         return 1;
     }
-    public static int INCF(int address)
+    public int INCF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = (ram[bank, address & 0x7F] + 1) % 256;
@@ -179,13 +179,13 @@ public class Command
         if (result == 0)
         {
             ChangePCLATH(PCLATH + 1);
-            outputController.JumpToLine(stack, ram[bank, 2]);
+            outputController.JumpToLine(stack, ram[bank, 2], this);
             return 2;
         }
         return 1;
     }
 
-    public static int IORWF(int address)
+    public int IORWF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = wReg ^ ram[bank, address & 0x7F];
@@ -194,7 +194,7 @@ public class Command
         return 1;
     }
 
-    public static int MOVF(int address)
+    public int MOVF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int value = ram[bank, address & 0x7F];
@@ -208,7 +208,7 @@ public class Command
         //Hier wird nichts ausgeführt
         return 1;
     }
-    public static int RLF(int address)
+    public int RLF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int firstBit = ram[bank, address & 0x7F] & 0x80;
@@ -231,7 +231,7 @@ public class Command
         return 1;
     }
 
-    public static int RRF(int address)
+    public int RRF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int LasttBit = ram[bank, address & 0x7F] & 0x1;
@@ -254,7 +254,7 @@ public class Command
         return 1;
     }
 
-    public static int XORWF(int address)
+    public int XORWF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int result = wReg ^ ram[bank, address & 0x7F];
@@ -263,7 +263,7 @@ public class Command
         return 1;
     }
 
-    public static int XORLW(int literal)
+    public int XORLW(int literal)
     {
         wReg = wReg ^ literal;
         Zeroflag(wReg);
@@ -273,7 +273,7 @@ public class Command
     public int GOTO(int address, List<string> stack)
     {
         ChangePCLATH(address);
-        outputController.JumpToLine(stack, ram[bank, 2]);
+        outputController.JumpToLine(stack, ram[bank, 2], this);
         return 2;
     }
 
@@ -284,7 +284,7 @@ public class Command
         return 2;
     }
 
-    public static int BCF(int address)
+    public int BCF(int address)
     {
         if ((address & 0x7F) == 0) address = (address & 0xFF80) | ram[bank, 4];
         int bit = (address & 0x380) >> 7;
@@ -296,7 +296,7 @@ public class Command
         return 1;
     }
 
-    public static int BSF(int address)
+    public int BSF(int address)
     {
         if ((address & 0x7F) == 0) address = (address & 0xFF80) | ram[bank, 4];
         int bit = (address & 0x380) >> 7;
@@ -312,7 +312,7 @@ public class Command
         int bit = (address & 0x380) >> 7;
         int rotated = (ram[bank, address & 0x7F] >> bit) & 0x1;
         if (rotated == 1) return 1;
-        outputController.JumpToLine(stack, ram[bank, 2] + 1);
+        outputController.JumpToLine(stack, ram[bank, 2] + 1, this);
         return 2;
     }
     public int BTFSS(int address, List<string> stack)
@@ -321,10 +321,10 @@ public class Command
         int bit = (address & 0x380) >> 7;
         int rotated = (ram[bank, address & 0x7F] >> bit) & 0x1;
         if (rotated == 0) return 1;
-        outputController.JumpToLine(stack, ram[bank, 2] + 1);
+        outputController.JumpToLine(stack, ram[bank, 2] + 1, this);
         return 2;
     }
-    public static int SWAPF(int address)
+    public int SWAPF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int value = ram[bank, address & 0x7F];
@@ -334,13 +334,13 @@ public class Command
         DecideSaving(newValue, address);
         return 1;
     }
-    public static int IORLW(int value)
+    public int IORLW(int value)
     {
         wReg = wReg | value;
         Zeroflag(wReg);
         return 1;
     }
-    public static int SUBLW(int value)
+    public int SUBLW(int value)
     {
         int kom = (wReg ^ 0xFF) + 1;
         int result = ADD(value, kom);
@@ -348,7 +348,7 @@ public class Command
         wReg = result;
         return 1;
     }
-    public static int SUBWF(int address)
+    public int SUBWF(int address)
     {
         if ((address & 0x7F) == 0) address = address | ram[bank, 4];
         int kom = (wReg ^ 0xFF) +1;
@@ -358,14 +358,14 @@ public class Command
         return 1;
     }
 
-    public static int CLRWDT()
+    public int CLRWDT()
     {
         watchdog = 18000;
         SetPrescaler();
         ram[0, 3] = ram[0, 3] | 0b00011000;
         return 1;
     }
-    private static void DecideSaving(int value, int address = -1)
+    private void DecideSaving(int value, int address = -1)
     {
         if ((address & 0x0080) == 0x0080)
         {
@@ -385,7 +385,7 @@ public class Command
     }
 
     //Methods for setting the falgs in the Status register
-    private static void Zeroflag(int value)
+    private void Zeroflag(int value)
     {
         if (value == 0)
         {
@@ -397,7 +397,7 @@ public class Command
         }
     }
 
-    private static void Carry(int value)
+    private void Carry(int value)
     {
         if (value > 256)
         {
@@ -409,7 +409,7 @@ public class Command
         }
     }
 
-    private static void HalfCarry(int value1, int value2)
+    private void HalfCarry(int value1, int value2)
     {
         if (value1 == 256) value1 = 0xF;
         else value1 = value1 & 0xF;
@@ -424,7 +424,7 @@ public class Command
             ram[bank, 3] = ram[bank, 3] & 0b11111101; //Half Carryflag
         }
     }
-    public static void ChangePCLATH(int value)
+    public void ChangePCLATH(int value)
     {
         PCLATH = value;
         ram[bank, 2] = PCLATH & 0xFF;
@@ -459,7 +459,7 @@ public class Command
         return (value | rotatedBit);
     }
 
-    public static void SLEEP()
+    public void SLEEP()
     {
         ram[bank,3] = SetSelectedBit(ram[bank, 3], 3, 0);
         ram[bank,3] = SetSelectedBit(ram[bank, 3], 4, 1);
@@ -467,7 +467,7 @@ public class Command
         watchdog = 0;
         sleepModus = true;
     }
-    public static void WakeUp()
+    public void WakeUp()
     {
         ram[bank, 3] = SetSelectedBit(ram[bank, 3], 3, 1);
         ram[bank, 3] = SetSelectedBit(ram[bank, 3], 4, 0);
@@ -528,7 +528,7 @@ public class Command
         Timer0Interrupt(stack);
     }
 
-    private static void SetPrescaler()
+    private void SetPrescaler()
     {
         if (GetSelectedBit(ram[1, 1], 3) == 1)
         {
@@ -542,7 +542,7 @@ public class Command
         setTMR = 0;
         PSA();
     }
-    public static void ResetTimer0()
+    public void ResetTimer0()
     {
         //Timer
         if (GetSelectedBit(ram[1, 1], 5) == 0)
@@ -552,7 +552,7 @@ public class Command
         SetPrescaler();
     }
 
-    public static void PSA()
+    public void PSA()
     {
         if (GetSelectedBit(ram[1,1],3) == 0)
         {
@@ -617,7 +617,7 @@ public class Command
             if (GetSelectedBit(ram[0, 11], 2) == 1 && GetSelectedBit(ram[0, 11], 5) == 1 && GetSelectedBit(ram[0, 11], 7) == 1)
             {
                 interruptPos = ram[bank, 2] - 1;
-                outputController.JumpToLine(stack, 4);
+                outputController.JumpToLine(stack, 4, this);
                 WakeUp();
             }
         }
@@ -633,12 +633,12 @@ public class Command
         if (flanke && GetSelectedBit(ram[0, 11], 1) == 1 && GetSelectedBit(ram[0, 11], 4) == 1 && GetSelectedBit(ram[0, 11], 7) == 1)
         {
             interruptPos = ram[bank, 2] - 1;
-            outputController.JumpToLine(stack, 4);
+            outputController.JumpToLine(stack, 4, this);
             WakeUp();
         }
     }
 
-    public static void EEPROM()
+    public void EEPROM()
     {
         if (GetSelectedBit(ram[1,8],0) == 1)
         {
@@ -651,17 +651,17 @@ public class Command
         }
     }
 
-    public static void ReadEEPROMValue()
+    public void ReadEEPROMValue()
     {
         ram[0, 8] = EEPROMStorage[ram[0, 9]];
         ram[1, 8] = SetSelectedBit(ram[1, 8], 0, 0);
     }
-    public static void WriteEEPROMValue()
+    public void WriteEEPROMValue()
     {
         EEPROMStorage[ram[0, 9]] = ram[0, 8];
         ram[1, 8] = SetSelectedBit(ram[1, 8], 4, 1);
     }
-    public static void CheckWriteEEPROM()
+    public void CheckWriteEEPROM()
     {
         if (ram[1, 9] == 0x55) firstWriteEEPROMMuster = true;
         if (GetSelectedBit(ram[1, 8], 1) == 1 && GetSelectedBit(ram[1, 8], 2) == 1 && GetSelectedBit(ram[bank, 11], 7) == 0)
@@ -692,7 +692,7 @@ public class Command
         if (isInterrupt && GetSelectedBit(ram[0, 11], 0) == 1 && GetSelectedBit(ram[0, 11], 3) == 1 && GetSelectedBit(ram[0, 11], 7) == 1)
         {
             interruptPos = ram[bank, 2] - 1;
-            outputController.JumpToLine(stack, 4);
+            outputController.JumpToLine(stack, 4, this);
             WakeUp();
         }
     }
@@ -706,10 +706,10 @@ public class Command
         ram[1, 5] = 0b11111111;
         ram[1, 6] = 0b11111111;
         SetPrescaler();
-        if(stack.Count != 0) outputController.JumpToLine(stack, 0);
+        if(stack.Count != 0) outputController.JumpToLine(stack, 0, this);
     }
 
-    public static void Mirroring()
+    public void Mirroring()
     {
         if((oldBank == 0 && bank == 0) || (oldBank == 0 && bank == 1))
         {
@@ -733,7 +733,7 @@ public class Command
 
     }
     //Set Values in ram that are not 0 at the beginning
-    public static void startUpRam()
+    public void startUpRam()
     {
         ram[1, 5] = 0b11111111;
         ram[1, 6] = 0b11111111;
