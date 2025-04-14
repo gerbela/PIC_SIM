@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Page Include="App.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Kern\Kern.csproj" />
     <ProjectReference Include="..\Plugin\Plugin.csproj" />
   </ItemGroup>
