@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -44,10 +45,12 @@ namespace Pic_Simulator
         private void refreshUI()
         {
             PrintRam();
-            refreshRAB();
-            refreshSTR();
-            refreshIntCon();
-            refreshOption();
+            RefreshRegister(tableRA, RAGrid, wpfController.command.bank, 5, 0);
+            RefreshRegister(tableRB, RBGrid, wpfController.command.bank, 6, 0);
+            UpdateTrisValues();
+            RefreshRegister(tableSTR, STRGrid, wpfController.command.bank, 3);
+            RefreshRegister(tableIntCon, INTCONGrid, 0, 11);
+            RefreshRegister(tableOption, OptionGrid, 1, 1);
             refreshStack();
             lightLEDs();
         }
@@ -147,41 +150,29 @@ namespace Pic_Simulator
             wpfController.command.ram[wpfController.command.bank, 6] = ramBit;
             refreshUI();
         }
-        private void refreshRAB()
+
+        private void RefreshRegister(DataTable table, DataGrid grid, int bank, int address, int rowIndex = 0)
         {
             for (int i = 7; i >= 0; i--)
             {
-                tableRA.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[0, 5], Math.Abs(i-7)).ToString() ;
-                tableRB.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[0, 6], Math.Abs(i - 7)).ToString();
-                int trisA =  Command.GetSelectedBit(wpfController.command.ram[1, 5], Math.Abs(i - 7));
-                if(trisA == 0)
-                {
-                    tableRA.Rows[1][i] = "o"; 
-                }else
-                {
-                    tableRA.Rows[1][i] = "i";
-                }
+                table.Rows[rowIndex][i] = Command.GetSelectedBit(wpfController.command.ram[bank, address], Math.Abs(i - 7));
+            }
+            grid.ItemsSource = table.DefaultView;
+        }
+
+        private void UpdateTrisValues()
+        {
+            for (int i = 7; i >= 0; i--)
+            {
+                // Update TRIS values for RA
+                int trisA = Command.GetSelectedBit(wpfController.command.ram[1, 5], Math.Abs(i - 7));
+                tableRA.Rows[1][i] = trisA == 0 ? "o" : "i";
+
+                // Update TRIS values for RB
                 int trisB = Command.GetSelectedBit(wpfController.command.ram[1, 6], Math.Abs(i - 7));
-                if (trisB == 0)
-                {
-                    tableRB.Rows[1][i] = "o";
-                }
-                else
-                {
-                    tableRB.Rows[1][i] = "i";
-                }
+                tableRB.Rows[1][i] = trisB == 0 ? "o" : "i";
             }
         }
-
-        private void refreshSTR()
-        {
-            for (int i = 7; i >= 0; i--)
-            {
-                tableSTR.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 3], Math.Abs(i - 7));
-                
-            }
-        }
-
         private void refreshStack()
         {
             for (int i = 0; i < 8; i++)
@@ -190,26 +181,7 @@ namespace Pic_Simulator
 
             }
             CallPos.Text = wpfController.command.callPosition.ToString();
-        }
-
-        private void refreshIntCon()
-        {
-            for (int i = 7; i >= 0; i--)
-            {
-                tableIntCon.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[0, 11], Math.Abs(i - 7));
-
-            }
-        }
-
-        private void refreshOption()
-        {
-            for (int i = 7; i >= 0; i--)
-            {
-                tableOption.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[1, 1], Math.Abs(i - 7));
-
-            }
-        }
-
+        }  
         private void RunButton(object sender, RoutedEventArgs e)
         {
             
@@ -832,13 +804,7 @@ namespace Pic_Simulator
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
             wpfController.ResetControllerRoutine(Stack);
-            PrintRam();
-            refreshRAB();
-            refreshSTR();
-            refreshIntCon();
-            refreshOption();
-            refreshStack();
-            lightLEDs();
+            refreshUI();
         }
     }
 }
