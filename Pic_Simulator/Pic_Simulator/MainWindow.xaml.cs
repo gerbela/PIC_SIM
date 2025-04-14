@@ -266,112 +266,33 @@ namespace Pic_Simulator
             LEDSeven.Fill = new SolidColorBrush(Colors.LightGray);
             LEDEight.Fill = new SolidColorBrush(Colors.LightGray);
         }
-        
         private void lightLEDs()
         {
-            int port = 6; // this can be changed weather its PortA or PortB, needs to implemented later
-
-            
-            int intValue= wpfController.command.ram[wpfController.command.bank, port]; 
-
-            for(int i = 0; i < 8; i++)
+            int port = 6; 
+            int intValue = wpfController.command.ram[wpfController.command.bank, port];
+            int isOutputValue = wpfController.command.ram[1, port];
+            // Create a dictionary mapping indices to LED UI elements
+            var leds = new Dictionary<int, System.Windows.Shapes.Ellipse>
             {
-                int LED = Command.GetSelectedBit(intValue, i); 
-                int isOutputValue = wpfController.command.ram[1, port];
-                int LEDisOutput = Command.GetSelectedBit(isOutputValue, i);
-                if(LEDisOutput == 0)
+                { 0, LEDOne },
+                { 1, LEDOTwo },
+                { 2, LEDThree },
+                { 3, LEDFour },
+                { 4, LEDFive },
+                { 5, LEDSix },
+                { 6, LEDSeven },
+                { 7, LEDEight }
+            };
+            for (int i = 0; i < 8; i++)
+            {
+                int ledBit = Command.GetSelectedBit(intValue, i);
+                int isTrisOutput = Command.GetSelectedBit(isOutputValue, i);
+                if (isTrisOutput == 0) 
                 {
-                    switch (i)
-                    {
-                        case 0:
-                            if (LED == 0)
-                            {
-                                LEDOne.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDOne.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 1:
-                            if (LED == 0)
-                            {
-                                LEDOTwo.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDOTwo.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 2:
-                            if (LED == 0)
-                            {
-                                LEDThree.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDThree.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 3:
-                            if (LED == 0)
-                            {
-                                LEDFour.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDFour.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 4:
-                            if (LED == 0)
-                            {
-                                LEDFive.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDFive.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 5:
-                            if (LED == 0)
-                            {
-                                LEDSix.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDSix.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 6:
-                            if (LED == 0)
-                            {
-                                LEDSeven.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDSeven.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 7:
-                            if (LED == 0)
-                            {
-                                LEDEight.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDEight.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-
-
-                    }
+                    leds[i].Fill = new SolidColorBrush(ledBit == 1 ? Colors.Red : Colors.LightGray);
                 }
-                
             }
-
         }
-
         private void PrintRaRb()
         {
 
