@@ -1,13 +1,7 @@
-﻿using System.Collections.ObjectModel;
-using System.Data;
+﻿using System.Data;
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Media;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.CodeDom;
-using System.Timers;
 using System.Windows.Threading;
 
 
