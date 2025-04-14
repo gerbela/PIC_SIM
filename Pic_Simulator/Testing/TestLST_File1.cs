@@ -10,7 +10,7 @@ namespace Testing
     public class TestLST_File1
     {
 
-        private Mock<IOutputController> mock;
+        //private Mock<IOutputController> mock;
 
         [Fact]
         public void Test_LoadFile()

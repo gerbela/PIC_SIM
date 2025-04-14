@@ -35,6 +35,34 @@ namespace Testing
         }
 
         [Fact]
+        public void Test_ADDLW_negative_input()
+        {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
+            command.wReg = 5;
+            int arrange = -5;
+
+            int result = command.ADDLW(arrange);
+
+            Assert.Equal(0, command.wReg);
+            Assert.Equal(1, result);
+        }
+
+        [Fact]
+        public void Test_ADDLW_negative_result()
+        {
+            var mockOutputController = new Mock<IOutputController>();
+            Command command = new Command(mockOutputController.Object);
+            command.wReg = 5;
+            int arrange = -6;
+
+            int result = command.ADDLW(arrange);
+
+            Assert.Equal(255, command.wReg);
+            Assert.Equal(1, result);
+        }
+
+        [Fact]
         public void Test_MOVLW()
         {
             var mockOutputController = new Mock<IOutputController>();

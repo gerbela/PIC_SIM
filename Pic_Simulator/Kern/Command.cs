@@ -1,7 +1,7 @@
 
 public class Command
 {
-    IOutputController outputController;
+    
     public int wReg = 0;
     public int[,] ram = new int[2, 128];
     public int bank = 0;
@@ -22,6 +22,7 @@ public class Command
     public static int[] EEPROMStorage = new int[64];
     static bool firstWriteEEPROMMuster = false;
 
+    IOutputController outputController;
     public Command(IOutputController outputController)
     {
         this.outputController = outputController;
@@ -52,7 +53,7 @@ public class Command
         HalfCarry(value1, value2);
         Carry(value1 + value2);
         Zeroflag((value1 + value2) % 256);
-        return (value1 + value2) & 0xFF; // Wird carry immer aktiv auf 0 gesetzt?
+        return (value1 + value2) & 0xFF;
     }
     public int MOVLW(int literal)
     {
@@ -133,8 +134,6 @@ public class Command
     {
         if (callPosition <= 0)
         {
-            //LST_File.pos++;
-            //MessageBox.Show("Some text", "Stack Underflow", MessageBoxButton.OK, MessageBoxImage.Error);
             return -1;
         }
         int address = callStack[callPosition - 1];
