@@ -1,8 +1,8 @@
 ﻿
-public class FileManger
+public class FileManager
 {
     private IFileType fileType;
-    public FileManger(IFileType fileType)
+    public FileManager(IFileType fileType)
     {
         this.fileType = fileType;
     }
@@ -17,7 +17,7 @@ public class FileManger
         return fileType.GetCommands();
     }
 
-    public void ChangeFIleType(IFileType fileType)
+    public void ChangeFileType(IFileType fileType)
     {
         this.fileType = fileType;
     }
