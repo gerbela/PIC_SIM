@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net8.0-windows</TargetFramework>
     <RootNamespace>Main_Plugin</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Pic_Simulator\Pic_Simulator.csproj" />
+	  <ProjectReference Include="..\Pic_Simulator\Pic_Simulator.csproj"/>
   </ItemGroup>
 
 </Project>
