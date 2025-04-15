@@ -293,6 +293,23 @@ namespace Pic_Simulator
                 }
             }
         }
+        private void SetupRegisterGrid(DataTable table, DataGrid grid, string[] columnNames, int bank, int address)
+        {
+            table.Columns.Clear();
+            foreach (string columnName in columnNames)
+            {
+                table.Columns.Add(columnName, typeof(int));
+            }
+            DataRow row = table.NewRow();
+            int k = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                row[k] = Command.GetSelectedBit(wpfController.command.ram[bank, address], i);
+                k++;
+            }
+            table.Rows.Add(row);
+            grid.ItemsSource = table.DefaultView;
+        }
         private void PrintRaRb()
         {
 
@@ -337,11 +354,11 @@ namespace Pic_Simulator
             }
 
             DataRow rowRB = tableRB.NewRow();
-            int k = 0; 
+            int k = 0;
             for (int i = 7; i >= 0; i--)
             {
                 rowRB[k] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 6], i).ToString();
-                k++; 
+                k++;
             }
             tableRB.Rows.Add(rowRB);
 
@@ -350,14 +367,14 @@ namespace Pic_Simulator
             for (int i = 7; i >= 0; i--)
             {
                 int value = Command.GetSelectedBit(wpfController.command.ram[1, 6], i);
-                if(value == 0)
+                if (value == 0)
                 {
                     rowTrisRB[k] = "o";
                 }
                 else
                 {
                     rowTrisRB[k] = "i";
-                }                
+                }
                 k++;
             }
             tableRB.Rows.Add(rowTrisRB);
@@ -382,74 +399,20 @@ namespace Pic_Simulator
 
         private void PrintSTR()
         {
-
-            tableSTR.Columns.Add("IRP", typeof(int));
-            tableSTR.Columns.Add("RP1", typeof(int));
-            tableSTR.Columns.Add("RP0" , typeof(int));
-            tableSTR.Columns.Add("TO", typeof(int));
-            tableSTR.Columns.Add("PD", typeof(int));
-            tableSTR.Columns.Add("Z", typeof(int));
-            tableSTR.Columns.Add("D", typeof(int));
-            tableSTR.Columns.Add("C", typeof(int));
-
-
-            DataRow row = tableSTR.NewRow();
-            int k = 0;
-            for (int i = 7; i >= 0; i--)
-            {
-                row[k] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 3], i);
-                k++;
-            }
-            tableSTR.Rows.Add(row);
-            STRGrid.ItemsSource = tableSTR.DefaultView;
+            string[] strColumns = new string[] { "IRP", "RP1", "RP0", "TO", "PD", "Z", "D", "C" };
+            SetupRegisterGrid(tableSTR, STRGrid, strColumns, wpfController.command.bank, 3);
         }
 
         private void PrintINTCON()
         {
-
-            tableIntCon.Columns.Add("GIE", typeof(int));
-            tableIntCon.Columns.Add("EEIE", typeof(int));
-            tableIntCon.Columns.Add("T0IE", typeof(int));
-            tableIntCon.Columns.Add("INTE", typeof(int));
-            tableIntCon.Columns.Add("RBIE", typeof(int));
-            tableIntCon.Columns.Add("T0IF", typeof(int));
-            tableIntCon.Columns.Add("INTF", typeof(int));
-            tableIntCon.Columns.Add("RBIF", typeof(int));
-
-
-            DataRow row = tableIntCon.NewRow();
-            int k = 0;
-            for (int i = 7; i >= 0; i--)
-            {
-                row[k] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 11], i);
-                k++;
-            }
-            tableIntCon.Rows.Add(row);
-            INTCONGrid.ItemsSource = tableIntCon.DefaultView;
+            string[] intconColumns = new string[] { "GIE", "EEIE", "T0IE", "INTE", "RBIE", "T0IF", "INTF", "RBIF" };
+            SetupRegisterGrid(tableIntCon, INTCONGrid, intconColumns, 0, 11);
         }
 
         private void PrintOption()
         {
-
-            tableOption.Columns.Add("RBPU", typeof(int));
-            tableOption.Columns.Add("INTEDG", typeof(int));
-            tableOption.Columns.Add("T0CS", typeof(int));
-            tableOption.Columns.Add("T0SE", typeof(int));
-            tableOption.Columns.Add("PSA", typeof(int));
-            tableOption.Columns.Add("PS2", typeof(int));
-            tableOption.Columns.Add("PS1", typeof(int));
-            tableOption.Columns.Add("PS0", typeof(int));
-
-
-            DataRow row = tableOption.NewRow();
-            int k = 0;
-            for (int i = 7; i >= 0; i--)
-            {
-                row[k] = Command.GetSelectedBit(wpfController.command.ram[1, 1], i);
-                k++;
-            }
-            tableOption.Rows.Add(row);
-            OptionGrid.ItemsSource = tableOption.DefaultView;
+            string[] optionColumns = new string[] { "RBPU", "INTEDG", "T0CS", "T0SE", "PSA", "PS2", "PS1", "PS0" };
+            SetupRegisterGrid(tableOption, OptionGrid, optionColumns, 1, 1);
         }
 
         private void PrintRam()
