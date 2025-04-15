@@ -65,90 +65,45 @@ namespace Pic_Simulator
 
 
         }
-        void selectedCellsChangedRA(object sender, RoutedEventArgs e)
+        private void HandleCellSelectionChanged(object sender, RoutedEventArgs e, DataGrid grid, DataTable table, int bank, int address)
         {
-            int rowIndex = RAGrid.Items.IndexOf(RAGrid.CurrentItem);
-            int colIndex = RAGrid.CurrentCell.Column.DisplayIndex;
-            string storageVal = (string)tableRA.Rows[rowIndex][colIndex];
-            int cellValue = Convert.ToInt32(storageVal);  
-            tableRA.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-            
-            if (cellValue == 0)
+            int rowIndex = grid.Items.IndexOf(grid.CurrentItem);
+            int colIndex = grid.CurrentCell.Column.DisplayIndex;
+            int cellValue;
+            if (table.Rows[rowIndex][colIndex] is string)
             {
-               newBit = 1;
-            }           
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[wpfController.command.bank, 5], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[wpfController.command.bank, 5] = ramBit;
-            refreshUI();
-        }
-
-        private void selectedCellsChangedSTR(object sender, RoutedEventArgs e) {
-            int rowIndex = STRGrid.Items.IndexOf(STRGrid.CurrentItem);
-            int colIndex = STRGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableSTR.Rows[rowIndex][colIndex];  
-            tableSTR.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-
-            if (cellValue == 0)
-            {
-                newBit = 1;
+                cellValue = Convert.ToInt32((string)table.Rows[rowIndex][colIndex]);
             }
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[wpfController.command.bank, 3], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[wpfController.command.bank, 3] = ramBit;
+            else
+            {
+                cellValue = (int)table.Rows[rowIndex][colIndex];
+            }
+            int newValue = (cellValue == 0) ? 1 : 0;
+            table.Rows[rowIndex][colIndex] = newValue;
+            int newBit = (cellValue == 0) ? 1 : 0;
+            int ramBit = Command.SetSelectedBit(wpfController.command.ram[bank, address], Math.Abs(colIndex - 7), newBit);
+            wpfController.command.ram[bank, address] = ramBit;
             refreshUI();
-
         }
-
+        private void selectedCellsChangedRA(object sender, RoutedEventArgs e)
+        {
+            HandleCellSelectionChanged(sender, e, RAGrid, tableRA, wpfController.command.bank, 5);
+        }
+        private void selectedCellsChangedSTR(object sender, RoutedEventArgs e)
+        {
+            HandleCellSelectionChanged(sender, e, STRGrid, tableSTR, wpfController.command.bank, 3);
+        }
         private void selectedCellsChangedINTCON(object sender, RoutedEventArgs e)
         {
-            int rowIndex = INTCONGrid.Items.IndexOf(INTCONGrid.CurrentItem);
-            int colIndex = INTCONGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableIntCon.Rows[rowIndex][colIndex];
-            tableIntCon.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-
-            if (cellValue == 0)
-            {
-                newBit = 1;
-            }
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[0, 11], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[0, 11] = ramBit;
-            refreshUI();
+            HandleCellSelectionChanged(sender, e, INTCONGrid, tableIntCon, 0, 11);
         }
-
         private void selectedCellsChangedOption(object sender, RoutedEventArgs e)
         {
-            int rowIndex = OptionGrid.Items.IndexOf(OptionGrid.CurrentItem);
-            int colIndex = OptionGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableOption.Rows[rowIndex][colIndex];
-            tableOption.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-
-            if (cellValue == 0)
-            {
-                newBit = 1;
-            }
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[1, 1], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[1, 1] = ramBit;
-            refreshUI();
+            HandleCellSelectionChanged(sender, e, OptionGrid, tableOption, 1, 1);
         }
-
-        void selectedCellsChangedRB(object sender, RoutedEventArgs e)
+        private void selectedCellsChangedRB(object sender, RoutedEventArgs e)
         {
-            int rowIndex = RBGrid.Items.IndexOf(RBGrid.CurrentItem);
-            int colIndex = RBGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = Convert.ToInt32((string)tableRB.Rows[rowIndex][colIndex]);
-            tableRB.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-
-            if (cellValue == 0)
-            {
-                newBit = 1;
-            }
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[wpfController.command.bank, 6], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[wpfController.command.bank, 6] = ramBit;
-            refreshUI();
+            HandleCellSelectionChanged(sender, e, RBGrid, tableRB, wpfController.command.bank, 6);
         }
 
         private void RefreshRegister(DataTable table, DataGrid grid, int bank, int address, int rowIndex = 0)
