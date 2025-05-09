@@ -5,14 +5,14 @@ using System.Windows.Media;
 public class WPFController
 {
     public Command command;
-    public LST_File lst_file;
+    public WPF_Filemanager lst_file;
     public IOutputController outputController;
 
     public WPFController(IOutputController outputController)
     {
         this.outputController = outputController;
         command = new Command(outputController);
-        lst_file = new LST_File();
+        lst_file = new WPF_Filemanager();
     }
 
     public int CallRoutine(int address, StackPanel stack)
@@ -20,7 +20,6 @@ public class WPFController
         ClearMarker(stack);
         List<string> panelLines = StackpanelToList(stack);
         int steps = command.CALL(address, panelLines);
-        //outputController.JumpToLine(address);
         return steps;
     }
 
@@ -127,7 +126,7 @@ public class WPFController
 
             if (breakpoints.Count != 0)
             {
-                TextColor color = LST_File.SwitchColor();
+                TextColor color = WPF_Filemanager.SwitchColor();
                 text.Background = GetTextColor(color);
                 
             }

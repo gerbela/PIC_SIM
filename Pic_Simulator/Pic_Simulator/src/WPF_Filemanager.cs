@@ -2,6 +2,7 @@
 using Pic_Simulator;
 using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks.Sources;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -15,7 +16,7 @@ public enum TextColor
     OrangeRed,
     LightGreen
 }
-public class LST_File : IOutputController
+public class WPF_Filemanager : IOutputController
 {
     public static IFileType filetype = new LST_File1();
     public static FileManger manager = new(filetype);
@@ -24,8 +25,9 @@ public class LST_File : IOutputController
     static int startPos;
     public static int pos = 0;
     public static  Dictionary<int, TextColor> breakpoints = new Dictionary<int, TextColor>();
+    public event Action? OnFileLoaded;
 
-    public static bool LoadFile(StackPanel stack, ScrollViewer codeScroller)
+    public bool LoadFile(StackPanel stack, ScrollViewer codeScroller)
     {
         var dialog = new Microsoft.Win32.OpenFileDialog();
         dialog.DefaultExt = ".lst";
@@ -69,6 +71,7 @@ public class LST_File : IOutputController
             loadedFile = true;
             pos = 0;
             Setup(stack, codeScroller);
+            OnFileLoaded?.Invoke();
             return true;
         }
         return false;

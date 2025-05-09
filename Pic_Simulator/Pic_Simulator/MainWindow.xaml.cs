@@ -25,22 +25,38 @@ namespace Pic_Simulator
         double runTime = 0;
         private DispatcherTimer timer;
         bool run = false;
-        public WPFController wpfController;
-        LST_File file = new LST_File();
+        WPFController wpfController;
 
-        public MainWindow()
+        public MainWindow(WPFController wpfController)
         {
-            wpfController = new WPFController(file);
+            this.wpfController = wpfController;
             InitializeComponent();
-            wpfController.command.startUpRam();  
             PrintRam();
             PrintRaRb();
             PrintSTR();
             PrintOption();
             PrintINTCON();
             PrintStack();
+            RegisterOnFileLoadedRoutine();
         }
 
+        public void RegisterOnFileLoadedRoutine()
+        {
+            wpfController.lst_file.OnFileLoaded += () =>
+            {
+                refreshUI();
+                resetLEDs();
+            };
+        }
+
+        public void UnregisterOnFileLoadedRoutine()
+        {
+            wpfController.lst_file.OnFileLoaded -= () =>
+            {
+                refreshUI();
+                resetLEDs();
+            };
+        }
         private void refreshUI()
         {
             PrintRam();
@@ -54,13 +70,11 @@ namespace Pic_Simulator
         
         private void LoadFile(object sender, RoutedEventArgs e)
         {
-            bool loading_sucess = LST_File.LoadFile(Stack, CodeScroller);
+            bool loading_sucess = wpfController.lst_file.LoadFile(Stack, CodeScroller);
             if (!loading_sucess) return;
             wpfController.ResetControllerRoutine(Stack);
-            refreshUI();
-            resetLEDs();
-
-
+            //refreshUI();
+            //resetLEDs();
         }
         void selectedCellsChangedRA(object sender, RoutedEventArgs e)
         {
@@ -237,11 +251,11 @@ namespace Pic_Simulator
         private void Run(object sender, EventArgs e)
         {
             bool breakpointactive = false; 
-            foreach (var breakpoint in LST_File.breakpoints)
+            foreach (var breakpoint in WPF_Filemanager.breakpoints)
             {
                 
                 int lineIndex = breakpoint.Key;
-                if (LST_File.pos == lineIndex)
+                if (WPF_Filemanager.pos == lineIndex)
                 {
                     breakpointactive = true;                 
                 }
@@ -256,18 +270,18 @@ namespace Pic_Simulator
 
         private void OneStep(object sender, RoutedEventArgs e)
         {
-            if (!LST_File.loadedFile) return;
-            if (LST_File.pos >= LST_File.fileSize) return;
-            if (LST_File.CheckCommand(Stack) == false)
+            if (!WPF_Filemanager.loadedFile) return;
+            if (WPF_Filemanager.pos >= WPF_Filemanager.fileSize) return;
+            if (WPF_Filemanager.CheckCommand(Stack) == false)
             {
-                LST_File.MarkLine(Stack, CodeScroller);
+                WPF_Filemanager.MarkLine(Stack, CodeScroller);
                 return;
             };
             if(!Command.sleepModus)
             {
                 int command = Fetch();
                 if (!Decode(command)) return;
-                if(!Command.sleepModus)LST_File.MarkLine(Stack, CodeScroller);
+                if(!Command.sleepModus)WPF_Filemanager.MarkLine(Stack, CodeScroller);
                 wpfController.command.EEPROM();
             } 
             Result.Text = "";

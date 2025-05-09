@@ -9,24 +9,18 @@ namespace Testing
 {
     public class TestLST_File1
     {
-
-        //private Mock<IOutputController> mock;
-
+        private Mock<IFileType> output = new();
         [Fact]
-        public void Test_LoadFile()
+        public void Test_GetCommands()
         {
-            //Arrange
-            LST_File1 test = new LST_File1();
-            List<string> lstFile = new List<string>
-            {
-                "0000 5011",
-                "0001 2010",
-                "0002 4030",
-                "0003 2010"
-            };
+            var filetype = new Mock<IFileType>();
+            List<int> commands = new List<int> { 0, 1, 2, 3 };
+            filetype.Setup(x => x.GetCommands()).Returns(commands);
+            FileManger manager = new FileManger(filetype.Object);
 
-            List<String> result = test.LoadFile(lstFile);
-            Assert.Equal(lstFile, result);
+            List<int> result = manager.GetCommands();
+
+            Assert.Equal(commands, result);
         }
     }
 }

@@ -111,7 +111,6 @@ public class Command
     {
         if (callPosition == 8)
         {
-            //MessageBox.Show("Some text", "Stack overflow", MessageBoxButton.OK, MessageBoxImage.Error);
             return -1;
         }
         callStack[callPosition] = ram[bank, 2] - 1;
