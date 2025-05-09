@@ -1,39 +1,5 @@
 ﻿
-using Microsoft.Win32;
-using System.Diagnostics.Metrics;
-public class LST_File1 : IFileType
+public class LST_File1 : FileTypeBase
 {
-    private List<int> commands = new List<int>();
-    public List<string> LoadFile(List<string> lstFile)
-    {
-        int counter = 0x0000;
-        List<string> formattedOutput = new List<string>();
-        foreach (string s in lstFile)
-        {
-            string firstFour = s.Substring(0, 4);
-            if (s.Substring(0, 4) == "    ")
-            {
-                formattedOutput.Add( "        " + s);
-                continue;
-            }
-            else
-            {
-                firstFour = "0x" + firstFour;
-                int value = Convert.ToInt32(firstFour, 16);
-                string command = "0x" + s.Substring(5, 4);
-                if (value == counter)
-                {
-                    commands.Add(Convert.ToInt32(command, 16));
-                    formattedOutput.Add(s);
-                    counter++;
-                }
-            }
-        }
-        return formattedOutput;
-    }
-
-    public List<int> GetCommands()
-    { 
-        return commands; 
-    }
+    
 }

@@ -19,7 +19,7 @@ public enum TextColor
 public class WPF_Filemanager : IOutputController
 {
     public static IFileType filetype = new LST_File1();
-    public static FileManger manager = new(filetype);
+    public static FileManager manager = new(filetype);
     public static bool loadedFile = false;
     public static int fileSize;
     static int startPos;

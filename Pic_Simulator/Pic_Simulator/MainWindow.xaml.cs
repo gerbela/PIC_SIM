@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 
@@ -60,10 +61,12 @@ namespace Pic_Simulator
         private void refreshUI()
         {
             PrintRam();
-            refreshRAB();
-            refreshSTR();
-            refreshIntCon();
-            refreshOption();
+            RefreshRegister(tableRA, RAGrid, wpfController.command.bank, 5, 0);
+            RefreshRegister(tableRB, RBGrid, wpfController.command.bank, 6, 0);
+            UpdateTrisValues();
+            RefreshRegister(tableSTR, STRGrid, wpfController.command.bank, 3);
+            RefreshRegister(tableIntCon, INTCONGrid, 0, 11);
+            RefreshRegister(tableOption, OptionGrid, 1, 1);
             refreshStack();
             lightLEDs();
         }
@@ -76,126 +79,69 @@ namespace Pic_Simulator
             //refreshUI();
             //resetLEDs();
         }
-        void selectedCellsChangedRA(object sender, RoutedEventArgs e)
+        private void HandleCellSelectionChanged(object sender, RoutedEventArgs e, DataGrid grid, DataTable table, int bank, int address)
         {
-            int rowIndex = RAGrid.Items.IndexOf(RAGrid.CurrentItem);
-            int colIndex = RAGrid.CurrentCell.Column.DisplayIndex;
-            string storageVal = (string)tableRA.Rows[rowIndex][colIndex];
-            int cellValue = Convert.ToInt32(storageVal);  
-            tableRA.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-            
-            if (cellValue == 0)
+            int rowIndex = grid.Items.IndexOf(grid.CurrentItem);
+            int colIndex = grid.CurrentCell.Column.DisplayIndex;
+            int cellValue;
+            if (table.Rows[rowIndex][colIndex] is string)
             {
-               newBit = 1;
-            }           
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[wpfController.command.bank, 5], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[wpfController.command.bank, 5] = ramBit;
-            refreshUI();
-        }
-
-        private void selectedCellsChangedSTR(object sender, RoutedEventArgs e) {
-            int rowIndex = STRGrid.Items.IndexOf(STRGrid.CurrentItem);
-            int colIndex = STRGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableSTR.Rows[rowIndex][colIndex];  
-            tableSTR.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-
-            if (cellValue == 0)
-            {
-                newBit = 1;
+                cellValue = Convert.ToInt32((string)table.Rows[rowIndex][colIndex]);
             }
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[wpfController.command.bank, 3], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[wpfController.command.bank, 3] = ramBit;
+            else
+            {
+                cellValue = (int)table.Rows[rowIndex][colIndex];
+            }
+            int newValue = (cellValue == 0) ? 1 : 0;
+            table.Rows[rowIndex][colIndex] = newValue;
+            int newBit = (cellValue == 0) ? 1 : 0;
+            int ramBit = Command.SetSelectedBit(wpfController.command.ram[bank, address], Math.Abs(colIndex - 7), newBit);
+            wpfController.command.ram[bank, address] = ramBit;
             refreshUI();
-
         }
-
+        private void selectedCellsChangedRA(object sender, RoutedEventArgs e)
+        {
+            HandleCellSelectionChanged(sender, e, RAGrid, tableRA, wpfController.command.bank, 5);
+        }
+        private void selectedCellsChangedSTR(object sender, RoutedEventArgs e)
+        {
+            HandleCellSelectionChanged(sender, e, STRGrid, tableSTR, wpfController.command.bank, 3);
+        }
         private void selectedCellsChangedINTCON(object sender, RoutedEventArgs e)
         {
-            int rowIndex = INTCONGrid.Items.IndexOf(INTCONGrid.CurrentItem);
-            int colIndex = INTCONGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableIntCon.Rows[rowIndex][colIndex];
-            tableIntCon.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-
-            if (cellValue == 0)
-            {
-                newBit = 1;
-            }
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[0, 11], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[0, 11] = ramBit;
-            refreshUI();
+            HandleCellSelectionChanged(sender, e, INTCONGrid, tableIntCon, 0, 11);
         }
-
         private void selectedCellsChangedOption(object sender, RoutedEventArgs e)
         {
-            int rowIndex = OptionGrid.Items.IndexOf(OptionGrid.CurrentItem);
-            int colIndex = OptionGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = (int)tableOption.Rows[rowIndex][colIndex];
-            tableOption.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-
-            if (cellValue == 0)
-            {
-                newBit = 1;
-            }
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[1, 1], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[1, 1] = ramBit;
-            refreshUI();
+            HandleCellSelectionChanged(sender, e, OptionGrid, tableOption, 1, 1);
         }
-
-        void selectedCellsChangedRB(object sender, RoutedEventArgs e)
+        private void selectedCellsChangedRB(object sender, RoutedEventArgs e)
         {
-            int rowIndex = RBGrid.Items.IndexOf(RBGrid.CurrentItem);
-            int colIndex = RBGrid.CurrentCell.Column.DisplayIndex;
-            int cellValue = Convert.ToInt32((string)tableRB.Rows[rowIndex][colIndex]);
-            tableRB.Rows[rowIndex][colIndex] = (cellValue == 0) ? 1 : 0;
-            int newBit = 0;
-
-            if (cellValue == 0)
-            {
-                newBit = 1;
-            }
-            int ramBit = Command.SetSelectedBit(wpfController.command.ram[wpfController.command.bank, 6], Math.Abs(colIndex - 7), newBit);
-            wpfController.command.ram[wpfController.command.bank, 6] = ramBit;
-            refreshUI();
+            HandleCellSelectionChanged(sender, e, RBGrid, tableRB, wpfController.command.bank, 6);
         }
-        private void refreshRAB()
+
+        private void RefreshRegister(DataTable table, DataGrid grid, int bank, int address, int rowIndex = 0)
         {
             for (int i = 7; i >= 0; i--)
             {
-                tableRA.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[0, 5], Math.Abs(i-7)).ToString() ;
-                tableRB.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[0, 6], Math.Abs(i - 7)).ToString();
-                int trisA =  Command.GetSelectedBit(wpfController.command.ram[1, 5], Math.Abs(i - 7));
-                if(trisA == 0)
-                {
-                    tableRA.Rows[1][i] = "o"; 
-                }else
-                {
-                    tableRA.Rows[1][i] = "i";
-                }
+                table.Rows[rowIndex][i] = Command.GetSelectedBit(wpfController.command.ram[bank, address], Math.Abs(i - 7));
+            }
+            grid.ItemsSource = table.DefaultView;
+        }
+
+        private void UpdateTrisValues()
+        {
+            for (int i = 7; i >= 0; i--)
+            {
+                // Update TRIS values for RA
+                int trisA = Command.GetSelectedBit(wpfController.command.ram[1, 5], Math.Abs(i - 7));
+                tableRA.Rows[1][i] = trisA == 0 ? "o" : "i";
+
+                // Update TRIS values for RB
                 int trisB = Command.GetSelectedBit(wpfController.command.ram[1, 6], Math.Abs(i - 7));
-                if (trisB == 0)
-                {
-                    tableRB.Rows[1][i] = "o";
-                }
-                else
-                {
-                    tableRB.Rows[1][i] = "i";
-                }
+                tableRB.Rows[1][i] = trisB == 0 ? "o" : "i";
             }
         }
-
-        private void refreshSTR()
-        {
-            for (int i = 7; i >= 0; i--)
-            {
-                tableSTR.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 3], Math.Abs(i - 7));
-                
-            }
-        }
-
         private void refreshStack()
         {
             for (int i = 0; i < 8; i++)
@@ -204,26 +150,7 @@ namespace Pic_Simulator
 
             }
             CallPos.Text = wpfController.command.callPosition.ToString();
-        }
-
-        private void refreshIntCon()
-        {
-            for (int i = 7; i >= 0; i--)
-            {
-                tableIntCon.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[0, 11], Math.Abs(i - 7));
-
-            }
-        }
-
-        private void refreshOption()
-        {
-            for (int i = 7; i >= 0; i--)
-            {
-                tableOption.Rows[0][i] = Command.GetSelectedBit(wpfController.command.ram[1, 1], Math.Abs(i - 7));
-
-            }
-        }
-
+        }  
         private void RunButton(object sender, RoutedEventArgs e)
         {
             
@@ -308,112 +235,50 @@ namespace Pic_Simulator
             LEDSeven.Fill = new SolidColorBrush(Colors.LightGray);
             LEDEight.Fill = new SolidColorBrush(Colors.LightGray);
         }
-        
         private void lightLEDs()
         {
-            int port = 6; // this can be changed weather its PortA or PortB, needs to implemented later
-
-            
-            int intValue= wpfController.command.ram[wpfController.command.bank, port]; 
-
-            for(int i = 0; i < 8; i++)
+            int port = 6; 
+            int intValue = wpfController.command.ram[wpfController.command.bank, port];
+            int isOutputValue = wpfController.command.ram[1, port];
+            // Create a dictionary mapping indices to LED UI elements
+            var leds = new Dictionary<int, System.Windows.Shapes.Ellipse>
             {
-                int LED = Command.GetSelectedBit(intValue, i); 
-                int isOutputValue = wpfController.command.ram[1, port];
-                int LEDisOutput = Command.GetSelectedBit(isOutputValue, i);
-                if(LEDisOutput == 0)
+                { 0, LEDOne },
+                { 1, LEDOTwo },
+                { 2, LEDThree },
+                { 3, LEDFour },
+                { 4, LEDFive },
+                { 5, LEDSix },
+                { 6, LEDSeven },
+                { 7, LEDEight }
+            };
+            for (int i = 0; i < 8; i++)
+            {
+                int ledBit = Command.GetSelectedBit(intValue, i);
+                int isTrisOutput = Command.GetSelectedBit(isOutputValue, i);
+                if (isTrisOutput == 0) 
                 {
-                    switch (i)
-                    {
-                        case 0:
-                            if (LED == 0)
-                            {
-                                LEDOne.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDOne.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 1:
-                            if (LED == 0)
-                            {
-                                LEDOTwo.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDOTwo.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 2:
-                            if (LED == 0)
-                            {
-                                LEDThree.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDThree.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 3:
-                            if (LED == 0)
-                            {
-                                LEDFour.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDFour.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 4:
-                            if (LED == 0)
-                            {
-                                LEDFive.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDFive.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 5:
-                            if (LED == 0)
-                            {
-                                LEDSix.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDSix.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 6:
-                            if (LED == 0)
-                            {
-                                LEDSeven.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDSeven.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-                        case 7:
-                            if (LED == 0)
-                            {
-                                LEDEight.Fill = new SolidColorBrush(Colors.LightGray);
-                            }
-                            else
-                            {
-                                LEDEight.Fill = new SolidColorBrush(Colors.Red);
-                            }
-                            break;
-
-
-                    }
+                    leds[i].Fill = new SolidColorBrush(ledBit == 1 ? Colors.Red : Colors.LightGray);
                 }
-                
             }
-
         }
-
+        private void SetupRegisterGrid(DataTable table, DataGrid grid, string[] columnNames, int bank, int address)
+        {
+            table.Columns.Clear();
+            foreach (string columnName in columnNames)
+            {
+                table.Columns.Add(columnName, typeof(int));
+            }
+            DataRow row = table.NewRow();
+            int k = 0;
+            for (int i = 7; i >= 0; i--)
+            {
+                row[k] = Command.GetSelectedBit(wpfController.command.ram[bank, address], i);
+                k++;
+            }
+            table.Rows.Add(row);
+            grid.ItemsSource = table.DefaultView;
+        }
         private void PrintRaRb()
         {
 
@@ -458,11 +323,11 @@ namespace Pic_Simulator
             }
 
             DataRow rowRB = tableRB.NewRow();
-            int k = 0; 
+            int k = 0;
             for (int i = 7; i >= 0; i--)
             {
                 rowRB[k] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 6], i).ToString();
-                k++; 
+                k++;
             }
             tableRB.Rows.Add(rowRB);
 
@@ -471,14 +336,14 @@ namespace Pic_Simulator
             for (int i = 7; i >= 0; i--)
             {
                 int value = Command.GetSelectedBit(wpfController.command.ram[1, 6], i);
-                if(value == 0)
+                if (value == 0)
                 {
                     rowTrisRB[k] = "o";
                 }
                 else
                 {
                     rowTrisRB[k] = "i";
-                }                
+                }
                 k++;
             }
             tableRB.Rows.Add(rowTrisRB);
@@ -503,74 +368,20 @@ namespace Pic_Simulator
 
         private void PrintSTR()
         {
-
-            tableSTR.Columns.Add("IRP", typeof(int));
-            tableSTR.Columns.Add("RP1", typeof(int));
-            tableSTR.Columns.Add("RP0" , typeof(int));
-            tableSTR.Columns.Add("TO", typeof(int));
-            tableSTR.Columns.Add("PD", typeof(int));
-            tableSTR.Columns.Add("Z", typeof(int));
-            tableSTR.Columns.Add("D", typeof(int));
-            tableSTR.Columns.Add("C", typeof(int));
-
-
-            DataRow row = tableSTR.NewRow();
-            int k = 0;
-            for (int i = 7; i >= 0; i--)
-            {
-                row[k] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 3], i);
-                k++;
-            }
-            tableSTR.Rows.Add(row);
-            STRGrid.ItemsSource = tableSTR.DefaultView;
+            string[] strColumns = new string[] { "IRP", "RP1", "RP0", "TO", "PD", "Z", "D", "C" };
+            SetupRegisterGrid(tableSTR, STRGrid, strColumns, wpfController.command.bank, 3);
         }
 
         private void PrintINTCON()
         {
-
-            tableIntCon.Columns.Add("GIE", typeof(int));
-            tableIntCon.Columns.Add("EEIE", typeof(int));
-            tableIntCon.Columns.Add("T0IE", typeof(int));
-            tableIntCon.Columns.Add("INTE", typeof(int));
-            tableIntCon.Columns.Add("RBIE", typeof(int));
-            tableIntCon.Columns.Add("T0IF", typeof(int));
-            tableIntCon.Columns.Add("INTF", typeof(int));
-            tableIntCon.Columns.Add("RBIF", typeof(int));
-
-
-            DataRow row = tableIntCon.NewRow();
-            int k = 0;
-            for (int i = 7; i >= 0; i--)
-            {
-                row[k] = Command.GetSelectedBit(wpfController.command.ram[wpfController.command.bank, 11], i);
-                k++;
-            }
-            tableIntCon.Rows.Add(row);
-            INTCONGrid.ItemsSource = tableIntCon.DefaultView;
+            string[] intconColumns = new string[] { "GIE", "EEIE", "T0IE", "INTE", "RBIE", "T0IF", "INTF", "RBIF" };
+            SetupRegisterGrid(tableIntCon, INTCONGrid, intconColumns, 0, 11);
         }
 
         private void PrintOption()
         {
-
-            tableOption.Columns.Add("RBPU", typeof(int));
-            tableOption.Columns.Add("INTEDG", typeof(int));
-            tableOption.Columns.Add("T0CS", typeof(int));
-            tableOption.Columns.Add("T0SE", typeof(int));
-            tableOption.Columns.Add("PSA", typeof(int));
-            tableOption.Columns.Add("PS2", typeof(int));
-            tableOption.Columns.Add("PS1", typeof(int));
-            tableOption.Columns.Add("PS0", typeof(int));
-
-
-            DataRow row = tableOption.NewRow();
-            int k = 0;
-            for (int i = 7; i >= 0; i--)
-            {
-                row[k] = Command.GetSelectedBit(wpfController.command.ram[1, 1], i);
-                k++;
-            }
-            tableOption.Rows.Add(row);
-            OptionGrid.ItemsSource = tableOption.DefaultView;
+            string[] optionColumns = new string[] { "RBPU", "INTEDG", "T0CS", "T0SE", "PSA", "PS2", "PS1", "PS0" };
+            SetupRegisterGrid(tableOption, OptionGrid, optionColumns, 1, 1);
         }
 
         private void PrintRam()
@@ -846,13 +657,7 @@ namespace Pic_Simulator
         private void resetButton_Click(object sender, RoutedEventArgs e)
         {
             wpfController.ResetControllerRoutine(Stack);
-            PrintRam();
-            refreshRAB();
-            refreshSTR();
-            refreshIntCon();
-            refreshOption();
-            refreshStack();
-            lightLEDs();
+            refreshUI();
         }
     }
 }
